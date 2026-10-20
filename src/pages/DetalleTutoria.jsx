@@ -90,6 +90,15 @@ export default function DetalleTutoria() {
 function AccionReservar({ tutoria }) {
   const { usuario } = useAuth();
 
+  // El dueño va primero: aunque esté inactiva o sin horarios, puede ir a gestionarla
+  if (usuario && tutoria.id_tutor === usuario.id) {
+    return (
+      <>
+        <Aviso>Esta es una de sus tutorías: no puede reservarla.</Aviso>
+        <Link to={`/tutor/tutorias/${tutoria.id}`} className="btn-secundario w-full">Gestionar esta tutoría</Link>
+      </>
+    );
+  }
   if (tutoria.id_estado !== ESTADO.ACTIVO) {
     return <Aviso>No disponible: el tutor desactivó esta tutoría.</Aviso>;
   }
@@ -108,9 +117,6 @@ function AccionReservar({ tutoria }) {
   }
   if (!ROLES_QUE_RESERVAN.includes(usuario.id_rol)) {
     return <Aviso>Los administradores no realizan reservas.</Aviso>;
-  }
-  if (tutoria.id_tutor === usuario.id) {
-    return <Aviso>Esta es una de sus tutorías: no puede reservarla.</Aviso>;
   }
   return (
     <>

@@ -4,16 +4,19 @@ import { useAuth } from "../context/AuthContext.jsx";
 import { NOMBRE_ROL, ROL } from "../utils/constantes.js";
 
 // Enlaces del menú según el rol. null = visitante sin sesión.
-// (Los enlaces del tutor para gestionar sus tutorías se agregan con el panel del tutor.)
 const ENLACES = {
   invitado: [{ a: "/tutorias", texto: "Tutorías" }],
   [ROL.ESTUDIANTE]: [
     { a: "/tutorias", texto: "Tutorías" },
     { a: "/mis-reservas", texto: "Mi agenda" },
   ],
+  // El tutor también reserva tutorías de otros, por eso tiene "Mi agenda" además de su panel
   [ROL.TUTOR]: [
     { a: "/tutorias", texto: "Tutorías" },
     { a: "/mis-reservas", texto: "Mi agenda" },
+    { a: "/tutor/materias", texto: "Mis materias" },
+    { a: "/tutor/tutorias", texto: "Mis tutorías" },
+    { a: "/tutor/reservas", texto: "Agenda de tutorías" },
   ],
   // El administrador no reserva; su panel (materias y recursos) es la última prioridad
   [ROL.ADMINISTRADOR]: [{ a: "/tutorias", texto: "Tutorías" }],
@@ -74,13 +77,13 @@ export default function BarraNavegacion() {
         </Link>
 
         {/* Escritorio */}
-        <nav className="hidden flex-1 items-center gap-1 md:flex">{navegacion}</nav>
-        <div className="hidden items-center gap-2 md:flex">{cuenta}</div>
+        <nav className="hidden flex-1 items-center gap-1 lg:flex">{navegacion}</nav>
+        <div className="hidden items-center gap-2 lg:flex">{cuenta}</div>
 
         {/* Móvil: botón de menú */}
         <button
           type="button"
-          className="rounded-md p-2 text-white/80 hover:bg-white/10 md:hidden"
+          className="rounded-md p-2 text-white/80 hover:bg-white/10 lg:hidden"
           onClick={() => setMenuAbierto((abierto) => !abierto)}
           aria-expanded={menuAbierto}
           aria-label="Abrir menú"
@@ -92,7 +95,7 @@ export default function BarraNavegacion() {
       </div>
 
       {menuAbierto && (
-        <div className="border-t border-white/10 px-4 pb-4 md:hidden">
+        <div className="border-t border-white/10 px-4 pb-4 lg:hidden">
           <nav className="flex flex-col gap-1 py-2">{navegacion}</nav>
           <div className="flex flex-wrap items-center gap-2 border-t border-white/10 pt-3">{cuenta}</div>
         </div>

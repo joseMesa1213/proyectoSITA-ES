@@ -9,7 +9,12 @@ import DetalleTutoria from "./pages/DetalleTutoria.jsx";
 import Reservar from "./pages/Reservar.jsx";
 import MisReservas from "./pages/MisReservas.jsx";
 import NoEncontrada from "./pages/NoEncontrada.jsx";
-import { ROLES_QUE_RESERVAN } from "./utils/constantes.js";
+import MisMaterias from "./pages/tutor/MisMaterias.jsx";
+import MisTutorias from "./pages/tutor/MisTutorias.jsx";
+import NuevaTutoria from "./pages/tutor/NuevaTutoria.jsx";
+import GestionTutoria from "./pages/tutor/GestionTutoria.jsx";
+import AgendaTutorias from "./pages/tutor/AgendaTutorias.jsx";
+import { ROL, ROLES_QUE_RESERVAN } from "./utils/constantes.js";
 
 // Mapa de rutas de la aplicación
 export default function App() {
@@ -32,6 +37,15 @@ export default function App() {
         <Route element={<RutaProtegida roles={ROLES_QUE_RESERVAN} />}>
           <Route path="tutorias/:id/reservar" element={<Reservar />} />
           <Route path="mis-reservas" element={<MisReservas />} />
+        </Route>
+
+        {/* Panel del tutor */}
+        <Route path="tutor" element={<RutaProtegida roles={[ROL.TUTOR]} />}>
+          <Route path="materias" element={<MisMaterias />} />
+          <Route path="tutorias" element={<MisTutorias />} />
+          <Route path="tutorias/nueva" element={<NuevaTutoria />} />
+          <Route path="tutorias/:id" element={<GestionTutoria />} />
+          <Route path="reservas" element={<AgendaTutorias />} />
         </Route>
 
         <Route path="*" element={<NoEncontrada />} />
