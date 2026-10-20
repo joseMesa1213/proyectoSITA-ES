@@ -14,12 +14,9 @@ const ENLACES = {
   [ROL.TUTOR]: [
     { a: "/tutorias", texto: "Tutorías" },
     { a: "/tutor/tutorias", texto: "Mis tutorías" },
-    { a: "/tutor/reservas", texto: "Reservas recibidas" },
+    { a: "/tutor/reservas", texto: "Agenda de tutorías" },
     { a: "/tutor/materias", texto: "Mis materias" },
     { a: "/mis-reservas", texto: "Mi agenda" },
-    { a: "/tutor/materias", texto: "Mis materias" },
-    { a: "/tutor/tutorias", texto: "Mis tutorías" },
-    { a: "/tutor/reservas", texto: "Agenda de tutorías" },
   ],
   // El administrador no reserva: gestiona los catálogos que usan tutores y estudiantes
   [ROL.ADMINISTRADOR]: [
