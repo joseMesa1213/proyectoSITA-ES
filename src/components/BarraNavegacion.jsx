@@ -4,19 +4,26 @@ import { useAuth } from "../context/AuthContext.jsx";
 import { NOMBRE_ROL, ROL } from "../utils/constantes.js";
 
 // Enlaces del menú según el rol. null = visitante sin sesión.
-// (Los enlaces del tutor para gestionar sus tutorías se agregan con el panel del tutor.)
 const ENLACES = {
   invitado: [{ a: "/tutorias", texto: "Tutorías" }],
   [ROL.ESTUDIANTE]: [
     { a: "/tutorias", texto: "Tutorías" },
     { a: "/mis-reservas", texto: "Mi agenda" },
   ],
+  // El tutor también reserva tutorías de otros, por eso conserva "Mi agenda"
   [ROL.TUTOR]: [
     { a: "/tutorias", texto: "Tutorías" },
+    { a: "/tutor/tutorias", texto: "Mis tutorías" },
+    { a: "/tutor/reservas", texto: "Reservas recibidas" },
+    { a: "/tutor/materias", texto: "Mis materias" },
     { a: "/mis-reservas", texto: "Mi agenda" },
   ],
-  // El administrador no reserva; su panel (materias y recursos) es la última prioridad
-  [ROL.ADMINISTRADOR]: [{ a: "/tutorias", texto: "Tutorías" }],
+  // El administrador no reserva: gestiona los catálogos que usan tutores y estudiantes
+  [ROL.ADMINISTRADOR]: [
+    { a: "/tutorias", texto: "Tutorías" },
+    { a: "/admin/materias", texto: "Materias" },
+    { a: "/admin/recursos", texto: "Recursos" },
+  ],
 };
 
 const claseEnlace = ({ isActive }) =>
