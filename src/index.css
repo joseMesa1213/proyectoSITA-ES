@@ -1,0 +1,43 @@
+@import "tailwindcss";
+
+/* Paleta de SITA-ES. Tailwind genera clases a partir de estos nombres:
+   bg-bosque, text-bosque, border-acento, bg-peligro/10, etc. */
+@theme {
+  --color-bosque: #10241d; /* principal: barra, títulos y botones */
+  --color-bosque-claro: #1f3d32; /* hover de los botones principales */
+  --color-crema: #f5f3ec; /* fondo general */
+  --color-exito: #2e7d57; /* estados positivos */
+  --color-acento: #d9822b; /* solo acentos (etiquetas, estrellas, bordes); no como texto */
+  --color-peligro: #b42318; /* errores y cancelaciones */
+}
+
+body {
+  @apply bg-crema text-bosque antialiased;
+}
+
+/* Componentes reutilizables (@utility permite usarlos como clase y dentro de @apply):
+   así cada pantalla no repite la misma lista de clases */
+@utility tarjeta {
+  @apply rounded-xl border border-bosque/10 bg-white p-5 shadow-sm;
+}
+@utility btn {
+  @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-50;
+}
+@utility btn-primario {
+  @apply btn bg-bosque text-white hover:bg-bosque-claro;
+}
+@utility btn-secundario {
+  @apply btn border border-bosque/25 bg-white text-bosque hover:bg-bosque/5;
+}
+@utility btn-peligro {
+  @apply btn border border-peligro/40 bg-white text-peligro hover:bg-peligro/5;
+}
+@utility etiqueta {
+  @apply mb-1 block text-sm font-medium text-bosque;
+}
+@utility campo {
+  @apply w-full rounded-lg border border-bosque/20 bg-white px-3 py-2 text-sm text-bosque placeholder:text-bosque/40 focus:border-bosque focus:ring-2 focus:ring-acento/40 focus:outline-none;
+}
+@utility insignia {
+  @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium;
+}
