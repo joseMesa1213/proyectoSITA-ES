@@ -13,13 +13,20 @@ const ENLACES = {
   // El tutor también reserva tutorías de otros, por eso tiene "Mi agenda" además de su panel
   [ROL.TUTOR]: [
     { a: "/tutorias", texto: "Tutorías" },
+    { a: "/tutor/tutorias", texto: "Mis tutorías" },
+    { a: "/tutor/reservas", texto: "Reservas recibidas" },
+    { a: "/tutor/materias", texto: "Mis materias" },
     { a: "/mis-reservas", texto: "Mi agenda" },
     { a: "/tutor/materias", texto: "Mis materias" },
     { a: "/tutor/tutorias", texto: "Mis tutorías" },
     { a: "/tutor/reservas", texto: "Agenda de tutorías" },
   ],
-  // El administrador no reserva; su panel (materias y recursos) es la última prioridad
-  [ROL.ADMINISTRADOR]: [{ a: "/tutorias", texto: "Tutorías" }],
+  // El administrador no reserva: gestiona los catálogos que usan tutores y estudiantes
+  [ROL.ADMINISTRADOR]: [
+    { a: "/tutorias", texto: "Tutorías" },
+    { a: "/admin/materias", texto: "Materias" },
+    { a: "/admin/recursos", texto: "Recursos" },
+  ],
 };
 
 const claseEnlace = ({ isActive }) =>
