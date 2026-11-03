@@ -5,7 +5,8 @@ import { contarReservas } from "../utils/reservas.js";
 
 /**
  * Inactivar o reactivar una tutoría (PUT /tutorias/:id con id_estado).
- * Al inactivar, avisa cuántas reservas futuras activas quedan: el backend NO las cancela.
+ * Al inactivar, el backend inactiva sus horarios y cancela las reservas de sesiones que aún no empiezan
+ * (la respuesta trae reservas_canceladas).
  * onCambiada(tutoriaActualizada) recibe la respuesta; onError(error) si falla.
  */
 export default function BotonEstadoTutoria({ tutoria, reservasFuturas = 0, onCambiada, onError }) {
@@ -15,11 +16,12 @@ export default function BotonEstadoTutoria({ tutoria, reservasFuturas = 0, onCam
   const cambiar = async () => {
     const mensaje = activa
       ? `¿Inactivar «${tutoria.titulo}»?\n\nDejará de aparecer en el catálogo y nadie podrá reservarla.` +
+        "\nSus horarios se desactivan." +
         (reservasFuturas > 0
-          ? `\n\nAtención: tiene ${contarReservas(reservasFuturas)} futuras activas que NO se cancelan automáticamente. ` +
-            "Cancélelas desde la Agenda de tutorías si la sesión no se va a dictar."
+          ? `\n\nAtención: tiene ${contarReservas(reservasFuturas)} futuras activas. ` +
+            "Las de sesiones que aún no empiezan se cancelarán."
           : "")
-      : `¿Reactivar «${tutoria.titulo}»? Volverá a aparecer en el catálogo.`;
+      : `¿Reactivar «${tutoria.titulo}»? Volverá a aparecer en el catálogo; agregue horarios nuevos para que puedan reservarla.`;
     if (!window.confirm(mensaje)) return;
 
     setProcesando(true);

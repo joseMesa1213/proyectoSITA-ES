@@ -28,8 +28,11 @@ export default function MisTutorias() {
   // Activas primero; dentro de cada grupo se respeta el orden del backend (más recientes primero)
   const ordenadas = [...tutorias].sort((a, b) => (a.id_estado === ESTADO.ACTIVO ? 0 : 1) - (b.id_estado === ESTADO.ACTIVO ? 0 : 1));
 
-  const reemplazar = (actualizada) =>
-    setDatos({ ...datos, tutorias: tutorias.map((t) => (t.id === actualizada.id ? actualizada : t)) });
+  const reemplazar = async ({ reservas_canceladas, ...actualizada }) => {
+    // Inactivar cancela reservas en el backend: se vuelven a pedir para el conteo de próximas
+    const nuevasReservas = reservas_canceladas > 0 ? await listarReservasRecibidas().catch(() => reservas) : reservas;
+    setDatos({ ...datos, reservas: nuevasReservas, tutorias: tutorias.map((t) => (t.id === actualizada.id ? actualizada : t)) });
+  };
 
   return (
     <div className="space-y-6">

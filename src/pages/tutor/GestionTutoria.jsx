@@ -9,7 +9,7 @@ import FormularioTutoria from "../../components/FormularioTutoria.jsx";
 import HorariosTutoria from "../../components/HorariosTutoria.jsx";
 import { InsigniaEstado } from "../../components/Insignias.jsx";
 import { ESTADO } from "../../utils/constantes.js";
-import { reservasActivasFuturas } from "../../utils/reservas.js";
+import { contarReservas, reservasActivasFuturas } from "../../utils/reservas.js";
 
 // Editar una tutoría propia y administrar sus horarios.
 // Se usa GET /tutorias/mias (y no GET /tutorias/:id) porque trae también los horarios inactivos.
@@ -43,6 +43,9 @@ export default function GestionTutoria() {
     );
   }
 
+  // Tras una cancelación en cascada la lista local de reservas queda desactualizada
+  const recargarReservas = () => listarReservasRecibidas().then(setReservas).catch(setError);
+
   const activa = tutoria.id_estado === ESTADO.ACTIVO;
   const futuras = reservasActivasFuturas(reservas, (r) => r.tutoria.id === tutoria.id).length;
 
@@ -52,9 +55,14 @@ export default function GestionTutoria() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const cambioDeEstado = (actualizada) => {
+  const cambioDeEstado = ({ reservas_canceladas, ...actualizada }) => {
     setTutoria(actualizada);
-    setAviso(actualizada.id_estado === ESTADO.ACTIVO ? "Tutoría reactivada." : "Tutoría inactivada.");
+    setAviso(
+      actualizada.id_estado === ESTADO.ACTIVO
+        ? "Tutoría reactivada. Agregue horarios para que puedan reservarla."
+        : `Tutoría inactivada.${reservas_canceladas > 0 ? ` Se cancelaron ${contarReservas(reservas_canceladas)}.` : ""}`
+    );
+    if (reservas_canceladas > 0) recargarReservas();
   };
 
   return (
@@ -81,7 +89,10 @@ export default function GestionTutoria() {
 
       <section className="tarjeta space-y-3">
         <h2 className="text-lg font-semibold">Horarios semanales</h2>
-        <HorariosTutoria tutoria={tutoria} reservas={reservas} onCambio={(horarios) => setTutoria({ ...tutoria, horarios })} />
+        <HorariosTutoria tutoria={tutoria} reservas={reservas} onCambio={(horarios, canceladas) => {
+          setTutoria({ ...tutoria, horarios });
+          if (canceladas > 0) recargarReservas();
+        }} />
       </section>
 
       <section className="tarjeta space-y-3">

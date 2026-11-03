@@ -181,7 +181,7 @@ function FilaRecurso({ recurso, tipos, onActualizado }) {
   };
 
   const alternarEstado = () => {
-    if (activo && !window.confirm(`¿Desactivar "${recurso.nombre}"? No se podrá elegir en nuevas reservas; las existentes se mantienen.`)) return;
+    if (activo && !window.confirm(`¿Desactivar "${recurso.nombre}"? No se podrá asignar a horarios nuevos. Si algún horario activo lo usa, no se podrá desactivar.`)) return;
     ejecutar({ id_estado: activo ? ESTADO.INACTIVO : ESTADO.ACTIVO });
   };
 
