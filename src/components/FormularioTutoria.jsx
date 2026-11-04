@@ -30,7 +30,8 @@ export default function FormularioTutoria({ tutoria, materias = [], reservasActi
 
   const cambiar = (e) => setFormulario({ ...formulario, [e.target.name]: e.target.value });
 
-  // Cambiar modalidad o cupo no afecta las reservas que ya existen: se advierte al tutor
+  // El backend rechaza (409) un cupo menor a las reservas de una sesión futura o mayor a la capacidad
+  // del salón, y una modalidad incompatible con los recursos de los horarios: se advierte al tutor
   const cambiaModalidad = editando && formulario.modalidad !== tutoria.modalidad;
   const cambiaCupo = editando && Number(formulario.cupo) !== tutoria.cupo;
   const advertir = reservasActivas > 0 && (cambiaModalidad || cambiaCupo);
@@ -38,7 +39,7 @@ export default function FormularioTutoria({ tutoria, materias = [], reservasActi
   const enviar = async (evento) => {
     evento.preventDefault();
     if (advertir && !window.confirm(
-      `Hay ${contarReservas(reservasActivas)} activas que no se modifican con este cambio. ¿Guardar de todos modos?`
+      `Hay ${contarReservas(reservasActivas)} activas. Si el cambio no es compatible con ellas no se guardará. ¿Continuar?`
     )) return;
 
     setError(null);
@@ -102,9 +103,8 @@ export default function FormularioTutoria({ tutoria, materias = [], reservasActi
       {advertir && (
         <Alerta>
           Esta tutoría tiene {contarReservas(reservasActivas)} activas.{" "}
-          {cambiaModalidad && "Si cambia la modalidad, esas reservas conservan el salón o enlace que eligieron. "}
-          {cambiaCupo && "Si baja el cupo, las reservas que ya existen no se cancelan. "}
-          Revise la Agenda de tutorías después de guardar.
+          {cambiaModalidad && "La nueva modalidad debe ser compatible con el salón o enlace de sus horarios activos. "}
+          {cambiaCupo && "El cupo no puede quedar por debajo de las reservas de una sesión ni superar la capacidad del salón. "}
         </Alerta>
       )}
 
