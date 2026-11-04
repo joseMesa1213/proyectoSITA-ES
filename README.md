@@ -19,21 +19,16 @@ Estructura de `src/`:
 - `components/`: piezas reutilizables (barra de navegación, rutas protegidas, alertas, tarjetas).
 - `pages/`: una pantalla por ruta.
 - `utils/`: constantes de roles/estados y manejo de fechas en America/Bogota.
+- `asistente/`: lógica del Asistente SITA (ver abajo).
 
-## Pendientes del backend
+## Asistente SITA
 
-Riesgos encontrados al construir el panel del tutor. El frontend los mitiga con avisos, pero la regla debería vivir en el backend.
+Chat guiado (botón flotante en todas las páginas) que responde preguntas frecuentes y busca tutorías por materia.
+No usa IA ni servicios externos: no tiene costo por uso.
 
-1. **Inactivar una tutoría no cancela sus reservas activas futuras** (`PUT /tutorias/:id` con `id_estado: 2`).
-   Los estudiantes siguen viendo la reserva como activa en su agenda.
-   *Frontend:* la confirmación indica cuántas reservas futuras activas quedan y sugiere cancelarlas desde la Agenda de tutorías.
-   *Propuesta:* cancelarlas en la misma transacción, o rechazar con 409 si existen.
-2. **Cambiar la modalidad o bajar el cupo no valida las reservas existentes** (`PUT /tutorias/:id`).
-   Si una tutoría pasa de Presencial a Virtual, sus reservas conservan un recurso Físico; si el cupo baja por debajo
-   de las reservas activas de una sesión, ninguna se cancela.
-   *Frontend:* advertencia y confirmación al guardar si la tutoría tiene reservas activas.
-   *Propuesta:* rechazar con 409 el cambio de modalidad o un cupo menor que las reservas activas de alguna sesión futura.
-3. **Se puede completar una sesión de hoy antes de que termine** (`PATCH /reservas/:id/completar`).
-   El backend solo valida `fecha_sesion <= hoy`, no la hora.
-   *Frontend:* el botón "Completar" aparece solo cuando ya pasó la hora de fin de la sesión.
-   *Propuesta:* validar también `hora_fin <= hora actual` cuando la fecha es hoy (zona America/Bogota).
+- `asistente/intenciones.js`: catálogo de preguntas por rol (frases de ejemplo y respuesta). **Para agregar una pregunta, agregar un objeto aquí.**
+- `asistente/motor.js`: entiende el texto con búsqueda difusa ([Fuse.js](https://www.fusejs.io/)): tolera tildes y errores de escritura ("kalkulo" → Cálculo).
+- `components/Asistente.jsx`: la ventana del chat.
+
+Solo orienta y consulta con los endpoints existentes; las acciones (reservar, cancelar, calificar) se hacen en sus pantallas,
+así todas las reglas de negocio siguen en el backend.

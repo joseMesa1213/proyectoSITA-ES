@@ -1,7 +1,9 @@
 import { Outlet } from "react-router";
+import Asistente from "./Asistente.jsx";
 import BarraNavegacion from "./BarraNavegacion.jsx";
 
 // Estructura común a todas las páginas: barra arriba, contenido al centro, pie abajo
+// y el asistente flotante en la esquina
 export default function Layout() {
   return (
     <div className="flex min-h-screen flex-col">
@@ -12,6 +14,7 @@ export default function Layout() {
       <footer className="border-t border-bosque/10 py-4 text-center text-xs text-bosque/60">
         SITA-ES · Proyecto Integrador I · Universidad de Antioquia
       </footer>
+      <Asistente />
     </div>
   );
 }

@@ -1,6 +1,6 @@
 import { pedir } from "./cliente.js";
 
-// Estudiante o tutor. datos: { id_horario, id_recurso, fecha_sesion: "YYYY-MM-DD" }
+// Estudiante o tutor. datos: { id_horario, fecha_sesion: "YYYY-MM-DD" } (el recurso sale del horario)
 export const crearReserva = (datos) => pedir("/reservas", { metodo: "POST", cuerpo: datos });
 export const listarMisReservas = () => pedir("/reservas/mias");
 export const cancelarReserva = (id) => pedir(`/reservas/${id}/cancelar`, { metodo: "PATCH" });
