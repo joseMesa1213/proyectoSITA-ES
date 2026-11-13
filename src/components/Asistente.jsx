@@ -17,9 +17,12 @@ function Chat({ usuario }) {
   const [mensajes, setMensajes] = useState(() => [{ id: 0, de: "bot", ...saludo(usuario) }]);
   const [texto, setTexto] = useState("");
   const [pensando, setPensando] = useState(false);
+  // Texto que el lector de pantalla anuncia: solo la respuesta nueva, no todo el historial
+  const [anuncio, setAnuncio] = useState("");
   const siguienteId = useRef(1);
   const finDeLista = useRef(null);
   const campo = useRef(null);
+  const botonFlotante = useRef(null);
 
   const agregar = (mensaje) => setMensajes((lista) => [...lista, { id: siguienteId.current++, ...mensaje }]);
 
@@ -27,8 +30,16 @@ function Chat({ usuario }) {
   const conversar = async (textoUsuario, obtenerRespuesta) => {
     agregar({ de: "usuario", texto: textoUsuario });
     setPensando(true);
-    agregar({ de: "bot", ...(await obtenerRespuesta()) });
+    const respuesta = await obtenerRespuesta();
+    agregar({ de: "bot", ...respuesta });
+    setAnuncio(respuesta.texto);
     setPensando(false);
+  };
+
+  // Al cerrar con la X o con Escape, el foco vuelve al botón flotante (si no, se pierde)
+  const cerrar = () => {
+    setAbierto(false);
+    botonFlotante.current?.focus();
   };
 
   const enviar = (evento) => {
@@ -52,8 +63,13 @@ function Chat({ usuario }) {
 
   useEffect(() => {
     if (!abierto) return;
-    campo.current?.focus();
-    const cerrarConEscape = (evento) => evento.key === "Escape" && setAbierto(false);
+    // En el celular no se enfoca el campo: el teclado taparía el menú apenas se abre el chat
+    if (window.matchMedia("(min-width: 640px)").matches) campo.current?.focus();
+    const cerrarConEscape = (evento) => {
+      if (evento.key !== "Escape") return;
+      setAbierto(false);
+      botonFlotante.current?.focus();
+    };
     window.addEventListener("keydown", cerrarConEscape);
     return () => window.removeEventListener("keydown", cerrarConEscape);
   }, [abierto]);
@@ -61,14 +77,14 @@ function Chat({ usuario }) {
   return (
     <>
       {abierto && (
-        <section role="dialog" aria-label="Asistente SITA"
+        <section role="dialog" aria-labelledby="titulo-asistente"
           className="fixed right-4 bottom-22 z-50 flex h-[min(34rem,calc(100dvh-7rem))] w-[calc(100vw-2rem)] max-w-sm flex-col overflow-hidden rounded-xl border border-bosque/10 bg-white shadow-xl">
           <header className="flex items-center justify-between bg-bosque px-4 py-3 text-white">
             <div>
-              <p className="font-semibold">Asistente SITA</p>
+              <h2 id="titulo-asistente" className="font-semibold">Asistente SITA</h2>
               <p className="text-xs text-white/70">Respuestas al instante sobre la plataforma</p>
             </div>
-            <button type="button" onClick={() => setAbierto(false)} aria-label="Cerrar asistente"
+            <button type="button" onClick={cerrar} aria-label="Cerrar asistente"
               className="rounded-md p-1.5 text-white/80 hover:bg-white/10 hover:text-white">
               <svg viewBox="0 0 24 24" className="size-5" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M6 6l12 12M18 6L6 18" />
@@ -76,7 +92,10 @@ function Chat({ usuario }) {
             </button>
           </header>
 
-          <ul className="flex-1 space-y-3 overflow-y-auto bg-crema/60 px-4 py-4" aria-live="polite">
+          {/* Región oculta: el lector de pantalla lee cada respuesta nueva una sola vez */}
+          <p className="sr-only" aria-live="polite">{anuncio}</p>
+
+          <ul className="flex-1 space-y-3 overflow-y-auto bg-crema/60 px-4 py-4">
             {mensajes.map((m) => (
               <Mensaje key={m.id} mensaje={m} opciones={m.menu ? opcionesMenu(usuario) : []}
                 onElegir={elegir} onNavegar={alNavegar} deshabilitado={pensando} />
@@ -92,7 +111,8 @@ function Chat({ usuario }) {
 
           <form onSubmit={enviar} className="flex items-center gap-2 border-t border-bosque/10 p-3">
             <label htmlFor="pregunta-asistente" className="sr-only">Escriba su pregunta</label>
-            <input id="pregunta-asistente" ref={campo} className="campo" placeholder="Ej.: tutorías de cálculo"
+            {/* 16 px en el celular: con menos, el iPhone hace zoom al tocar el campo */}
+            <input id="pregunta-asistente" ref={campo} className="campo max-sm:text-base" placeholder="Ej.: cálculo virtual"
               maxLength={200} autoComplete="off" value={texto} onChange={(e) => setTexto(e.target.value)} />
             <button type="submit" className="btn-primario px-3" disabled={pensando || !texto.trim()} aria-label="Enviar">
               <svg viewBox="0 0 24 24" className="size-5" fill="none" stroke="currentColor" strokeWidth="2">
@@ -103,7 +123,7 @@ function Chat({ usuario }) {
         </section>
       )}
 
-      <button type="button" onClick={() => setAbierto((a) => !a)}
+      <button type="button" ref={botonFlotante} onClick={() => setAbierto((a) => !a)}
         aria-label={abierto ? "Cerrar asistente" : "Abrir asistente"} aria-expanded={abierto}
         className="fixed right-4 bottom-4 z-50 flex size-14 items-center justify-center rounded-full bg-bosque text-white shadow-lg ring-2 ring-acento/60 transition-colors hover:bg-bosque-claro">
         <svg viewBox="0 0 24 24" className="size-7" fill="none" stroke="currentColor" strokeWidth="2">
@@ -119,6 +139,7 @@ function Mensaje({ mensaje, opciones, onElegir, onNavegar, deshabilitado }) {
   if (mensaje.de === "usuario") {
     return (
       <li className="ml-auto w-fit max-w-[85%] rounded-lg rounded-br-sm bg-bosque px-3 py-2 text-sm text-white">
+        <span className="sr-only">Usted: </span>
         {mensaje.texto}
       </li>
     );
@@ -127,7 +148,10 @@ function Mensaje({ mensaje, opciones, onElegir, onNavegar, deshabilitado }) {
   const { texto, tarjetas = [], enlaces = [] } = mensaje;
   return (
     <li className="max-w-[92%] space-y-2">
-      <p className="rounded-lg rounded-bl-sm border border-bosque/10 bg-white px-3 py-2 text-sm whitespace-pre-line">{texto}</p>
+      <p className="rounded-lg rounded-bl-sm border border-bosque/10 bg-white px-3 py-2 text-sm whitespace-pre-line">
+        <span className="sr-only">Asistente: </span>
+        {texto}
+      </p>
 
       {tarjetas.map((t) => (
         <Link key={`${t.a}|${t.titulo}|${t.detalle}`} to={t.a} onClick={onNavegar}
@@ -152,8 +176,10 @@ function Mensaje({ mensaje, opciones, onElegir, onNavegar, deshabilitado }) {
       {opciones.length > 0 && (
         <div className="flex flex-wrap gap-2">
           {opciones.map((o) => (
+            // En el celular los botones son más altos (~40 px) para tocarlos con el dedo
             <button key={o.id} type="button" onClick={() => onElegir(o)} disabled={deshabilitado}
-              className="rounded-full border border-bosque/20 bg-white px-3 py-1 text-left text-xs font-medium hover:bg-bosque/5 disabled:opacity-50">
+              className="rounded-full border border-bosque/20 bg-white px-3 py-2 text-left text-sm font-medium hover:bg-bosque/5 disabled:opacity-50 sm:py-1 sm:text-xs">
+              {o.icono && <span aria-hidden="true">{o.icono} </span>}
               {o.etiqueta}
             </button>
           ))}
