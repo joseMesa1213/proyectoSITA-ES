@@ -1,141 +1,14 @@
-import Fuse from "fuse.js";
 import { listarMaterias } from "../api/materias.js";
 import { listarTutorias } from "../api/tutorias.js";
 import { ROL } from "../utils/constantes.js";
+import { diaDeLaSemana, horaActual } from "../utils/fechas.js";
 import { intencionesDe } from "./intenciones.js";
+import { clasificar } from "./clasificador.js";
 
-// Motor del asistente: decide qué responder a un texto libre, sin IA y sin servicios externos.
-//   1. Normaliza el texto (minúsculas, sin tildes ni signos).
-//   2. Compara sus palabras, una a una y con búsqueda difusa (Fuse.js), con los nombres de las
-//      materias ("kalkulo" ≈ "calculo") y con las frases de ejemplo de las intenciones del rol.
-//   3. Gana lo que comparta más palabras; si nada se parece lo suficiente, ofrece el menú.
-
-// Fuse puntúa de 0 (idéntico) a 1 (nada que ver): por encima del umbral la palabra no cuenta
-const UMBRAL_PALABRA = 0.3;
-// Materias igual de parecidas que la mejor también se muestran ("cálculo" → Diferencial e Integral)
-const MARGEN_MATERIAS = 0.1;
-const MAX_MATERIAS = 3;
 const MAX_TARJETAS = 4;
 
-// Palabras que no distinguen una pregunta de otra
-const VACIAS = new Set([
-  "a", "al", "como", "con", "de", "del", "el", "en", "es", "esta", "este", "esto", "hay", "la", "las", "le", "lo", "los",
-  "me", "mi", "mis", "o", "para", "por", "puedo", "que", "quiero", "se", "su", "sus", "un", "una", "y", "yo",
-]);
-
-// Palabras que acompañan el nombre de la materia y no ayudan a encontrarla
-const RELLENO = new Set([
-  ...VACIAS, "tutoria", "tutorias", "monitoria", "monitorias", "tutor", "tutores", "clase", "clases", "materia",
-  "busco", "buscar", "necesito", "tienen", "alguna", "alguien", "ayuda", "ver", "favor",
-]);
-
-// "¿Cálculo   Diferencial?" → "calculo diferencial"
-export const normalizar = (texto) =>
-  texto
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, " ")
-    .trim();
-
-const palabrasSin = (texto, excluidas) => normalizar(texto).split(" ").filter((p) => p && !excluidas.has(p));
-
-// Fuse también encuentra una palabra dentro de otra ("dias" en "derivadas"): solo cuentan
-// palabras de largo parecido ("cancelo" ≈ "cancelar", "tutoria" ≈ "tutorias")
-const largoParecido = (a, b) => Math.abs(a.length - b.length) <= Math.max(2, Math.floor(a.length * 0.3));
-
-// Devuelve una función que dice qué tan parecida es una palabra a alguna del usuario
-// (puntaje de Fuse, o undefined si no se parece a ninguna). Memoriza cada palabra.
-function comparador(delUsuario) {
-  const buscador = new Fuse(delUsuario, { threshold: UMBRAL_PALABRA, ignoreLocation: true, includeScore: true });
-  const puntajes = new Map();
-  return (palabra) => {
-    if (!puntajes.has(palabra)) {
-      const parecida = buscador.search(palabra).find((r) => largoParecido(palabra, r.item));
-      puntajes.set(palabra, parecida?.score);
-    }
-    return puntajes.get(palabra);
-  };
-}
-
-const sumar = (palabras, puntaje) => palabras.reduce((suma, p) => suma + puntaje(p), 0);
-
-// Desempates: más palabras halladas → frase completa → palabras más parecidas
-const esMejor = (a, b) =>
-  a.aciertos !== b.aciertos ? a.aciertos > b.aciertos
-  : a.completa !== b.completa ? a.completa
-  : a.diferencia < b.diferencia;
-
-/**
- * Intención cuya frase de ejemplo comparte más palabras con el texto.
- * Una frase cuenta si coincide al menos la mitad de sus palabras y una de ellas es de 4 letras o más,
- * para que palabras cortas como "hoy" no decidan solas. Devuelve { intencion, aciertos, diferencia } o null.
- */
-function buscarIntencion(texto, intenciones) {
-  const delUsuario = palabrasSin(texto, VACIAS);
-  if (delUsuario.length === 0) return null;
-  const puntaje = comparador(delUsuario);
-
-  let mejor = null;
-  for (const intencion of intenciones) {
-    for (const frase of intencion.frases) {
-      const claves = palabrasSin(frase, VACIAS);
-      const halladas = claves.filter((p) => puntaje(p) !== undefined);
-      if (halladas.length * 2 < claves.length || !halladas.some((p) => p.length >= 4)) continue;
-      const candidata = {
-        intencion,
-        aciertos: halladas.length,
-        completa: halladas.length === claves.length,
-        diferencia: sumar(halladas, puntaje),
-      };
-      if (!mejor || esMejor(candidata, mejor)) mejor = candidata;
-    }
-  }
-  return mejor;
-}
-
-/**
- * Materias cuyo nombre comparte palabras (de 4 letras o más) con el texto, o cuyo código aparece exacto.
- * Devuelve [{ materia, aciertos, diferencia }] de la más a la menos parecida.
- */
-function buscarMaterias(texto, materias) {
-  const delUsuario = palabrasSin(texto, RELLENO);
-  if (delUsuario.length === 0) return [];
-  const puntaje = comparador(delUsuario);
-
-  return materias
-    .map((materia) => {
-      const halladas = palabrasSin(materia.nombre, VACIAS).filter((p) => p.length >= 4 && puntaje(p) !== undefined);
-      const porCodigo = delUsuario.includes(materia.codigo) ? 1 : 0;
-      return { materia, aciertos: halladas.length + porCodigo, diferencia: sumar(halladas, puntaje) };
-    })
-    .filter((m) => m.aciertos > 0)
-    .sort((a, b) => (esMejor(a, b) ? -1 : esMejor(b, a) ? 1 : 0));
-}
-
-/**
- * Clasifica un texto. Función pura (sin API) para poder probarla aparte.
- * Devuelve { intencion } | { materias: [...] } | {} si no entendió.
- * Gana quien comparta más palabras y, si empatan, la materia cuando se parece igual o más:
- * "tutoría de bases de datos" coincide con "tutorías" (buscar-tutoria), pero busca la materia;
- * "cómo cancelo" se parece algo a "cálculo", pero es idéntico a la frase de cancelar.
- */
-export function clasificar(texto, intenciones, materias) {
-  const intencion = buscarIntencion(texto, intenciones);
-  const [mejor, ...otras] = buscarMaterias(texto, materias);
-
-  const ganaMateria =
-    mejor && (!intencion || mejor.aciertos > intencion.aciertos ||
-      (mejor.aciertos === intencion.aciertos && mejor.diferencia <= intencion.diferencia));
-  if (ganaMateria) {
-    const parecidas = otras.filter(
-      (m) => m.aciertos === mejor.aciertos && m.diferencia <= mejor.diferencia + MARGEN_MATERIAS
-    );
-    return { materias: [mejor, ...parecidas].slice(0, MAX_MATERIAS).map((m) => m.materia) };
-  }
-  if (intencion) return { intencion: intencion.intencion };
-  return {};
-}
+// Motor del asistente: arma la RESPUESTA. Usa clasificador.js para entender el texto
+// y consulta la API (tutorías, reservas) cuando la respuesta lo necesita.
 
 // Las materias se piden una sola vez; si falla, se reintenta en la siguiente pregunta
 let materiasEnCache = null;
@@ -145,6 +18,19 @@ function cargarMaterias() {
     throw error;
   });
   return materiasEnCache;
+}
+
+// Las tutorías activas se usan para buscar temas en su título y descripción.
+// Se guardan 5 minutos para no pedirlas en cada pregunta, sin quedar desactualizadas mucho tiempo.
+const VIGENCIA_TUTORIAS = 5 * 60 * 1000;
+let tutoriasEnCache = null;
+function cargarTutorias() {
+  if (!tutoriasEnCache || Date.now() - tutoriasEnCache.desde > VIGENCIA_TUTORIAS) {
+    const promesa = listarTutorias();
+    tutoriasEnCache = { desde: Date.now(), promesa };
+    promesa.catch(() => (tutoriasEnCache = null));
+  }
+  return tutoriasEnCache.promesa;
 }
 
 // Botones del menú para el rol del usuario
@@ -164,28 +50,127 @@ const resumirHorarios = (horarios) =>
         .map((h) => `${h.dia.slice(0, 3)} ${h.hora_inicio}`)
         .join(", ") + (horarios.length > 2 ? "…" : "");
 
-async function tutoriasDe(materias, usuario) {
-  const porMateria = await Promise.all(materias.map((m) => listarTutorias({ id_materia: m.id })));
-  const tutorias = porMateria.flat();
+// --- Filtros (modalidad, nivel, día) ----------------------------------------------
 
-  if (tutorias.length === 0) {
+// "hoy" y "mañana" se convierten en el día de la semana (en Bogotá)
+const resolverDia = (dia) => (dia === "hoy" ? diaDeLaSemana(0) : dia === "manana" ? diaDeLaSemana(1) : dia);
+
+/**
+ * Deja solo las tutorías con horario ese día, y de cada una solo esos horarios.
+ * Para "hoy" se descartan las sesiones que ya empezaron.
+ */
+function filtrarPorDia(tutorias, dia) {
+  if (!dia) return tutorias;
+  const nombre = resolverDia(dia);
+  const ahora = horaActual();
+  return tutorias
+    .map((t) => ({
+      ...t,
+      horarios: t.horarios.filter((h) => h.dia === nombre && (dia !== "hoy" || h.hora_inicio > ahora)),
+    }))
+    .filter((t) => t.horarios.length > 0);
+}
+
+// Describe los filtros para la frase de respuesta, en dos partes para que suene natural:
+// "Encontré 2 tutorías{ virtuales de nivel Básico} de Cálculo{ los lunes}"
+// cantidad: para que el adjetivo concuerde ("1 tutoría virtual", "2 tutorías virtuales")
+const MODALIDAD_SINGULAR = { Virtual: "virtual", Presencial: "presencial", Híbrida: "híbrida" };
+const MODALIDAD_PLURAL = { Virtual: "virtuales", Presencial: "presenciales", Híbrida: "híbridas" };
+function describirFiltros({ modalidad, nivel, dia } = {}, cantidad = 2) {
+  const antes = [];
+  if (modalidad) antes.push((cantidad === 1 ? MODALIDAD_SINGULAR : MODALIDAD_PLURAL)[modalidad]);
+  if (nivel) antes.push(`de nivel ${nivel}`);
+  const despues = !dia ? "" : dia === "hoy" ? " para hoy" : dia === "manana" ? " para mañana" : ` los ${resolverDia(dia).toLowerCase()}`;
+  return { antes: antes.length ? ` ${antes.join(" ")}` : "", despues };
+}
+
+const hayFiltros = (filtros) => Object.keys(filtros).length > 0;
+
+// Enlace al catálogo con los mismos filtros: /tutorias?id_materia=2&modalidad=Virtual&dia=Lunes
+function enlaceCatalogo({ modalidad, nivel, dia } = {}, idMateria) {
+  const parametros = new URLSearchParams();
+  if (idMateria) parametros.set("id_materia", idMateria);
+  if (nivel) parametros.set("nivel", nivel);
+  if (modalidad) parametros.set("modalidad", modalidad);
+  if (dia) parametros.set("dia", resolverDia(dia));
+  return `/tutorias${parametros.size ? `?${parametros}` : ""}`;
+}
+
+const cumpleFiltros = (t, { modalidad, nivel } = {}) =>
+  (!modalidad || t.modalidad === modalidad) && (!nivel || t.nivel === nivel);
+
+// --- Respuestas con tutorías ---------------------------------------------------------
+
+const tarjetaTutoria = (t) => ({
+  titulo: t.titulo,
+  subtitulo: `${t.materia.nombre} · con ${t.tutor.nombre} ${t.tutor.apellido}`,
+  detalle: `${t.nivel} · ${t.modalidad} · ${resumirHorarios(t.horarios)}`,
+  a: `/tutorias/${t.id}`,
+});
+
+const contarTutorias = (n) => `${n} ${n === 1 ? "tutoría" : "tutorías"}`;
+
+/**
+ * Tutorías de esas materias (o de todas, si materias es null) que cumplen los filtros.
+ * Con una sola materia el backend filtra por id_materia; con varias ("mate") se pide el
+ * catálogo una vez y se filtra aquí, en vez de hacer una petición por materia.
+ */
+async function tutoriasDeMaterias(materias, filtros, usuario) {
+  const { nivel, modalidad } = filtros;
+  const unaMateria = materias?.length === 1 ? materias[0].id : undefined;
+  const ids = new Set(materias?.map((m) => m.id));
+  const delCatalogo = await listarTutorias({ id_materia: unaMateria, nivel, modalidad });
+  const encontradas = filtrarPorDia(delCatalogo.filter((t) => !materias || ids.has(t.materia.id)), filtros.dia);
+  const { antes, despues } = describirFiltros(filtros, encontradas.length);
+  const deQue = materias ? ` de ${materias.map((m) => m.nombre).join(", ")}` : "";
+
+  if (encontradas.length === 0) {
+    const sugerirPublicar = usuario?.id_rol === ROL.TUTOR && materias && !hayFiltros(filtros);
     return {
-      texto: `Por ahora no hay tutorías activas de ${materias.map((m) => m.nombre).join(", ")}.` +
-        (usuario?.id_rol === ROL.TUTOR ? " ¿Usted la domina? Asóciese a la materia y publique una tutoría." : " Vuelva a consultar pronto."),
-      enlaces: usuario?.id_rol === ROL.TUTOR ? [{ a: "/tutor/materias", texto: "Ir a Mis materias" }] : [],
+      texto:
+        `Por ahora no hay tutorías${antes}${deQue}${despues}.` +
+        (sugerirPublicar
+          ? " ¿Usted la domina? Asóciese a la materia y publique una tutoría."
+          : hayFiltros(filtros) ? " Pruebe sin esos filtros en el catálogo." : " Vuelva a consultar pronto."),
+      enlaces: [
+        ...(sugerirPublicar ? [{ a: "/tutor/materias", texto: "Ir a Mis materias" }] : []),
+        // Con una materia, el enlace la deja elegida (sin los demás filtros) para ver qué sí hay
+        materias?.length === 1
+          ? { a: enlaceCatalogo({}, materias[0].id), texto: `Ver ${materias[0].nombre} en el catálogo` }
+          : { a: "/tutorias", texto: "Ver todo el catálogo" },
+      ],
     };
   }
+
   // Solo se nombran y enlazan las materias que sí tienen tutorías
-  const conTutorias = materias.filter((_, i) => porMateria[i].length > 0);
+  const conTutorias = materias ? materias.filter((m) => encontradas.some((t) => t.materia.id === m.id)) : [];
   return {
-    texto: `Encontré ${tutorias.length} ${tutorias.length === 1 ? "tutoría" : "tutorías"} de ${conTutorias.map((m) => m.nombre).join(", ")}:`,
-    tarjetas: tutorias.slice(0, MAX_TARJETAS).map((t) => ({
-      titulo: t.titulo,
-      subtitulo: `${t.materia.nombre} · con ${t.tutor.nombre} ${t.tutor.apellido}`,
-      detalle: `${t.nivel} · ${t.modalidad} · ${resumirHorarios(t.horarios)}`,
-      a: `/tutorias/${t.id}`,
-    })),
-    enlaces: conTutorias.map((m) => ({ a: `/tutorias?id_materia=${m.id}`, texto: `Ver ${m.nombre} en el catálogo` })),
+    texto:
+      `Encontré ${contarTutorias(encontradas.length)}${antes}` +
+      (conTutorias.length ? ` de ${conTutorias.map((m) => m.nombre).join(", ")}` : "") + `${despues}:`,
+    tarjetas: encontradas.slice(0, MAX_TARJETAS).map(tarjetaTutoria),
+    enlaces: conTutorias.length
+      ? conTutorias.slice(0, 3).map((m) => ({ a: enlaceCatalogo(filtros, m.id), texto: `Ver ${m.nombre} en el catálogo` }))
+      : [{ a: enlaceCatalogo(filtros), texto: "Ver en el catálogo" }],
+  };
+}
+
+// Tutorías encontradas por su título o descripción ("runge kutta"): los filtros se aplican aquí
+function tutoriasPorTexto(tutorias, filtros) {
+  const encontradas = filtrarPorDia(tutorias.filter((t) => cumpleFiltros(t, filtros)), filtros.dia);
+  if (encontradas.length === 0) {
+    // "ninguna virtual" (singular)
+    const { antes, despues } = describirFiltros(filtros, 1);
+    return {
+      texto: `Encontré tutorías sobre ese tema, pero ninguna${antes}${despues}:`,
+      tarjetas: tutorias.slice(0, MAX_TARJETAS).map(tarjetaTutoria),
+    };
+  }
+  return {
+    // "Estas tutorías virtuales" (plural)
+    texto: `Estas tutorías${describirFiltros(filtros).antes} tratan ese tema${describirFiltros(filtros).despues}:`,
+    tarjetas: encontradas.slice(0, MAX_TARJETAS).map(tarjetaTutoria),
+    enlaces: [{ a: enlaceCatalogo(filtros), texto: "Ver todo el catálogo" }],
   };
 }
 
@@ -210,10 +195,15 @@ export const responderIntencion = (intencion, usuario) =>
 // Respuesta a un texto libre: { texto, tarjetas?, enlaces?, menu? }
 export const responder = (texto, usuario) =>
   sinErrores(async () => {
-    // Sin materias (backend caído) igual se pueden responder las preguntas frecuentes
-    const materias = await cargarMaterias().catch(() => []);
-    const resultado = clasificar(texto, intencionesDe(usuario), materias);
+    // Sin datos (backend caído) igual se pueden responder las preguntas frecuentes
+    const [materias, tutorias] = await Promise.all([
+      cargarMaterias().catch(() => []),
+      cargarTutorias().catch(() => []),
+    ]);
+    const resultado = clasificar(texto, intencionesDe(usuario), materias, tutorias);
     if (resultado.intencion) return responderIntencion(resultado.intencion, usuario);
-    if (resultado.materias) return tutoriasDe(resultado.materias, usuario);
+    if (resultado.materias) return tutoriasDeMaterias(resultado.materias, resultado.filtros, usuario);
+    if (resultado.tutorias) return tutoriasPorTexto(resultado.tutorias, resultado.filtros);
+    if (resultado.filtros) return tutoriasDeMaterias(null, resultado.filtros, usuario);
     return NO_ENTENDI;
   });

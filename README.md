@@ -19,7 +19,7 @@ cp .env.example .env      # VITE_API_URL=http://localhost:3000/api
 npm run dev               # http://localhost:5173 (el CORS_ORIGIN del backend local permite este puerto)
 ```
 
-Stack: React + Vite, Tailwind CSS v4 y React Router.
+Stack: React + Vite, Tailwind CSS v4, React Router y Vitest (pruebas).
 
 Estructura de `src/`:
 - `api/`: `cliente.js` (única puerta a la API: token, formato `{ ok, data | error }` y 401) y un archivo por módulo del backend.
@@ -31,15 +31,38 @@ Estructura de `src/`:
 
 ## Asistente SITA
 
-Chat guiado (botón flotante en todas las páginas) que responde preguntas frecuentes y busca tutorías por materia.
-No usa IA ni servicios externos: no tiene costo por uso.
+Chat guiado (botón flotante en todas las páginas) que responde preguntas frecuentes y busca tutorías.
+No usa IA ni servicios externos: no tiene costo por uso. Solo orienta y consulta con los endpoints existentes;
+las acciones (reservar, cancelar, calificar) se hacen en sus pantallas, así todas las reglas de negocio siguen en el backend.
 
-- `asistente/intenciones.js`: catálogo de preguntas por rol (frases de ejemplo y respuesta). **Para agregar una pregunta, agregar un objeto aquí.**
-- `asistente/motor.js`: entiende el texto con búsqueda difusa ([Fuse.js](https://www.fusejs.io/)): tolera tildes y errores de escritura ("kalkulo" → Cálculo).
-- `components/Asistente.jsx`: la ventana del chat.
+| Archivo | Qué hace |
+|---|---|
+| `asistente/clasificador.js` | Entiende el texto (función pura, sin API). Usa búsqueda difusa con [Fuse.js](https://www.fusejs.io/): tolera tildes y errores ("kalkulo" → Cálculo). |
+| `asistente/temas.js` | Diccionario tema → materia ("derivadas" → Cálculo Diferencial, "sql" → Bases de Datos, "mate" → materias de matemáticas). **Para que entienda un tema nuevo, agregar la palabra aquí.** |
+| `asistente/intenciones.js` | Preguntas frecuentes por rol (frases de ejemplo y respuesta). **Para agregar una pregunta, agregar un objeto aquí.** |
+| `asistente/motor.js` | Arma la respuesta: consulta tutorías y reservas, aplica los filtros y crea los enlaces al catálogo. |
+| `asistente/clasificador.test.js` | Pruebas: tabla de frases → resultado esperado por rol. |
+| `components/Asistente.jsx` | La ventana del chat. |
 
-Solo orienta y consulta con los endpoints existentes; las acciones (reservar, cancelar, calificar) se hacen en sus pantallas,
-así todas las reglas de negocio siguen en el backend.
+Cómo decide (`clasificar()`):
+1. Normaliza el texto y separa los **filtros**: modalidad ("virtual"), nivel ("básico") y día ("hoy", "mañana", "lunes").
+2. Busca **qué estudiar**, en orden de confianza: tema exacto del diccionario → nombre o código de la materia →
+   tema parecido → palabras del título o la descripción de las tutorías ("runge kutta").
+3. Busca la **pregunta frecuente** cuya frase de ejemplo comparte más palabras. Los verbos genéricos ("cambiar", "crear")
+   no bastan solos, y los saludos solo ganan si todo el mensaje es un saludo ("ayuda" sí; "ayuda con mate" no).
+4. Gana lo que comparta más palabras. Con filtros, la búsqueda gana salvo que se pida una definición ("¿qué es híbrida?").
+
+Los enlaces del asistente abren el catálogo con los mismos filtros: `/tutorias?id_materia=&nivel=&modalidad=&dia=`.
+
+### Pruebas
+
+```bash
+npm test             # corre las pruebas una vez
+npm run test:watch   # las vuelve a correr al guardar
+```
+
+Las materias y tutorías de las pruebas son una copia fija de la semilla del backend, así no dependen de la base de datos.
+Al cambiar el clasificador, los temas o las frases de una intención, agregar el caso a la tabla de `clasificador.test.js`.
 
 ## Despliegue (Render)
 

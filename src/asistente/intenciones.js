@@ -1,14 +1,18 @@
 import { listarMisReservas, listarReservasRecibidas } from "../api/reservas.js";
 import { ESTADO, ROL } from "../utils/constantes.js";
-import { formatearFechaCorta, hoy } from "../utils/fechas.js";
+import { diaDeLaSemana, formatearFechaCorta, hoy } from "../utils/fechas.js";
 import { contarReservas, reservasActivasFuturas } from "../utils/reservas.js";
 
 // Catálogo del asistente. Cada intención tiene:
 //   id        identificador único
+//   icono     emoji del botón (decorativo: el lector de pantalla no lo lee)
 //   etiqueta  texto del botón en el menú (sin etiqueta no aparece en el menú, solo se detecta escribiendo)
 //   roles     quién la ve; sin `roles` la ven todos. INVITADO = visitante sin sesión
 //   frases    ejemplos de cómo lo escribiría alguien (sin tildes ni mayúsculas: el motor normaliza)
-//   respuesta { texto, enlaces? }  o  responder(usuario) → Promise<respuesta> si consulta la API
+//   respuesta { texto, enlaces? }  o  responder(usuario) → respuesta (o Promise si consulta la API)
+//   cedeAFiltros  si el texto trae modalidad, nivel o día, se busca con esos filtros en vez de responder
+//                 esto ("tutorías virtuales" busca; "buscar tutoría" explica cómo buscar)
+//   conversacion  saludos y agradecimientos: solo ganan si TODO el mensaje es eso
 //
 // Para agregar una pregunta frecuente basta con agregar un objeto a INTENCIONES.
 // El asistente solo orienta: las acciones (reservar, cancelar, calificar) se hacen en sus pantallas.
@@ -31,7 +35,9 @@ export const INTENCIONES = [
   // --- Generales -------------------------------------------------------------
   {
     id: "buscar-tutoria",
-    etiqueta: "🔎 Buscar tutoría",
+    cedeAFiltros: true,
+    icono: "🔎",
+    etiqueta: "Buscar tutoría",
     frases: ["buscar tutoria", "busco tutoria", "necesito una tutoria", "quiero una tutoria", "que tutorias hay", "busco un tutor", "monitoria"],
     respuesta: {
       texto: "Escriba el nombre o el código de la materia (por ejemplo: Cálculo, Física o 2508208) y le muestro las tutorías disponibles.",
@@ -40,7 +46,8 @@ export const INTENCIONES = [
   },
   {
     id: "como-funciona",
-    etiqueta: "❓ ¿Cómo funciona SITA-ES?",
+    icono: "❓",
+    etiqueta: "¿Cómo funciona SITA-ES?",
     frases: ["como funciona", "que es sita", "que es esto", "para que sirve", "como se usa la plataforma"],
     respuesta: {
       texto:
@@ -53,14 +60,14 @@ export const INTENCIONES = [
   },
   {
     id: "registro",
-    etiqueta: "📝 ¿Cómo me registro?",
+    icono: "📝",
+    etiqueta: "¿Cómo me registro?",
     roles: [INVITADO],
-    frases: ["como me registro", "crear cuenta", "registrarme", "no tengo cuenta", "como inicio sesion", "olvide mi contrasena"],
+    frases: ["como me registro", "crear cuenta", "registrarme", "no tengo cuenta", "como inicio sesion"],
     respuesta: {
       texto:
         "Regístrese con su correo institucional y elija si entra como Estudiante o como Tutor. " +
-        "Con la cuenta creada ya puede reservar. Si ya tiene cuenta, inicie sesión. " +
-        "Si olvidó su contraseña, comuníquese con la coordinación: la plataforma aún no tiene recuperación de contraseña.",
+        "Con la cuenta creada ya puede reservar. Si ya tiene cuenta, inicie sesión.",
       enlaces: [
         { a: "/registro", texto: "Registrarme" },
         { a: "/login", texto: "Iniciar sesión" },
@@ -69,7 +76,8 @@ export const INTENCIONES = [
   },
   {
     id: "ser-tutor",
-    etiqueta: "🎓 ¿Cómo ser tutor?",
+    icono: "🎓",
+    etiqueta: "¿Cómo ser tutor?",
     roles: [INVITADO, ROL.ESTUDIANTE],
     frases: ["como ser tutor", "quiero ser tutor", "quiero dar tutorias", "puedo ser monitor", "ensenar una materia"],
     respuesta: {
@@ -83,7 +91,8 @@ export const INTENCIONES = [
   },
   {
     id: "modalidades",
-    frases: ["que es hibrida", "modalidad virtual", "modalidad presencial", "diferencia entre presencial y virtual", "niveles de tutoria"],
+    cedeAFiltros: true,
+    frases: ["que es hibrida", "modalidad virtual", "modalidad presencial", "diferencia entre presencial y virtual", "niveles de tutoria", "que modalidades hay"],
     respuesta: {
       texto:
         "Modalidades:\n• Presencial: en un salón de la universidad.\n• Virtual: por un enlace de reunión.\n• Híbrida: puede usar salón o enlace.\n" +
@@ -92,10 +101,47 @@ export const INTENCIONES = [
     },
   },
 
+  {
+    id: "horarios",
+    cedeAFiltros: true,
+    frases: ["que horarios hay", "horarios disponibles", "a que hora son las tutorias", "horarios de las tutorias", "cuando hay tutorias"],
+    responder: () => ({
+      texto:
+        "Cada tutoría tiene sus propios horarios semanales (por ejemplo, lunes de 10:00 a 12:00). " +
+        "Escríbame la materia y el día, por ejemplo «cálculo el martes» o «qué hay hoy», y le muestro las opciones.",
+      enlaces: [
+        { a: `/tutorias?dia=${encodeURIComponent(diaDeLaSemana())}`, texto: "Ver tutorías de hoy" },
+        { a: "/tutorias", texto: "Ver todo el catálogo" },
+      ],
+    }),
+  },
+  {
+    id: "mejor-tutor",
+    frases: ["quien es el mejor tutor", "mejor tutor", "tutor recomendado", "mejores tutorias", "tutoria mejor calificada", "que tutor me recomiendas"],
+    respuesta: {
+      texto:
+        "No tengo un ranking de tutores, pero cada tutoría muestra su promedio de estrellas y los comentarios " +
+        "de quienes ya asistieron. Ábrala desde el catálogo y revise «Valoraciones» antes de reservar.",
+      enlaces: [{ a: "/tutorias", texto: "Ver el catálogo" }],
+    },
+  },
+  {
+    // Para todos los roles: el backend no tiene cambio ni recuperación de contraseña
+    id: "contrasena",
+    frases: ["olvide mi contrasena", "como cambio mi contrasena", "cambiar contrasena", "recuperar contrasena", "restablecer contrasena", "cambiar la clave", "olvide la clave"],
+    responder: (usuario) => ({
+      texto:
+        "Por ahora SITA-ES no permite cambiar ni recuperar la contraseña desde la plataforma. " +
+        "Escríbale a la coordinación desde su correo institucional para que se la restablezcan.",
+      enlaces: usuario ? [] : [{ a: "/login", texto: "Iniciar sesión" }],
+    }),
+  },
+
   // --- Quienes reservan (estudiante y tutor) ---------------------------------
   {
     id: "mis-reservas",
-    etiqueta: "📅 Mis próximas reservas",
+    icono: "📅",
+    etiqueta: "Mis próximas reservas",
     roles: QUIENES_RESERVAN,
     frases: ["mis reservas", "mis proximas reservas", "que tutorias tengo", "cuando es mi tutoria", "mi agenda", "donde es mi tutoria", "enlace de la reunion"],
     async responder() {
@@ -115,7 +161,8 @@ export const INTENCIONES = [
   },
   {
     id: "como-reservar",
-    etiqueta: "🗓️ ¿Cómo reservo?",
+    icono: "🗓️",
+    etiqueta: "¿Cómo reservo?",
     roles: [INVITADO, ...QUIENES_RESERVAN],
     frases: ["como reservo", "como hago una reserva", "reservar un cupo", "quiero reservar", "apartar cupo"],
     respuesta: {
@@ -129,7 +176,8 @@ export const INTENCIONES = [
   },
   {
     id: "no-pude-reservar",
-    etiqueta: "⚠️ ¿Por qué no pude reservar?",
+    icono: "⚠️",
+    etiqueta: "¿Por qué no pude reservar?",
     roles: QUIENES_RESERVAN,
     frases: ["no pude reservar", "no me deja reservar", "error al reservar", "por que no puedo reservar", "sin cupo", "no hay cupo"],
     respuesta: {
@@ -144,7 +192,8 @@ export const INTENCIONES = [
   },
   {
     id: "como-cancelar",
-    etiqueta: "✖️ ¿Cómo cancelo?",
+    icono: "✖️",
+    etiqueta: "¿Cómo cancelo?",
     roles: QUIENES_RESERVAN,
     frases: ["como cancelo", "cancelar reserva", "no puedo ir a la tutoria", "anular reserva", "no voy a asistir"],
     respuesta: {
@@ -170,7 +219,8 @@ export const INTENCIONES = [
   },
   {
     id: "por-calificar",
-    etiqueta: "⭐ ¿Qué me falta calificar?",
+    icono: "⭐",
+    etiqueta: "¿Qué me falta calificar?",
     roles: QUIENES_RESERVAN,
     frases: ["como califico", "calificar tutoria", "valorar sesion", "dejar comentario", "que me falta calificar", "estrellas"],
     async responder() {
@@ -194,7 +244,8 @@ export const INTENCIONES = [
   // --- Tutor -----------------------------------------------------------------
   {
     id: "agenda-hoy",
-    etiqueta: "👥 Mi agenda de hoy",
+    icono: "👥",
+    etiqueta: "Mi agenda de hoy",
     roles: [ROL.TUTOR],
     frases: ["agenda de hoy", "quien viene hoy", "mis sesiones de hoy", "tutorias que doy hoy", "estudiantes inscritos"],
     async responder() {
@@ -226,7 +277,8 @@ export const INTENCIONES = [
   },
   {
     id: "publicar-tutoria",
-    etiqueta: "➕ ¿Cómo publico una tutoría?",
+    icono: "➕",
+    etiqueta: "¿Cómo publico una tutoría?",
     roles: [ROL.TUTOR],
     frases: ["como publico una tutoria", "crear tutoria", "nueva tutoria", "ofrecer tutoria", "agregar horario", "asociar materia"],
     respuesta: {
@@ -242,7 +294,8 @@ export const INTENCIONES = [
   },
   {
     id: "error-horario",
-    etiqueta: "⚠️ ¿Por qué no me deja crear el horario?",
+    icono: "⚠️",
+    etiqueta: "¿Por qué no me deja crear el horario?",
     roles: [ROL.TUTOR],
     frases: ["no me deja crear el horario", "error al agregar horario", "horario se cruza", "salon ocupado", "capacidad del salon", "recurso no compatible"],
     respuesta: {
@@ -281,7 +334,8 @@ export const INTENCIONES = [
   // --- Administrador ---------------------------------------------------------
   {
     id: "admin-materias",
-    etiqueta: "📚 ¿Cómo gestiono materias?",
+    icono: "📚",
+    etiqueta: "¿Cómo gestiono materias?",
     roles: [ROL.ADMINISTRADOR],
     frases: ["crear materia", "nueva materia", "editar materia", "codigo de materia"],
     respuesta: {
@@ -291,7 +345,8 @@ export const INTENCIONES = [
   },
   {
     id: "admin-recursos",
-    etiqueta: "🏫 ¿Cómo gestiono recursos?",
+    icono: "🏫",
+    etiqueta: "¿Cómo gestiono recursos?",
     roles: [ROL.ADMINISTRADOR],
     frases: ["crear recurso", "nuevo salon", "agregar enlace", "inactivar recurso", "no puedo inactivar el salon", "capacidad del recurso"],
     respuesta: {
@@ -303,18 +358,49 @@ export const INTENCIONES = [
     },
   },
 
+  {
+    id: "admin-rol",
+    roles: [ROL.ADMINISTRADOR],
+    frases: ["como cambio el rol de un usuario", "cambiar rol", "convertir estudiante en tutor", "asignar rol", "hacer administrador a un usuario"],
+    respuesta: {
+      texto:
+        "Todavía no hay una pantalla para cambiar roles. Se hace en la base de datos:\n" +
+        "1. En Supabase (Table Editor) o en Prisma Studio (npm run db:studio) abra la tabla tbl_usuario.\n" +
+        "2. Busque al usuario por su correo y cambie id_rol: 1 Estudiante, 2 Tutor, 3 Administrador.\n" +
+        "3. Pídale que cierre sesión y vuelva a entrar: el rol viaja dentro del token de la sesión.",
+    },
+  },
+
   // --- Conversación ----------------------------------------------------------
   {
     id: "saludo",
+    conversacion: true,
     frases: ["hola", "buenos dias", "buenas tardes", "buenas noches", "hey", "ayuda", "menu"],
     respuesta: { texto: "¡Hola! Estas son algunas cosas en las que puedo ayudarle:", menu: true },
   },
   {
     id: "gracias",
+    conversacion: true,
     frases: ["gracias", "muchas gracias", "listo", "perfecto", "ok gracias", "chao"],
     respuesta: { texto: "¡Con gusto! Si necesita algo más, aquí estoy. 🎓" },
   },
 ];
+
+// Visitante sin sesión: las preguntas sobre SUS reservas se responden pidiendo iniciar sesión.
+// Las frases se toman de esas intenciones, así una pregunta nueva de ese tipo queda cubierta sola.
+const REQUIEREN_SESION = ["mis-reservas", "no-pude-reservar", "como-cancelar", "reserva-cancelada", "por-calificar"];
+INTENCIONES.push({
+  id: "requiere-sesion",
+  roles: [INVITADO],
+  frases: INTENCIONES.filter((i) => REQUIEREN_SESION.includes(i.id)).flatMap((i) => i.frases),
+  respuesta: {
+    texto: "Para ver o gestionar sus reservas necesita iniciar sesión. Si aún no tiene cuenta, regístrese gratis.",
+    enlaces: [
+      { a: "/login", texto: "Iniciar sesión" },
+      { a: "/registro", texto: "Registrarme" },
+    ],
+  },
+});
 
 // Intenciones que puede usar el usuario actual (null = visitante)
 export const intencionesDe = (usuario) => {

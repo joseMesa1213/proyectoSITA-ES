@@ -70,3 +70,10 @@ export const formatearMarcaDeTiempo = (iso) =>
   new Intl.DateTimeFormat("es-CO", { dateStyle: "medium", timeZone: ZONA_HORARIA }).format(new Date(iso));
 
 export const esHoy = (texto) => texto === hoy();
+
+// Día de la semana de hoy (o dentro de `dias` días) en Bogotá: "Lunes"…"Domingo"
+export const diaDeLaSemana = (dias = 0) => {
+  const fecha = textoAFecha(hoy());
+  fecha.setUTCDate(fecha.getUTCDate() + dias);
+  return DIAS[fecha.getUTCDay()];
+};

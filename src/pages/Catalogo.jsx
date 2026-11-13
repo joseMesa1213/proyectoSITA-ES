@@ -7,19 +7,20 @@ import Alerta from "../components/Alerta.jsx";
 import Cargando from "../components/Cargando.jsx";
 import TarjetaTutoria from "../components/TarjetaTutoria.jsx";
 
-// Catálogo público de tutorías con filtros por materia, nivel y modalidad.
-// Los filtros viven en la URL (?id_materia=3&nivel=Básico): se conservan al volver
-// desde el detalle y se pueden compartir como enlace.
+// Catálogo público de tutorías con filtros por materia, nivel, modalidad y día.
+// Los filtros viven en la URL (?id_materia=3&nivel=Básico&dia=Lunes): se conservan al volver
+// desde el detalle y se pueden compartir como enlace (el asistente también enlaza así).
 export default function Catalogo() {
   const [parametros, setParametros] = useSearchParams();
   const filtros = {
     id_materia: parametros.get("id_materia") ?? "",
     nivel: parametros.get("nivel") ?? "",
     modalidad: parametros.get("modalidad") ?? "",
+    dia: parametros.get("dia") ?? "",
   };
 
   const [materias, setMaterias] = useState([]);
-  const [opciones, setOpciones] = useState({ niveles: [], modalidades: [] });
+  const [opciones, setOpciones] = useState({ niveles: [], modalidades: [], dias: [] });
   const [tutorias, setTutorias] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState(null);
@@ -57,7 +58,13 @@ export default function Catalogo() {
     setParametros(nuevos, { replace: true });
   };
 
-  const hayFiltros = Boolean(id_materia || nivel || modalidad);
+  // El backend no filtra por día: se filtra aquí, con las tutorías que tienen un horario ese día
+  const { dia } = filtros;
+  const visibles = dia ? tutorias.filter((t) => t.horarios.some((h) => h.dia === dia)) : tutorias;
+  // El backend guarda Domingo primero; en el filtro se muestra Lunes primero
+  const dias = [...opciones.dias.slice(1), ...opciones.dias.slice(0, 1)];
+
+  const hayFiltros = Boolean(id_materia || nivel || modalidad || dia);
 
   return (
     <div className="space-y-6">
@@ -66,13 +73,15 @@ export default function Catalogo() {
         <p className="mt-1 text-bosque/70">Encuentre un compañero que le ayude con la materia que necesita.</p>
       </div>
 
-      <div className="tarjeta grid gap-4 p-4 sm:grid-cols-[2fr_1fr_1fr_auto] sm:items-end">
+      <div className="tarjeta grid gap-4 p-4 sm:grid-cols-2 sm:items-end lg:grid-cols-[2fr_1fr_1fr_1fr_auto]">
         <Filtro etiqueta="Materia" name="id_materia" value={id_materia} onChange={cambiarFiltro} todas="Todas las materias"
           opciones={materias.map((m) => ({ valor: m.id, texto: `${m.nombre} (${m.codigo})` }))} />
         <Filtro etiqueta="Nivel" name="nivel" value={nivel} onChange={cambiarFiltro} todas="Todos"
           opciones={opciones.niveles.map((n) => ({ valor: n, texto: n }))} />
         <Filtro etiqueta="Modalidad" name="modalidad" value={modalidad} onChange={cambiarFiltro} todas="Todas"
           opciones={opciones.modalidades.map((m) => ({ valor: m, texto: m }))} />
+        <Filtro etiqueta="Día" name="dia" value={dia} onChange={cambiarFiltro} todas="Cualquier día"
+          opciones={dias.map((d) => ({ valor: d, texto: d }))} />
         <button type="button" className="btn-secundario" disabled={!hayFiltros}
           onClick={() => setParametros({}, { replace: true })}>
           Limpiar
@@ -87,15 +96,15 @@ export default function Catalogo() {
         !error && (
           <>
             <p className="text-sm text-bosque/60">
-              {tutorias.length} {tutorias.length === 1 ? "tutoría encontrada" : "tutorías encontradas"}
+              {visibles.length} {visibles.length === 1 ? "tutoría encontrada" : "tutorías encontradas"}
             </p>
-            {tutorias.length === 0 ? (
+            {visibles.length === 0 ? (
               <div className="tarjeta py-12 text-center text-bosque/70">
                 {hayFiltros ? "No hay tutorías con esos filtros." : "Todavía no hay tutorías publicadas."}
               </div>
             ) : (
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {tutorias.map((t) => (
+                {visibles.map((t) => (
                   <TarjetaTutoria key={t.id} tutoria={t} />
                 ))}
               </div>
