@@ -143,6 +143,17 @@ const CASOS = {
     ["invitado", "cómo reservo", { intencion: "como-reservar" }],
   ],
 
+  "8. solicitudes para ser tutor": [
+    ["invitado", "quiero ser tutor", { intencion: "ser-tutor" }],
+    ["estudiante", "¿cómo puedo ser tutor?", { intencion: "ser-tutor" }],
+    ["estudiante", "estado de mi solicitud", { intencion: "estado-solicitud" }],
+    ["estudiante", "¿ya me aprobaron como tutor?", { intencion: "estado-solicitud" }],
+    ["estudiante", "por qué me rechazaron", { intencion: "estado-solicitud" }],
+    ["tutor", "mi solicitud de tutor", { intencion: "estado-solicitud" }],
+    ["admin", "aprobar tutores", { intencion: "admin-rol" }],
+    ["admin", "cómo creo un administrador", { intencion: "admin-rol" }],
+  ],
+
   "7. administrador: cambiar el rol": [
     ["admin", "cómo cambio el rol de un usuario", { intencion: "admin-rol" }],
     ["admin", "convertir un estudiante en tutor", { intencion: "admin-rol" }],

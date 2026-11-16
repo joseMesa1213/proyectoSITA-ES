@@ -19,6 +19,10 @@ cp .env.example .env      # VITE_API_URL=http://localhost:3000/api
 npm run dev               # http://localhost:5173 (el CORS_ORIGIN del backend local permite este puerto)
 ```
 
+Para usar el backend **local** sin tocar `.env` (por ejemplo, si `.env` apunta a producción), crear
+`.env.api-local.local` (ignorado por git) con `VITE_API_URL=http://localhost:3000/api` y correr
+`npm run dev -- --mode api-local`.
+
 Stack: React + Vite, Tailwind CSS v4, React Router, Vitest (pruebas) y Google Identity Services (login con Google).
 
 Estructura de `src/`:
@@ -37,7 +41,7 @@ además del formulario de correo y contraseña, que sigue igual.
 1. Google entrega un ID token (`credential`) y `components/ContinuarConGoogle.jsx` lo envía a `POST /auth/google`.
 2. Si la persona ya tiene cuenta, entra. Si es nueva, pasa a **Completa tu registro** (`/registro/google`,
    `pages/CompletarRegistroGoogle.jsx`): el correo viene de Google y no se edita; nombre y apellido llegan llenos y se
-   pueden corregir; faltan rol, documento, programa y semestre. Tiene 15 minutos para terminar.
+   pueden corregir; faltan documento, programa y semestre (y, si quiere, «Quiero ser tutor»). Tiene 15 minutos para terminar.
 3. Solo se aceptan cuentas institucionales `@udea.edu.co` (lo decide el backend con `GOOGLE_DOMINIO`).
 
 Quien se registra con Google **solo entra con Google** (su cuenta no tiene una contraseña conocida); por eso el login
@@ -51,6 +55,24 @@ Configuración:
 - El proyecto de Google Cloud es **interno** de la UdeA: Google solo deja elegir cuentas institucionales.
 - Las cuentas de **administrador** no entran con Google: usan correo y contraseña.
 - Las cuentas de demostración (`@demo.sita-es.test`) tampoco: no son cuentas de Google; entran con correo y contraseña.
+
+## Estudiante y tutor con una sola cuenta
+
+`usuario.id_rol` es un **nivel de permisos**, no algo que se elige: 1 Estudiante (todos), 2 Estudiante + Tutor,
+3 Administrador.
+
+- **Registro** (normal y con Google): no hay selector de rol. Todos entran como estudiantes; la casilla
+  **«Quiero ser tutor»** (`components/CamposRegistro.jsx`) crea una solicitud que revisa un administrador. Con la
+  casilla marcada, al terminar se llega a *Mi perfil* con el aviso de que la solicitud está en revisión.
+- **Mi perfil** (`/perfil`, `pages/Perfil.jsx`): datos de la cuenta y, para estudiantes, el estado de la solicitud
+  (en revisión, aprobada o rechazada con su motivo) y el botón **Solicitar ser tutor** (también para volver a pedirlo).
+- **Solicitudes de tutor** (`/admin/solicitudes`, `pages/AdminSolicitudes.jsx`): el administrador aprueba o rechaza
+  (el rechazo exige un motivo que el estudiante ve). Pestañas *Pendientes* e *Historial*.
+- **Sin volver a iniciar sesión:** el backend lee el rol de la BD en cada petición y `AuthContext.refrescarPerfil()`
+  vuelve a pedir el perfil al abrir *Mi perfil* y al volver a la pestaña. Así, cuando aprueban la solicitud, el menú de
+  tutor aparece solo.
+- `SoloInvitados` (Login y Registro) solo redirige a quien entra con la sesión ya iniciada; si la persona inicia sesión
+  o se registra ahí mismo, la página decide a dónde ir (por ejemplo, a *Mi perfil*).
 
 ## Asistente SITA
 

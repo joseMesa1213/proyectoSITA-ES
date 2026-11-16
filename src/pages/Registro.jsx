@@ -4,21 +4,18 @@ import { useAuth } from "../context/AuthContext.jsx";
 import { listarTiposDocumento } from "../api/catalogos.js";
 import Alerta from "../components/Alerta.jsx";
 import ContinuarConGoogle, { SeparadorGoogle } from "../components/ContinuarConGoogle.jsx";
-import { Campo, SelectorRol, SelectorTipoDocumento, datosAcademicos } from "../components/CamposRegistro.jsx";
-import { ROL } from "../utils/constantes.js";
+import {
+  AVISO_SOLICITUD, CAMPOS_ACADEMICOS, Campo, CasillaTutor, SelectorTipoDocumento, cambiarCampo, datosAcademicos,
+} from "../components/CamposRegistro.jsx";
 
+// Sin rol: todos entran como estudiantes ("Quiero ser tutor" crea una solicitud que revisa un administrador)
 const FORMULARIO_INICIAL = {
   nombre: "",
   apellido: "",
-  id_tipo_documento: "",
-  num_documento: "",
   correo: "",
-  celular: "",
   contrasena: "",
   confirmacion: "",
-  id_rol: String(ROL.ESTUDIANTE),
-  nombre_programa: "",
-  semestre: "",
+  ...CAMPOS_ACADEMICOS,
 };
 
 export default function Registro() {
@@ -35,7 +32,7 @@ export default function Registro() {
   }, []);
 
   // Un solo manejador para todos los campos: usa el atributo name del input
-  const cambiar = (evento) => setFormulario({ ...formulario, [evento.target.name]: evento.target.value });
+  const cambiar = cambiarCampo(formulario, setFormulario);
 
   const enviar = async (evento) => {
     evento.preventDefault();
@@ -51,14 +48,16 @@ export default function Registro() {
     const { confirmacion, ...datos } = formulario;
     setEnviando(true);
     try {
-      await registro({
+      const { solicitud_tutor_pendiente } = await registro({
         nombre: datos.nombre.trim(),
         apellido: datos.apellido.trim(),
         correo: datos.correo.trim(),
         contrasena: datos.contrasena,
         ...datosAcademicos(datos),
       });
-      navegar(ubicacion.state?.desde ?? "/", { replace: true });
+      // Con solicitud de tutor: a "Mi perfil", donde verá el estado de la solicitud
+      if (solicitud_tutor_pendiente) navegar("/perfil", { replace: true, state: { aviso: AVISO_SOLICITUD } });
+      else navegar(ubicacion.state?.desde ?? "/", { replace: true });
     } catch (err) {
       setError(err);
       setEnviando(false);
@@ -80,7 +79,6 @@ export default function Registro() {
         </div>
 
         <form onSubmit={enviar} className="mt-4 space-y-6">
-          <SelectorRol value={formulario.id_rol} onChange={cambiar} />
 
           <div className="grid gap-4 sm:grid-cols-2">
             <Campo etiqueta="Nombre" name="nombre" value={formulario.nombre} onChange={cambiar} autoComplete="given-name" />
@@ -101,6 +99,8 @@ export default function Registro() {
             <Campo etiqueta="Confirmar contraseña" name="confirmacion" type="password" value={formulario.confirmacion} onChange={cambiar}
               minLength={8} autoComplete="new-password" />
           </div>
+
+          <CasillaTutor formulario={formulario} onChange={cambiar} />
 
           <button type="submit" className="btn-primario w-full" disabled={enviando}>
             {enviando ? "Creando cuenta..." : "Crear cuenta"}

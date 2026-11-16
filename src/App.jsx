@@ -17,6 +17,8 @@ import GestionTutoria from "./pages/tutor/GestionTutoria.jsx";
 import AgendaTutorias from "./pages/tutor/AgendaTutorias.jsx";
 import AdminMaterias from "./pages/AdminMaterias.jsx";
 import AdminRecursos from "./pages/AdminRecursos.jsx";
+import AdminSolicitudes from "./pages/AdminSolicitudes.jsx";
+import Perfil from "./pages/Perfil.jsx";
 import { ROL, ROLES_QUE_RESERVAN } from "./utils/constantes.js";
 
 // Mapa de rutas de la aplicación
@@ -38,6 +40,11 @@ export default function App() {
         </Route>
 
         {/* Quienes reservan: Estudiante y Tutor (el administrador no) */}
+        {/* Cualquier usuario con sesión */}
+        <Route element={<RutaProtegida />}>
+          <Route path="perfil" element={<Perfil />} />
+        </Route>
+
         <Route element={<RutaProtegida roles={ROLES_QUE_RESERVAN} />}>
           <Route path="tutorias/:id/reservar" element={<Reservar />} />
           <Route path="mis-reservas" element={<MisReservas />} />
@@ -58,6 +65,7 @@ export default function App() {
           <Route index element={<Navigate to="materias" replace />} />
           <Route path="materias" element={<AdminMaterias />} />
           <Route path="recursos" element={<AdminRecursos />} />
+          <Route path="solicitudes" element={<AdminSolicitudes />} />
         </Route>
 
         <Route path="*" element={<NoEncontrada />} />

@@ -1,32 +1,48 @@
-import { ROL } from "../utils/constantes.js";
-
 // Piezas del formulario de registro que comparten Registro y CompletarRegistroGoogle.
+// El rol NO se elige: todos entran como estudiantes. Quien quiere ser tutor marca la casilla y queda
+// una solicitud pendiente que revisa un administrador (mientras tanto, usa todo lo de estudiante).
 
-// El registro solo permite estos dos roles (el administrador se crea en la BD)
-const ROLES_REGISTRO = [
-  { id: ROL.ESTUDIANTE, nombre: "Estudiante", descripcion: "Busco y reservo tutorías" },
-  { id: ROL.TUTOR, nombre: "Tutor", descripcion: "Ofrezco tutorías (también puedo reservar)" },
-];
+// Valores iniciales de los campos académicos y de la solicitud de tutor
+export const CAMPOS_ACADEMICOS = {
+  id_tipo_documento: "",
+  num_documento: "",
+  nombre_programa: "",
+  semestre: "",
+  celular: "",
+  quiero_ser_tutor: false,
+  motivo_tutor: "",
+};
 
-// Tarjetas para elegir Estudiante o Tutor (radio buttons con estilo)
-export function SelectorRol({ value, onChange }) {
+// Manejador común: las casillas guardan true/false; el resto, el texto escrito
+export const cambiarCampo = (formulario, setFormulario) => (evento) => {
+  const { name, type, checked, value } = evento.target;
+  setFormulario({ ...formulario, [name]: type === "checkbox" ? checked : value });
+};
+
+// "Quiero ser tutor" + motivo opcional (solo aparece si la casilla está marcada)
+export function CasillaTutor({ formulario, onChange }) {
   return (
-    <fieldset>
-      <legend className="etiqueta">¿Cómo usará SITA-ES?</legend>
-      <div className="grid gap-3 sm:grid-cols-2">
-        {ROLES_REGISTRO.map((rol) => (
-          <label key={rol.id}
-            className={`cursor-pointer rounded-lg border p-4 transition-colors has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-acento/50 ${
-              value === String(rol.id) ? "border-acento bg-acento/10" : "border-bosque/15 hover:border-bosque/30"
-            }`}>
-            <input type="radio" name="id_rol" value={rol.id} className="sr-only"
-              checked={value === String(rol.id)} onChange={onChange} />
-            <span className="block font-semibold">{rol.nombre}</span>
-            <span className="text-sm text-bosque/70">{rol.descripcion}</span>
-          </label>
-        ))}
-      </div>
-    </fieldset>
+    <div className={`rounded-lg border p-4 transition-colors ${formulario.quiero_ser_tutor ? "border-acento bg-acento/10" : "border-bosque/15"}`}>
+      <label className="flex cursor-pointer items-start gap-3">
+        <input type="checkbox" name="quiero_ser_tutor" checked={formulario.quiero_ser_tutor} onChange={onChange}
+          className="mt-1 size-4 accent-bosque" aria-describedby="ayuda-tutor" />
+        <span>
+          <span className="block font-semibold">Quiero ser tutor</span>
+          <span id="ayuda-tutor" className="text-sm text-bosque/70">
+            Todos entran como estudiantes. Si la marca, un administrador revisará su solicitud; mientras tanto puede
+            buscar y reservar tutorías. También puede solicitarlo después desde «Mi perfil».
+          </span>
+        </span>
+      </label>
+      {formulario.quiero_ser_tutor && (
+        <div className="mt-3">
+          <label htmlFor="motivo_tutor" className="etiqueta">¿Qué materias domina? (opcional)</label>
+          <textarea id="motivo_tutor" name="motivo_tutor" rows={2} maxLength={500} className="campo"
+            placeholder="Ej.: me fue muy bien en Cálculo Diferencial y Álgebra Lineal"
+            value={formulario.motivo_tutor} onChange={onChange} />
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -54,12 +70,18 @@ export function Campo({ etiqueta, name, required = true, type = "text", ...resto
   );
 }
 
-// Convierte los campos del formulario (todo texto) a lo que espera el backend
+// Convierte los campos del formulario (todo texto) a lo que espera el backend. Sin id_rol.
 export const datosAcademicos = (f) => ({
-  id_rol: Number(f.id_rol),
   id_tipo_documento: Number(f.id_tipo_documento),
   num_documento: f.num_documento.trim(),
   nombre_programa: f.nombre_programa.trim(),
   semestre: Number(f.semestre),
   celular: f.celular.trim() || null,
+  quiero_ser_tutor: f.quiero_ser_tutor,
+  motivo_tutor: f.quiero_ser_tutor ? f.motivo_tutor.trim() || null : null,
 });
+
+// Aviso después de registrarse con la casilla marcada
+export const AVISO_SOLICITUD =
+  "¡Bienvenido! Su solicitud para ser tutor quedó en revisión. Mientras tanto puede buscar y reservar tutorías; " +
+  "aquí verá cuando un administrador la responda.";

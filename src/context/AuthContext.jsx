@@ -58,15 +58,35 @@ export function AuthProvider({ children }) {
       .finally(() => setVerificando(false));
   }, [logout]);
 
+  // Vuelve a pedir el perfil al backend. El rol puede cambiar sin volver a iniciar sesión (por ejemplo,
+  // cuando un administrador aprueba la solicitud de tutor): así el menú muestra las opciones nuevas.
+  const refrescarPerfil = useCallback(async () => {
+    if (!obtenerToken()) return null;
+    const perfil = await authApi.obtenerPerfil();
+    localStorage.setItem(CLAVE_USUARIO, JSON.stringify(perfil));
+    setUsuario(perfil);
+    return perfil;
+  }, []);
+
+  // Al volver a la pestaña se actualiza el perfil (sin esperar a recargar la página)
+  const conSesion = Boolean(usuario);
+  useEffect(() => {
+    if (!conSesion) return;
+    const alVolver = () => document.visibilityState === "visible" && refrescarPerfil().catch(() => {});
+    document.addEventListener("visibilitychange", alVolver);
+    return () => document.removeEventListener("visibilitychange", alVolver);
+  }, [conSesion, refrescarPerfil]);
+
   const login = useCallback(
     async (correo, contrasena) => guardarSesion(await authApi.iniciarSesion(correo, contrasena)),
     [guardarSesion]
   );
 
-  const registro = useCallback(
-    async (datos) => guardarSesion(await authApi.registrar(datos)),
-    [guardarSesion]
-  );
+  // Devuelve { usuario, solicitud_tutor_pendiente } para avisar si quedó una solicitud de tutor en revisión
+  const registro = useCallback(async (datos) => {
+    const respuesta = await authApi.registrar(datos);
+    return { usuario: guardarSesion(respuesta), solicitud_tutor_pendiente: respuesta.solicitud_tutor_pendiente };
+  }, [guardarSesion]);
 
   // Con Google: si la persona ya tiene cuenta se guarda la sesión y devuelve { usuario }.
   // Si es nueva, todavía no hay sesión: devuelve { registro_pendiente, token_registro, perfil }.
@@ -79,14 +99,14 @@ export function AuthProvider({ children }) {
     [guardarSesion]
   );
 
-  const registroConGoogle = useCallback(
-    async (datos) => guardarSesion(await authApi.registrarConGoogle(datos)),
-    [guardarSesion]
-  );
+  const registroConGoogle = useCallback(async (datos) => {
+    const respuesta = await authApi.registrarConGoogle(datos);
+    return { usuario: guardarSesion(respuesta), solicitud_tutor_pendiente: respuesta.solicitud_tutor_pendiente };
+  }, [guardarSesion]);
 
   const valor = useMemo(
-    () => ({ usuario, verificando, avisoSesion, login, registro, loginConGoogle, registroConGoogle, logout }),
-    [usuario, verificando, avisoSesion, login, registro, loginConGoogle, registroConGoogle, logout]
+    () => ({ usuario, verificando, avisoSesion, login, registro, loginConGoogle, registroConGoogle, refrescarPerfil, logout }),
+    [usuario, verificando, avisoSesion, login, registro, loginConGoogle, registroConGoogle, refrescarPerfil, logout]
   );
 
   return <AuthContext.Provider value={valor}>{children}</AuthContext.Provider>;

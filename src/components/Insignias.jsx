@@ -1,6 +1,6 @@
 import { ESTADO } from "../utils/constantes.js";
 
-// Etiquetas pequeñas reutilizables (nivel, modalidad, estado de una reserva)
+// Etiquetas pequeñas reutilizables (nivel, modalidad, estado de una reserva o de una solicitud de tutor)
 
 export function InsigniaNivel({ nivel }) {
   if (!nivel) return null;
@@ -16,6 +16,9 @@ const ESTILO_ESTADO = {
   [ESTADO.ACTIVO]: "bg-bosque text-white",
   [ESTADO.COMPLETADO]: "bg-exito/10 text-exito",
   [ESTADO.CANCELADO]: "bg-peligro/10 text-peligro",
+  [ESTADO.PENDIENTE]: "bg-acento/20 text-bosque",
+  [ESTADO.APROBADO]: "bg-exito/10 text-exito",
+  [ESTADO.RECHAZADO]: "bg-peligro/10 text-peligro",
 };
 
 // La reserva trae id_estado (número) y estado (nombre: "Activo", "Completado"...)
