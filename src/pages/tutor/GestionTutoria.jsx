@@ -10,6 +10,7 @@ import FormularioTutoria from "../../components/FormularioTutoria.jsx";
 import HorariosTutoria from "../../components/HorariosTutoria.jsx";
 import { InsigniaEstado } from "../../components/Insignias.jsx";
 import { ESTADO } from "../../utils/constantes.js";
+import { useTituloPagina } from "../../utils/titulos.js";
 import { contarReservas, reservasActivasFuturas } from "../../utils/reservas.js";
 
 // Editar una tutoría propia y administrar sus horarios.
@@ -21,6 +22,7 @@ export default function GestionTutoria() {
   const [tutoria, setTutoria] = useState(null);
   const [reservas, setReservas] = useState([]);
   const [error, setError] = useState(null);
+  useTituloPagina(tutoria && `Gestionar: ${tutoria.titulo}`);
 
   useEffect(() => {
     Promise.all([listarMisTutorias(), listarReservasRecibidas()])

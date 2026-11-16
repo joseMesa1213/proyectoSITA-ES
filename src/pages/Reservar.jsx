@@ -6,6 +6,7 @@ import { useAuth } from "../context/AuthContext.jsx";
 import Alerta from "../components/Alerta.jsx";
 import Cargando from "../components/Cargando.jsx";
 import { ESTADO } from "../utils/constantes.js";
+import { useTituloPagina } from "../utils/titulos.js";
 import { esHoy, formatearFecha, formatearFechaCorta, proximasFechas } from "../utils/fechas.js";
 
 /**
@@ -21,6 +22,7 @@ export default function Reservar() {
 
   const [tutoria, setTutoria] = useState(null);
   const [errorCarga, setErrorCarga] = useState(null);
+  useTituloPagina(tutoria && `Reservar: ${tutoria.titulo}`);
 
   const [idHorario, setIdHorario] = useState(null);
   const [fecha, setFecha] = useState(null);
