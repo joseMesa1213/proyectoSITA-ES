@@ -5,7 +5,7 @@ import { listarMisMaterias } from "../../api/materias.js";
 import { listarReservasRecibidas } from "../../api/reservas.js";
 import Alerta from "../../components/Alerta.jsx";
 import { useAvisos } from "../../components/Avisos.jsx";
-import Cargando from "../../components/Cargando.jsx";
+import { EsqueletoTarjetas } from "../../components/Esqueletos.jsx";
 import BotonEstadoTutoria from "../../components/BotonEstadoTutoria.jsx";
 import { InsigniaEstado, InsigniaModalidad, InsigniaNivel } from "../../components/Insignias.jsx";
 import { ESTADO } from "../../utils/constantes.js";
@@ -24,7 +24,15 @@ export default function MisTutorias() {
       .catch(setError);
   }, []);
 
-  if (!datos) return error ? <Alerta error={error} /> : <Cargando />;
+  // Mientras carga se muestra el título y la forma de las tarjetas
+  if (!datos) {
+    return (
+      <div className="space-y-6">
+        <Encabezado />
+        {error ? <Alerta error={error} /> : <EsqueletoTarjetas cantidad={4} className="grid gap-4 md:grid-cols-2" texto="Cargando sus tutorías..." />}
+      </div>
+    );
+  }
 
   const { tutorias, materias, reservas } = datos;
   // Activas primero; dentro de cada grupo se respeta el orden del backend (más recientes primero)
@@ -38,13 +46,7 @@ export default function MisTutorias() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h1 className="titulo-pagina">Mis tutorías</h1>
-          <p className="mt-1 text-texto-suave">Publique tutorías y administre sus horarios.</p>
-        </div>
-        {materias.length > 0 && <Link to="/tutor/tutorias/nueva" className="btn-primario">+ Nueva tutoría</Link>}
-      </div>
+      <Encabezado puedePublicar={materias.length > 0} />
 
       <Alerta error={error} />
 
@@ -127,5 +129,17 @@ function PrimerosPasos({ tieneMaterias, tieneTutorias, tieneHorarios }) {
         ))}
       </ol>
     </section>
+  );
+}
+
+function Encabezado({ puedePublicar = false }) {
+  return (
+    <div className="flex flex-wrap items-end justify-between gap-4">
+      <div>
+        <h1 className="titulo-pagina">Mis tutorías</h1>
+        <p className="mt-1 text-texto-suave">Publique tutorías y administre sus horarios.</p>
+      </div>
+      {puedePublicar && <Link to="/tutor/tutorias/nueva" className="btn-primario">+ Nueva tutoría</Link>}
+    </div>
   );
 }

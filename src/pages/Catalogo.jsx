@@ -4,7 +4,7 @@ import { listarTutorias } from "../api/tutorias.js";
 import { listarMaterias } from "../api/materias.js";
 import { obtenerOpciones } from "../api/catalogos.js";
 import Alerta from "../components/Alerta.jsx";
-import Cargando from "../components/Cargando.jsx";
+import { EsqueletoTarjetas } from "../components/Esqueletos.jsx";
 import TarjetaTutoria from "../components/TarjetaTutoria.jsx";
 
 // Catálogo público de tutorías con filtros por materia, nivel, modalidad y día.
@@ -91,7 +91,7 @@ export default function Catalogo() {
       <Alerta error={error} />
 
       {cargando ? (
-        <Cargando texto="Buscando tutorías..." />
+        <EsqueletoTarjetas texto="Buscando tutorías..." />
       ) : (
         !error && (
           <>

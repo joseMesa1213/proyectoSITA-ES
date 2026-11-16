@@ -5,7 +5,7 @@ import { Link } from "react-router";
 import { cancelarReserva, completarReserva, listarReservasRecibidas } from "../../api/reservas.js";
 import { listarMisTutorias } from "../../api/tutorias.js";
 import Alerta from "../../components/Alerta.jsx";
-import Cargando from "../../components/Cargando.jsx";
+import { EsqueletoLista } from "../../components/Esqueletos.jsx";
 import { InsigniaEstado } from "../../components/Insignias.jsx";
 import { ESTADO } from "../../utils/constantes.js";
 import { formatearFecha } from "../../utils/fechas.js";
@@ -113,7 +113,7 @@ export default function AgendaTutorias() {
       <Alerta error={error} />
 
       {!reservas ? (
-        !error && <Cargando />
+        !error && <EsqueletoLista texto="Cargando la agenda..." />
       ) : sesiones.length === 0 ? (
         <div className="tarjeta py-12 text-center text-texto-suave">
           {fecha ? `No hay reservas en esta sección para el ${formatearFecha(fecha).toLowerCase()}.` : "No hay reservas en esta sección."}

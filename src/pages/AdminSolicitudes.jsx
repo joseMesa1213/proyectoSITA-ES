@@ -3,7 +3,7 @@ import { useConfirmar } from "../components/Confirmar.jsx";
 import { useAvisos } from "../components/Avisos.jsx";
 import { aprobarSolicitud, listarSolicitudes, rechazarSolicitud } from "../api/solicitudes.js";
 import Alerta from "../components/Alerta.jsx";
-import Cargando from "../components/Cargando.jsx";
+import { EsqueletoLista } from "../components/Esqueletos.jsx";
 import { InsigniaEstado } from "../components/Insignias.jsx";
 import { formatearMarcaDeTiempo } from "../utils/fechas.js";
 
@@ -66,7 +66,7 @@ export default function AdminSolicitudes() {
       <Alerta error={error} />
 
       {!solicitudes ? (
-        !error && <Cargando />
+        !error && <EsqueletoLista filas={1} texto="Cargando solicitudes..." />
       ) : solicitudes.length === 0 ? (
         <div className="tarjeta py-12 text-center text-texto-suave">
           {pestana === "pendientes" ? "No hay solicitudes pendientes." : "Todavía no se ha revisado ninguna solicitud."}
