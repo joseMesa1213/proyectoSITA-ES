@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useConfirmar } from "../../components/Confirmar.jsx";
 import { Link } from "react-router";
 import { cancelarReserva, completarReserva, listarReservasRecibidas } from "../../api/reservas.js";
 import { listarMisTutorias } from "../../api/tutorias.js";
@@ -164,14 +165,16 @@ function TarjetaSesion({ sesion, cupo, ocupados, onActualizada }) {
 }
 
 function FilaReserva({ reserva, termino, onActualizada }) {
+  const confirmar = useConfirmar();
   const { estudiante, recurso } = reserva;
   const [error, setError] = useState(null);
   const [procesando, setProcesando] = useState(false);
   const activa = reserva.id_estado === ESTADO.ACTIVO;
   const nombre = `${estudiante.nombre} ${estudiante.apellido}`;
 
+  // confirmacion: opciones del diálogo de confirmación (título, mensaje, botón)
   const ejecutar = async (accion, confirmacion) => {
-    if (!window.confirm(confirmacion)) return;
+    if (!(await confirmar(confirmacion))) return;
     setError(null);
     setProcesando(true);
     try {
@@ -197,13 +200,23 @@ function FilaReserva({ reserva, termino, onActualizada }) {
           {!activa && <InsigniaEstado idEstado={reserva.id_estado} nombre={reserva.estado} />}
           {activa && termino && (
             <button type="button" className="btn-primario px-3 py-1" disabled={procesando}
-              onClick={() => ejecutar(completarReserva, `¿Marcar como completada la sesión de ${nombre}? Así podrá valorarla.`)}>
+              onClick={() => ejecutar(completarReserva, {
+                titulo: "Completar sesión",
+                mensaje: `¿Marcar como completada la sesión de ${nombre}? Así podrá valorarla.`,
+                textoConfirmar: "Sí, completar",
+              })}>
               Completar
             </button>
           )}
           {activa && (
             <button type="button" className="btn-peligro px-3 py-1" disabled={procesando}
-              onClick={() => ejecutar(cancelarReserva, `¿Cancelar la reserva de ${nombre}?`)}>
+              onClick={() => ejecutar(cancelarReserva, {
+                titulo: "Cancelar reserva",
+                mensaje: `¿Cancelar la reserva de ${nombre}? Se le liberará el cupo.`,
+                textoConfirmar: "Sí, cancelar la reserva",
+                textoCancelar: "No, mantenerla",
+                peligro: true,
+              })}>
               Cancelar
             </button>
           )}

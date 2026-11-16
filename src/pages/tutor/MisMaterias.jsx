@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useConfirmar } from "../../components/Confirmar.jsx";
 import { Link } from "react-router";
 import { asociarMateria, desasociarMateria, listarMaterias, listarMisMaterias } from "../../api/materias.js";
 import Alerta from "../../components/Alerta.jsx";
@@ -6,6 +7,7 @@ import Cargando from "../../components/Cargando.jsx";
 
 // El tutor declara qué materias domina: solo puede publicar tutorías de estas materias.
 export default function MisMaterias() {
+  const confirmar = useConfirmar();
   const [todas, setTodas] = useState(null);
   const [mias, setMias] = useState([]);
   const [busqueda, setBusqueda] = useState("");
@@ -49,11 +51,14 @@ export default function MisMaterias() {
 
   const asociar = (materia) => ejecutar(materia, asociarMateria, `Ahora puede publicar tutorías de ${materia.nombre}.`);
 
-  const desasociar = (materia) => {
-    const confirmado = window.confirm(
-      `¿Quitar ${materia.nombre} de sus materias?\n\n` +
-        "Sus tutorías ya creadas de esta materia no cambian, pero no podrá publicar nuevas."
-    );
+  const desasociar = async (materia) => {
+    const confirmado = await confirmar({
+      titulo: "Quitar materia",
+      mensaje: `¿Quitar ${materia.nombre} de sus materias?\n\n` +
+        "Sus tutorías ya creadas de esta materia no cambian, pero no podrá publicar nuevas.",
+      textoConfirmar: "Sí, quitar",
+      peligro: true,
+    });
     if (confirmado) ejecutar(materia, desasociarMateria, `Se quitó ${materia.nombre} de sus materias.`);
   };
 

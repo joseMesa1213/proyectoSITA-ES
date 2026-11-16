@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useConfirmar } from "../components/Confirmar.jsx";
 import { Link, useLocation } from "react-router";
 import { cancelarReserva, listarMisReservas } from "../api/reservas.js";
 import { crearValoracion } from "../api/valoraciones.js";
@@ -81,13 +82,21 @@ export default function MisReservas() {
 }
 
 function TarjetaReserva({ reserva, onActualizada }) {
+  const confirmar = useConfirmar();
   const { tutoria, horario, recurso } = reserva;
   const [error, setError] = useState(null);
   const [procesando, setProcesando] = useState(false);
   const [valorando, setValorando] = useState(false);
 
   const cancelar = async () => {
-    if (!window.confirm(`¿Cancelar la reserva de "${tutoria.titulo}" del ${formatearFecha(reserva.fecha_sesion)}?`)) return;
+    const confirmado = await confirmar({
+      titulo: "Cancelar reserva",
+      mensaje: `¿Cancelar la reserva de "${tutoria.titulo}" del ${formatearFecha(reserva.fecha_sesion)}? Su cupo quedará libre para otra persona.`,
+      textoConfirmar: "Sí, cancelar la reserva",
+      textoCancelar: "No, mantenerla",
+      peligro: true,
+    });
+    if (!confirmado) return;
     setError(null);
     setProcesando(true);
     try {

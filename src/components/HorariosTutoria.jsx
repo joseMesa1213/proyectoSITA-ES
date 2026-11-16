@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useConfirmar } from "./Confirmar.jsx";
 import { agregarHorario, desactivarHorario } from "../api/tutorias.js";
 import { obtenerOpciones } from "../api/catalogos.js";
 import { listarRecursos } from "../api/recursos.js";
@@ -16,6 +17,7 @@ import { contarReservas, reservasActivasFuturas } from "../utils/reservas.js";
  * onCambio(horarios, reservasCanceladas) recibe la lista actualizada.
  */
 export default function HorariosTutoria({ tutoria, reservas, onCambio }) {
+  const confirmar = useConfirmar();
   const [dias, setDias] = useState([]);
   const [recursos, setRecursos] = useState([]);
   const [nuevo, setNuevo] = useState({ dia: "", hora_inicio: "", hora_fin: "", id_recurso: "" });
@@ -70,7 +72,13 @@ export default function HorariosTutoria({ tutoria, reservas, onCambio }) {
         ? `\n\nAtención: tiene ${contarReservas(pendientes)} futuras activas. ` +
           "Las de sesiones que aún no empiezan se cancelarán."
         : "");
-    if (!window.confirm(mensaje)) return;
+    const confirmado = await confirmar({
+      titulo: "Desactivar horario",
+      mensaje,
+      textoConfirmar: "Sí, desactivar",
+      peligro: true,
+    });
+    if (!confirmado) return;
 
     setError(null);
     setAviso("");

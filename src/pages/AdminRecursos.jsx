@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useConfirmar } from "../components/Confirmar.jsx";
 import { obtenerOpciones } from "../api/catalogos.js";
 import { actualizarRecurso, crearRecurso, listarRecursos } from "../api/recursos.js";
 import Alerta from "../components/Alerta.jsx";
@@ -150,6 +151,7 @@ function FormularioNuevoRecurso({ tipos, onCreado }) {
 }
 
 function FilaRecurso({ recurso, tipos, onActualizado }) {
+  const confirmar = useConfirmar();
   const [editando, setEditando] = useState(false);
   const [datos, setDatos] = useState(recurso);
   const [error, setError] = useState(null);
@@ -180,8 +182,13 @@ function FilaRecurso({ recurso, tipos, onActualizado }) {
     ejecutar(aCuerpo(datos));
   };
 
-  const alternarEstado = () => {
-    if (activo && !window.confirm(`¿Desactivar "${recurso.nombre}"? No se podrá asignar a horarios nuevos. Si algún horario activo lo usa, no se podrá desactivar.`)) return;
+  const alternarEstado = async () => {
+    if (activo && !(await confirmar({
+      titulo: "Desactivar recurso",
+      mensaje: `¿Desactivar "${recurso.nombre}"? No se podrá asignar a horarios nuevos. Si algún horario activo lo usa, no se podrá desactivar.`,
+      textoConfirmar: "Sí, desactivar",
+      peligro: true,
+    }))) return;
     ejecutar({ id_estado: activo ? ESTADO.INACTIVO : ESTADO.ACTIVO });
   };
 

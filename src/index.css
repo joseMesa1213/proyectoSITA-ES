@@ -107,6 +107,31 @@
   }
 }
 
+/* Entrada de diálogos, menús y avisos: corta (150-200 ms) para que no estorbe */
+@keyframes aparecer {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Quien pidió reducir el movimiento en su sistema no ve transiciones ni animaciones de entrada
+   (los indicadores de carga siguen girando: comunican que algo está pasando) */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    transition-duration: 0ms !important;
+  }
+  [class*="aparecer"] {
+    animation: none !important;
+  }
+}
+
 /* =============================================================================
    Componentes reutilizables (@utility permite usarlos como clase y dentro de @apply)
    ============================================================================= */

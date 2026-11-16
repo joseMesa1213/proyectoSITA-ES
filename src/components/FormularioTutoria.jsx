@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useConfirmar } from "./Confirmar.jsx";
 import { obtenerOpciones } from "../api/catalogos.js";
 import Alerta from "./Alerta.jsx";
 import { contarReservas } from "../utils/reservas.js";
@@ -11,6 +12,7 @@ import { contarReservas } from "../utils/reservas.js";
  * onGuardar(datos) debe devolver una promesa; si falla, aquí se muestra el error.
  */
 export default function FormularioTutoria({ tutoria, materias = [], reservasActivas = 0, onGuardar, textoBoton }) {
+  const confirmar = useConfirmar();
   const editando = Boolean(tutoria);
   const [opciones, setOpciones] = useState({ niveles: [], modalidades: [] });
   const [formulario, setFormulario] = useState(() => ({
@@ -38,9 +40,11 @@ export default function FormularioTutoria({ tutoria, materias = [], reservasActi
 
   const enviar = async (evento) => {
     evento.preventDefault();
-    if (advertir && !window.confirm(
-      `Hay ${contarReservas(reservasActivas)} activas. Si el cambio no es compatible con ellas no se guardará. ¿Continuar?`
-    )) return;
+    if (advertir && !(await confirmar({
+      titulo: "Guardar cambios",
+      mensaje: `Hay ${contarReservas(reservasActivas)} activas. Si el cambio no es compatible con ellas no se guardará. ¿Continuar?`,
+      textoConfirmar: "Sí, guardar",
+    }))) return;
 
     setError(null);
     setEnviando(true);

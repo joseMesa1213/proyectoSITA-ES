@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useConfirmar } from "../components/Confirmar.jsx";
 import { aprobarSolicitud, listarSolicitudes, rechazarSolicitud } from "../api/solicitudes.js";
 import Alerta from "../components/Alerta.jsx";
 import Cargando from "../components/Cargando.jsx";
@@ -82,6 +83,7 @@ export default function AdminSolicitudes() {
 }
 
 function TarjetaSolicitud({ solicitud, onRevisada }) {
+  const confirmar = useConfirmar();
   const { usuario } = solicitud;
   const pendiente = solicitud.estado === "Pendiente";
   const [rechazando, setRechazando] = useState(false);
@@ -100,8 +102,13 @@ function TarjetaSolicitud({ solicitud, onRevisada }) {
     }
   };
 
-  const aprobar = () => {
-    if (window.confirm(`¿Aprobar a ${nombreDe(usuario)} como tutor?`)) ejecutar(() => aprobarSolicitud(solicitud.id));
+  const aprobar = async () => {
+    const confirmado = await confirmar({
+      titulo: "Aprobar solicitud",
+      mensaje: `¿Aprobar a ${nombreDe(usuario)} como tutor? Seguirá siendo estudiante y además podrá publicar tutorías.`,
+      textoConfirmar: "Sí, aprobar",
+    });
+    if (confirmado) ejecutar(() => aprobarSolicitud(solicitud.id));
   };
 
   const rechazar = (evento) => {
