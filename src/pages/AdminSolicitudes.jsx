@@ -5,6 +5,7 @@ import { aprobarSolicitud, listarSolicitudes, rechazarSolicitud } from "../api/s
 import Alerta from "../components/Alerta.jsx";
 import { EsqueletoLista } from "../components/Esqueletos.jsx";
 import { InsigniaEstado } from "../components/Insignias.jsx";
+import EstadoVacio from "../components/EstadoVacio.jsx";
 import { formatearMarcaDeTiempo } from "../utils/fechas.js";
 
 const PESTANAS = [
@@ -68,9 +69,14 @@ export default function AdminSolicitudes() {
       {!solicitudes ? (
         !error && <EsqueletoLista filas={1} texto="Cargando solicitudes..." />
       ) : solicitudes.length === 0 ? (
-        <div className="tarjeta py-12 text-center text-texto-suave">
-          {pestana === "pendientes" ? "No hay solicitudes pendientes." : "Todavía no se ha revisado ninguna solicitud."}
-        </div>
+        pestana === "pendientes" ? (
+          <EstadoVacio titulo="No hay solicitudes pendientes"
+            accion={<button type="button" className="btn-secundario" onClick={() => setPestana("historial")}>Ver el historial</button>}>
+            Cuando un estudiante pida ser tutor, su solicitud aparecerá aquí.
+          </EstadoVacio>
+        ) : (
+          <EstadoVacio titulo="Todavía no se ha revisado ninguna solicitud" />
+        )
       ) : (
         <ul className="space-y-4">
           {solicitudes.map((s) => (
@@ -155,7 +161,7 @@ function TarjetaSolicitud({ solicitud, onRevisada }) {
       )}
 
       {pendiente && rechazando && (
-        <form onSubmit={rechazar} className="space-y-3 rounded-control border border-peligro/30 p-4">
+        <form onSubmit={rechazar} className="space-y-3 border-l-2 border-peligro pl-4">
           <div>
             <label htmlFor={`observacion-${solicitud.id}`} className="etiqueta">Motivo del rechazo (lo verá el estudiante)</label>
             <textarea id={`observacion-${solicitud.id}`} rows={2} maxLength={500} required className="campo"

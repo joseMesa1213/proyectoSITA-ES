@@ -7,6 +7,7 @@ import { crearValoracion } from "../api/valoraciones.js";
 import Alerta from "../components/Alerta.jsx";
 import Cargando from "../components/Cargando.jsx";
 import Estrellas from "../components/Estrellas.jsx";
+import EstadoVacio from "../components/EstadoVacio.jsx";
 import { InsigniaEstado } from "../components/Insignias.jsx";
 import { ESTADO } from "../utils/constantes.js";
 import { formatearFecha } from "../utils/fechas.js";
@@ -65,10 +66,10 @@ export default function MisReservas() {
       </div>
 
       {visibles.length === 0 ? (
-        <div className="tarjeta py-12 text-center text-texto-suave">
-          <p>No tiene reservas en esta sección.</p>
-          <Link to="/tutorias" className="btn-primario mt-4">Buscar tutorías</Link>
-        </div>
+        <EstadoVacio titulo="No tiene reservas en esta sección"
+          accion={<Link to="/tutorias" className="btn-primario">Buscar tutorías</Link>}>
+          Reserve un cupo en el catálogo y aparecerá aquí con su fecha, hora y lugar.
+        </EstadoVacio>
       ) : (
         <ul className="space-y-4">
           {visibles.map((r) => (
@@ -187,7 +188,7 @@ function FormularioValoracion({ idReserva, onValorada, onCancelar }) {
   };
 
   return (
-    <form onSubmit={enviar} className="space-y-3 rounded-control border border-acento/40 p-4">
+    <form onSubmit={enviar} className="space-y-3 border-l-2 border-acento pl-4">
       <div>
         <p className="etiqueta">¿Cómo le pareció la sesión?</p>
         <Estrellas valor={calificacion} onCambiar={setCalificacion} />

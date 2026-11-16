@@ -5,6 +5,7 @@ import { Link } from "react-router";
 import { cancelarReserva, completarReserva, listarReservasRecibidas } from "../../api/reservas.js";
 import { listarMisTutorias } from "../../api/tutorias.js";
 import Alerta from "../../components/Alerta.jsx";
+import EstadoVacio from "../../components/EstadoVacio.jsx";
 import { EsqueletoLista } from "../../components/Esqueletos.jsx";
 import { InsigniaEstado } from "../../components/Insignias.jsx";
 import { ESTADO } from "../../utils/constantes.js";
@@ -115,14 +116,17 @@ export default function AgendaTutorias() {
       {!reservas ? (
         !error && <EsqueletoLista texto="Cargando la agenda..." />
       ) : sesiones.length === 0 ? (
-        <div className="tarjeta py-12 text-center text-texto-suave">
-          {fecha ? `No hay reservas en esta sección para el ${formatearFecha(fecha).toLowerCase()}.` : "No hay reservas en esta sección."}
-          {pestana === "proximas" && !fecha && (
-            <p className="mt-2 text-sm">
-              ¿Sus tutorías tienen horarios activos? Revíselas en <Link to="/tutor/tutorias" className="underline decoration-acento underline-offset-4">Mis tutorías</Link>.
-            </p>
-          )}
-        </div>
+        fecha ? (
+          <EstadoVacio titulo={`No hay reservas en esta sección para el ${formatearFecha(fecha).toLowerCase()}`}
+            accion={<button type="button" className="btn-secundario" onClick={() => setFecha("")}>Ver todas las fechas</button>} />
+        ) : pestana === "proximas" ? (
+          <EstadoVacio titulo="No hay reservas próximas"
+            accion={<Link to="/tutor/tutorias" className="btn-primario">Revisar mis tutorías</Link>}>
+            Para recibir reservas, sus tutorías necesitan horarios activos.
+          </EstadoVacio>
+        ) : (
+          <EstadoVacio titulo="No hay reservas en esta sección" />
+        )
       ) : (
         <ul className="space-y-4">
           {sesiones.map((s) => (
@@ -156,7 +160,7 @@ function TarjetaSesion({ sesion, cupo, ocupados, onActualizada }) {
         )}
       </div>
 
-      <ul className="divide-y divide-borde rounded-control border border-borde">
+      <ul className="divide-y divide-borde border-t border-borde">
         {reservas.map((r) => (
           <FilaReserva key={r.id} reserva={r} termino={termino} onActualizada={onActualizada} />
         ))}
@@ -188,19 +192,20 @@ function FilaReserva({ reserva, termino, onActualizada }) {
   };
 
   return (
-    <li className="space-y-2 px-4 py-3">
-      <div className="flex flex-wrap items-center justify-between gap-3">
+    // En el celular: datos arriba y botones abajo, a lo ancho; desde sm, en una sola fila
+    <li className="py-3">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="min-w-0">
           <p className="font-medium">{nombre}</p>
-          <p className="truncate text-sm text-texto-suave">
+          <p className="text-sm break-words text-texto-suave">
             <a href={`mailto:${estudiante.correo}`} className="underline decoration-borde-fuerte underline-offset-2">{estudiante.correo}</a>
-            {" · "}{recurso.nombre}
           </p>
+          <p className="text-sm text-texto-suave">{recurso.nombre}</p>
         </div>
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2 sm:justify-end">
           {!activa && <InsigniaEstado idEstado={reserva.id_estado} nombre={reserva.estado} />}
           {activa && termino && (
-            <button type="button" className="btn-primario px-3 py-1" disabled={procesando}
+            <button type="button" className="btn-primario flex-1 px-3 py-1.5 sm:flex-none sm:py-1" disabled={procesando}
               onClick={() => ejecutar(completarReserva, {
                 titulo: "Completar sesión",
                 mensaje: `¿Marcar como completada la sesión de ${nombre}? Así podrá valorarla.`,
@@ -210,7 +215,7 @@ function FilaReserva({ reserva, termino, onActualizada }) {
             </button>
           )}
           {activa && (
-            <button type="button" className="btn-peligro px-3 py-1" disabled={procesando}
+            <button type="button" className="btn-peligro flex-1 px-3 py-1.5 sm:flex-none sm:py-1" disabled={procesando}
               onClick={() => ejecutar(cancelarReserva, {
                 titulo: "Cancelar reserva",
                 mensaje: `¿Cancelar la reserva de ${nombre}? Se le liberará el cupo.`,
@@ -221,7 +226,7 @@ function FilaReserva({ reserva, termino, onActualizada }) {
               Cancelar
             </button>
           )}
-          {activa && !termino && <span className="text-xs text-texto-suave">Completar se habilita al terminar la sesión</span>}
+          {activa && !termino && <span className="w-full text-xs text-texto-suave sm:order-first sm:w-auto">Completar se habilita al terminar la sesión</span>}
         </div>
       </div>
     </li>

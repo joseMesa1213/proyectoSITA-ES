@@ -205,7 +205,7 @@ function FilaRecurso({ recurso, tipos, onActualizado }) {
   if (editando) {
     return (
       <li className="py-3">
-        <form onSubmit={guardar} className="space-y-3 rounded-control border border-acento/40 p-4">
+        <form onSubmit={guardar} className="space-y-3 border-l-2 border-acento pl-4">
           <div className="grid gap-4 sm:grid-cols-6">
             <CamposRecurso datos={datos} onCambio={setDatos} tipos={tipos} prefijo={`recurso-${recurso.id}`} />
           </div>
