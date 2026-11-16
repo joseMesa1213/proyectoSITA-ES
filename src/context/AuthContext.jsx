@@ -68,9 +68,25 @@ export function AuthProvider({ children }) {
     [guardarSesion]
   );
 
+  // Con Google: si la persona ya tiene cuenta se guarda la sesión y devuelve { usuario }.
+  // Si es nueva, todavía no hay sesión: devuelve { registro_pendiente, token_registro, perfil }.
+  const loginConGoogle = useCallback(
+    async (credential) => {
+      const respuesta = await authApi.iniciarConGoogle(credential);
+      if (respuesta.registro_pendiente) return respuesta;
+      return { usuario: guardarSesion(respuesta) };
+    },
+    [guardarSesion]
+  );
+
+  const registroConGoogle = useCallback(
+    async (datos) => guardarSesion(await authApi.registrarConGoogle(datos)),
+    [guardarSesion]
+  );
+
   const valor = useMemo(
-    () => ({ usuario, verificando, avisoSesion, login, registro, logout }),
-    [usuario, verificando, avisoSesion, login, registro, logout]
+    () => ({ usuario, verificando, avisoSesion, login, registro, loginConGoogle, registroConGoogle, logout }),
+    [usuario, verificando, avisoSesion, login, registro, loginConGoogle, registroConGoogle, logout]
   );
 
   return <AuthContext.Provider value={valor}>{children}</AuthContext.Provider>;

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router";
 import { useAuth } from "../context/AuthContext.jsx";
 import Alerta from "../components/Alerta.jsx";
+import ContinuarConGoogle, { SeparadorGoogle, googleDisponible } from "../components/ContinuarConGoogle.jsx";
 
 export default function Login() {
   const { login, avisoSesion } = useAuth();
@@ -32,10 +33,14 @@ export default function Login() {
         <h1 className="text-2xl font-bold">Iniciar sesión</h1>
         <p className="mt-1 text-sm text-bosque/70">Ingrese con su correo institucional.</p>
 
-        <form onSubmit={enviar} className="mt-6 space-y-4">
+        <div className="mt-6 space-y-4">
           {avisoSesion && !error && <Alerta>{avisoSesion}</Alerta>}
           <Alerta error={error} />
+          <ContinuarConGoogle onError={setError} />
+          <SeparadorGoogle texto="o con correo y contraseña" />
+        </div>
 
+        <form onSubmit={enviar} className="mt-4 space-y-4">
           <div>
             <label htmlFor="correo" className="etiqueta">Correo</label>
             <input id="correo" type="email" className="campo" autoComplete="email" required
@@ -50,6 +55,10 @@ export default function Login() {
           <button type="submit" className="btn-primario w-full" disabled={enviando}>
             {enviando ? "Ingresando..." : "Ingresar"}
           </button>
+          {/* Quien se registró con Google no tiene contraseña: su cuenta guarda una aleatoria */}
+          {googleDisponible && (
+            <p className="text-center text-xs text-bosque/60">¿Se registró con Google? Use el botón de Google.</p>
+          )}
         </form>
 
         <p className="mt-6 text-center text-sm text-bosque/70">

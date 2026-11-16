@@ -4,6 +4,7 @@ import RutaProtegida from "./components/RutaProtegida.jsx";
 import SoloInvitados from "./components/SoloInvitados.jsx";
 import Login from "./pages/Login.jsx";
 import Registro from "./pages/Registro.jsx";
+import CompletarRegistroGoogle from "./pages/CompletarRegistroGoogle.jsx";
 import Catalogo from "./pages/Catalogo.jsx";
 import DetalleTutoria from "./pages/DetalleTutoria.jsx";
 import Reservar from "./pages/Reservar.jsx";
@@ -33,6 +34,7 @@ export default function App() {
         <Route element={<SoloInvitados />}>
           <Route path="login" element={<Login />} />
           <Route path="registro" element={<Registro />} />
+          <Route path="registro/google" element={<CompletarRegistroGoogle />} />
         </Route>
 
         {/* Quienes reservan: Estudiante y Tutor (el administrador no) */}
