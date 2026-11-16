@@ -50,7 +50,7 @@ export default function AdminRecursos() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold">Recursos</h1>
+        <h1 className="titulo-pagina">Recursos</h1>
         <p className="mt-1 text-bosque/70">
           Salones y enlaces virtuales. Los estudiantes eligen uno activo al reservar, según la modalidad de la tutoría.
         </p>
@@ -62,7 +62,7 @@ export default function AdminRecursos() {
 
       <section className="tarjeta space-y-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <h2 className="text-lg font-semibold">
+          <h2 className="titulo-seccion">
             Recursos ({activos} activos de {recursos.length})
           </h2>
           <select className="campo sm:max-w-48" value={filtroTipo} onChange={(e) => setFiltroTipo(e.target.value)} aria-label="Filtrar por tipo">
@@ -139,12 +139,12 @@ function FormularioNuevoRecurso({ tipos, onCreado }) {
 
   return (
     <form onSubmit={enviar} className="tarjeta space-y-4">
-      <h2 className="text-lg font-semibold">Nuevo recurso</h2>
+      <h2 className="titulo-seccion">Nuevo recurso</h2>
       <div className="grid gap-4 sm:grid-cols-6">
         <CamposRecurso datos={datos} onCambio={setDatos} tipos={tipos} prefijo="nuevo" />
       </div>
       <Alerta error={error} />
-      <button type="submit" className="btn-primario" disabled={enviando}>{enviando ? "Creando..." : "Crear recurso"}</button>
+      <button type="submit" className="btn-primario" aria-busy={enviando} disabled={enviando}>{enviando ? "Creando..." : "Crear recurso"}</button>
     </form>
   );
 }
@@ -188,13 +188,13 @@ function FilaRecurso({ recurso, tipos, onActualizado }) {
   if (editando) {
     return (
       <li className="py-3">
-        <form onSubmit={guardar} className="space-y-3 rounded-lg border border-acento/40 p-4">
+        <form onSubmit={guardar} className="space-y-3 rounded-control border border-acento/40 p-4">
           <div className="grid gap-4 sm:grid-cols-6">
             <CamposRecurso datos={datos} onCambio={setDatos} tipos={tipos} prefijo={`recurso-${recurso.id}`} />
           </div>
           <Alerta error={error} />
           <div className="flex gap-2">
-            <button type="submit" className="btn-primario" disabled={enviando}>{enviando ? "Guardando..." : "Guardar"}</button>
+            <button type="submit" className="btn-primario" aria-busy={enviando} disabled={enviando}>{enviando ? "Guardando..." : "Guardar"}</button>
             <button type="button" className="btn-secundario" onClick={() => setEditando(false)}>Cancelar</button>
           </div>
         </form>

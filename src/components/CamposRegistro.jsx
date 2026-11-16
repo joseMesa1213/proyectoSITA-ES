@@ -22,7 +22,7 @@ export const cambiarCampo = (formulario, setFormulario) => (evento) => {
 // "Quiero ser tutor" + motivo opcional (solo aparece si la casilla está marcada)
 export function CasillaTutor({ formulario, onChange }) {
   return (
-    <div className={`rounded-lg border p-4 transition-colors ${formulario.quiero_ser_tutor ? "border-acento bg-acento/10" : "border-bosque/15"}`}>
+    <div className={`rounded-control border p-4 transition-colors ${formulario.quiero_ser_tutor ? "border-acento bg-acento/10" : "border-bosque/15"}`}>
       <label className="flex cursor-pointer items-start gap-3">
         <input type="checkbox" name="quiero_ser_tutor" checked={formulario.quiero_ser_tutor} onChange={onChange}
           className="mt-1 size-4 accent-bosque" aria-describedby="ayuda-tutor" />

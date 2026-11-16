@@ -7,7 +7,7 @@ export default function TarjetaTutoria({ tutoria }) {
 
   return (
     <Link to={`/tutorias/${id}`}
-      className="tarjeta group flex flex-col gap-3 transition-shadow hover:border-acento/50 hover:shadow-md">
+      className="tarjeta group flex flex-col gap-3 transition-shadow hover:border-acento/50 hover:shadow-flotante">
       <div>
         <p className="text-xs font-semibold tracking-wide text-bosque/60 uppercase">
           {materia.nombre} · {materia.codigo}

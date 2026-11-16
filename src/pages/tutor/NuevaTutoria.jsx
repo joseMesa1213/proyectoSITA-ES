@@ -29,7 +29,7 @@ export default function NuevaTutoria() {
   return (
     <div className="mx-auto max-w-2xl space-y-6">
       <Link to="/tutor/tutorias" className="text-sm font-medium text-bosque/70 hover:text-bosque">← Mis tutorías</Link>
-      <h1 className="text-3xl font-bold">Nueva tutoría</h1>
+      <h1 className="titulo-pagina">Nueva tutoría</h1>
 
       {materias.length === 0 ? (
         <div className="tarjeta space-y-3">

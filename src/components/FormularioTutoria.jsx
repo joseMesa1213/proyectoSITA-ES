@@ -68,7 +68,7 @@ export default function FormularioTutoria({ tutoria, materias = [], reservasActi
       {editando ? (
         <div>
           <p className="etiqueta">Materia</p>
-          <p className="rounded-lg bg-crema px-3 py-2 text-sm">
+          <p className="rounded-control bg-crema px-3 py-2 text-sm">
             {tutoria.materia.nombre} ({tutoria.materia.codigo})
             <span className="block text-xs text-bosque/60">La materia no se puede cambiar; para otra materia cree una tutoría nueva.</span>
           </p>
@@ -108,7 +108,7 @@ export default function FormularioTutoria({ tutoria, materias = [], reservasActi
         </Alerta>
       )}
 
-      <button type="submit" className="btn-primario" disabled={enviando}>
+      <button type="submit" className="btn-primario" aria-busy={enviando} disabled={enviando}>
         {enviando ? "Guardando..." : textoBoton ?? (editando ? "Guardar cambios" : "Publicar tutoría")}
       </button>
     </form>

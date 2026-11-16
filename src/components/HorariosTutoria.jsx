@@ -109,7 +109,7 @@ export default function HorariosTutoria({ tutoria, reservas, onCambio }) {
         </ul>
       )}
 
-      <form onSubmit={agregar} className="grid gap-3 rounded-lg bg-crema p-4 sm:grid-cols-[1.3fr_1fr_1fr_1.5fr_auto] sm:items-end">
+      <form onSubmit={agregar} className="grid gap-3 rounded-control bg-crema p-4 sm:grid-cols-[1.3fr_1fr_1fr_1.5fr_auto] sm:items-end">
         <div>
           <label htmlFor="dia" className="etiqueta">Día</label>
           <select id="dia" name="dia" className="campo" required value={nuevo.dia} onChange={cambiar}>

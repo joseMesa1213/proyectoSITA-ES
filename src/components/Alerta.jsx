@@ -15,7 +15,7 @@ export default function Alerta({ tipo = "info", error, children, onCerrar }) {
   const detalles = error?.detalles;
 
   return (
-    <div className={`flex items-start gap-3 rounded-lg border px-4 py-3 text-sm ${estilo}`} role="alert">
+    <div className={`flex items-start gap-3 rounded-control border px-4 py-3 text-sm ${estilo}`} role="alert">
       <div className="flex-1">
         <p className="font-medium">{error ? error.message : children}</p>
         {detalles?.faltantes && <p className="mt-1">Campos faltantes: {detalles.faltantes.join(", ")}</p>}

@@ -60,7 +60,7 @@ export default function MisMaterias() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold">Mis materias</h1>
+        <h1 className="titulo-pagina">Mis materias</h1>
         <p className="mt-1 text-bosque/70">Solo puede publicar tutorías de las materias que tenga asociadas.</p>
       </div>
 

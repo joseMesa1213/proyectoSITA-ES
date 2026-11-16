@@ -44,7 +44,7 @@ export default function AdminSolicitudes() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold">Solicitudes de tutor</h1>
+        <h1 className="titulo-pagina">Solicitudes de tutor</h1>
         <p className="mt-1 text-bosque/70">Estudiantes que pidieron ofrecer tutorías. Al aprobar, siguen siendo estudiantes y además pueden ser tutores.</p>
       </div>
 
@@ -122,7 +122,7 @@ function TarjetaSolicitud({ solicitud, onRevisada }) {
         <InsigniaEstado idEstado={solicitud.id_estado} nombre={solicitud.estado} />
       </div>
 
-      <div className="rounded-lg bg-crema px-4 py-3 text-sm">
+      <div className="rounded-control bg-crema px-4 py-3 text-sm">
         <p className="text-bosque/60">Solicitada el {formatearMarcaDeTiempo(solicitud.fecha_solicitud)}</p>
         <p className="mt-1">{solicitud.motivo ? `«${solicitud.motivo}»` : <span className="text-bosque/50">Sin motivo escrito.</span>}</p>
       </div>
@@ -145,7 +145,7 @@ function TarjetaSolicitud({ solicitud, onRevisada }) {
       )}
 
       {pendiente && rechazando && (
-        <form onSubmit={rechazar} className="space-y-3 rounded-lg border border-peligro/30 p-4">
+        <form onSubmit={rechazar} className="space-y-3 rounded-control border border-peligro/30 p-4">
           <div>
             <label htmlFor={`observacion-${solicitud.id}`} className="etiqueta">Motivo del rechazo (lo verá el estudiante)</label>
             <textarea id={`observacion-${solicitud.id}`} rows={2} maxLength={500} required className="campo"

@@ -38,7 +38,7 @@ export default function MisTutorias() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold">Mis tutorías</h1>
+          <h1 className="titulo-pagina">Mis tutorías</h1>
           <p className="mt-1 text-bosque/70">Publique tutorías y administre sus horarios.</p>
         </div>
         {materias.length > 0 && <Link to="/tutor/tutorias/nueva" className="btn-primario">+ Nueva tutoría</Link>}
@@ -63,7 +63,7 @@ export default function MisTutorias() {
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <p className="text-xs font-semibold tracking-wide text-bosque/60 uppercase">{t.materia.nombre}</p>
-                    <h2 className="text-lg font-semibold">{t.titulo}</h2>
+                    <h2 className="titulo-seccion">{t.titulo}</h2>
                   </div>
                   <InsigniaEstado idEstado={t.id_estado} nombre={activa ? "Activa" : "Inactiva"} />
                 </div>

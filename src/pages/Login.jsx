@@ -30,7 +30,7 @@ export default function Login() {
   return (
     <div className="mx-auto max-w-md">
       <div className="tarjeta p-8">
-        <h1 className="text-2xl font-bold">Iniciar sesión</h1>
+        <h1 className="titulo-pagina">Iniciar sesión</h1>
         <p className="mt-1 text-sm text-bosque/70">Ingrese con su correo institucional.</p>
 
         <div className="mt-6 space-y-4">
@@ -52,7 +52,7 @@ export default function Login() {
               value={contrasena} onChange={(e) => setContrasena(e.target.value)} />
           </div>
 
-          <button type="submit" className="btn-primario w-full" disabled={enviando}>
+          <button type="submit" className="btn-primario w-full" aria-busy={enviando} disabled={enviando}>
             {enviando ? "Ingresando..." : "Ingresar"}
           </button>
           {/* Quien se registró con Google no tiene contraseña: su cuenta guarda una aleatoria */}

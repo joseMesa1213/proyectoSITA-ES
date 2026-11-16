@@ -84,7 +84,7 @@ export default function AgendaTutorias() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold">Agenda de tutorías</h1>
+        <h1 className="titulo-pagina">Agenda de tutorías</h1>
         <p className="mt-1 text-bosque/70">Reservas que otros estudiantes hicieron en sus tutorías.</p>
       </div>
 
@@ -144,7 +144,7 @@ function TarjetaSesion({ sesion, cupo, ocupados, onActualizada }) {
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <p className="text-xs font-semibold tracking-wide text-bosque/60 uppercase">{tutoria.materia.nombre}</p>
-          <h2 className="text-lg font-semibold">{tutoria.titulo}</h2>
+          <h2 className="titulo-seccion">{tutoria.titulo}</h2>
           <p className="text-sm text-bosque/70">{formatearFecha(fecha)} · {horario.hora_inicio} – {horario.hora_fin}</p>
         </div>
         {cupo !== undefined && (
@@ -154,7 +154,7 @@ function TarjetaSesion({ sesion, cupo, ocupados, onActualizada }) {
         )}
       </div>
 
-      <ul className="divide-y divide-bosque/10 rounded-lg border border-bosque/10">
+      <ul className="divide-y divide-bosque/10 rounded-control border border-bosque/10">
         {reservas.map((r) => (
           <FilaReserva key={r.id} reserva={r} termino={termino} onActualizada={onActualizada} />
         ))}

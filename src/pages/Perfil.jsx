@@ -31,7 +31,7 @@ export default function Perfil() {
   return (
     <div className="mx-auto max-w-3xl space-y-6">
       <div>
-        <h1 className="text-3xl font-bold">Mi perfil</h1>
+        <h1 className="titulo-pagina">Mi perfil</h1>
         <p className="mt-1 text-bosque/70">Datos de su cuenta en SITA-ES.</p>
       </div>
 
@@ -74,7 +74,7 @@ function SeccionTutor({ esTutor, onAprobada }) {
 
   return (
     <section className="tarjeta space-y-4">
-      <h2 className="text-lg font-semibold">Ser tutor</h2>
+      <h2 className="titulo-seccion">Ser tutor</h2>
       <Alerta error={error} />
 
       {esTutor ? (
@@ -147,7 +147,7 @@ function FormularioSolicitud({ onEnviada }) {
           placeholder="Ej.: me fue muy bien en Cálculo Diferencial y quiero ayudar a otros" />
       </div>
       <Alerta error={error} />
-      <button type="submit" className="btn-primario" disabled={enviando}>
+      <button type="submit" className="btn-primario" aria-busy={enviando} disabled={enviando}>
         {enviando ? "Enviando..." : "Solicitar ser tutor"}
       </button>
     </form>

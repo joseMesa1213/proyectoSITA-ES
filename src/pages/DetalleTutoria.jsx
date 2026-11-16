@@ -47,7 +47,7 @@ export default function DetalleTutoria() {
         <section className="tarjeta space-y-4 p-6">
           <div>
             <p className="text-xs font-semibold tracking-wide text-bosque/60 uppercase">{materia.nombre} · {materia.codigo}</p>
-            <h1 className="mt-1 text-3xl font-bold">{titulo}</h1>
+            <h1 className="mt-1 titulo-pagina">{titulo}</h1>
             <p className="mt-1 text-bosque/70">Tutor: {tutor.nombre} {tutor.apellido}</p>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -64,7 +64,7 @@ export default function DetalleTutoria() {
             ) : (
               <ul className="grid gap-2 sm:grid-cols-2">
                 {horarios.map((h) => (
-                  <li key={h.id} className="flex justify-between rounded-lg bg-crema px-4 py-2 text-sm">
+                  <li key={h.id} className="flex justify-between rounded-control bg-crema px-4 py-2 text-sm">
                     <span className="font-medium">{h.dia}</span>
                     <span>{h.hora_inicio} – {h.hora_fin}</span>
                   </li>
@@ -127,7 +127,7 @@ function AccionReservar({ tutoria }) {
 }
 
 function Aviso({ children }) {
-  return <p className="rounded-lg bg-crema px-4 py-3 text-sm text-bosque/80">{children}</p>;
+  return <p className="rounded-control bg-crema px-4 py-3 text-sm text-bosque/80">{children}</p>;
 }
 
 function Valoraciones({ resumen }) {
@@ -135,7 +135,7 @@ function Valoraciones({ resumen }) {
   return (
     <section className="tarjeta space-y-4 p-6">
       <div className="flex flex-wrap items-center gap-3">
-        <h2 className="text-lg font-semibold">Valoraciones</h2>
+        <h2 className="titulo-seccion">Valoraciones</h2>
         {promedio !== null && (
           <span className="flex items-center gap-2">
             <Estrellas valor={promedio} />

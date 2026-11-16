@@ -30,7 +30,7 @@ const ENLACES = {
 };
 
 const claseEnlace = ({ isActive }) =>
-  `rounded-md px-3 py-2 text-sm font-medium transition-colors ${
+  `rounded-control px-3 py-2 text-sm font-medium transition-colors ${
     isActive ? "bg-white/10 text-white" : "text-white/75 hover:bg-white/5 hover:text-white"
   }`;
 
@@ -58,11 +58,11 @@ export default function BarraNavegacion() {
     <>
       {/* El nombre lleva a "Mi perfil" (para todos los roles) */}
       <Link to="/perfil" onClick={cerrarMenu} title="Mi perfil"
-        className="rounded-md px-2 py-1 text-sm text-white/90 hover:bg-white/10 hover:text-white">
+        className="rounded-control px-2 py-1 text-sm text-white/90 hover:bg-white/10 hover:text-white">
         {usuario.nombre}{" "}
         <span className="insignia ml-1 bg-acento text-bosque">{NOMBRE_ROL[usuario.id_rol]}</span>
       </Link>
-      <button type="button" onClick={cerrarSesion} className="rounded-md px-3 py-2 text-sm font-medium text-white/75 hover:text-white">
+      <button type="button" onClick={cerrarSesion} className="rounded-control px-3 py-2 text-sm font-medium text-white/75 hover:text-white">
         Cerrar sesión
       </button>
     </>
@@ -92,7 +92,7 @@ export default function BarraNavegacion() {
         {/* Móvil: botón de menú */}
         <button
           type="button"
-          className="rounded-md p-2 text-white/80 hover:bg-white/10 lg:hidden"
+          className="rounded-control p-2 text-white/80 hover:bg-white/10 lg:hidden"
           onClick={() => setMenuAbierto((abierto) => !abierto)}
           aria-expanded={menuAbierto}
           aria-label="Abrir menú"

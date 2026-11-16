@@ -43,7 +43,7 @@ export default function MisReservas() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold">Mi agenda</h1>
+        <h1 className="titulo-pagina">Mi agenda</h1>
         <p className="mt-1 text-bosque/70">Sus reservas de tutorías.</p>
       </div>
 
@@ -115,7 +115,7 @@ function TarjetaReserva({ reserva, onActualizada }) {
         <InsigniaEstado idEstado={reserva.id_estado} nombre={reserva.estado} />
       </div>
 
-      <div className="grid gap-2 rounded-lg bg-crema px-4 py-3 text-sm sm:grid-cols-3">
+      <div className="grid gap-2 rounded-control bg-crema px-4 py-3 text-sm sm:grid-cols-3">
         <p><span className="text-bosque/60">Fecha: </span><span className="font-medium">{formatearFecha(reserva.fecha_sesion)}</span></p>
         <p><span className="text-bosque/60">Hora: </span><span className="font-medium">{horario.hora_inicio} – {horario.hora_fin}</span></p>
         <p className="min-w-0 truncate">
@@ -134,7 +134,7 @@ function TarjetaReserva({ reserva, onActualizada }) {
 
       {/* Acciones según el estado */}
       {reserva.id_estado === ESTADO.ACTIVO && (
-        <button type="button" className="btn-peligro" onClick={cancelar} disabled={procesando}>
+        <button type="button" className="btn-peligro" onClick={cancelar} aria-busy={procesando} disabled={procesando}>
           {procesando ? "Cancelando..." : "Cancelar reserva"}
         </button>
       )}
@@ -180,7 +180,7 @@ function FormularioValoracion({ idReserva, onValorada, onCancelar }) {
   };
 
   return (
-    <form onSubmit={enviar} className="space-y-3 rounded-lg border border-acento/40 p-4">
+    <form onSubmit={enviar} className="space-y-3 rounded-control border border-acento/40 p-4">
       <div>
         <p className="etiqueta">¿Cómo le pareció la sesión?</p>
         <Estrellas valor={calificacion} onCambiar={setCalificacion} />
@@ -192,7 +192,7 @@ function FormularioValoracion({ idReserva, onValorada, onCancelar }) {
       </div>
       <Alerta error={error} />
       <div className="flex gap-2">
-        <button type="submit" className="btn-primario" disabled={enviando}>{enviando ? "Enviando..." : "Enviar valoración"}</button>
+        <button type="submit" className="btn-primario" aria-busy={enviando} disabled={enviando}>{enviando ? "Enviando..." : "Enviar valoración"}</button>
         <button type="button" className="btn-secundario" onClick={onCancelar}>Cancelar</button>
       </div>
     </form>

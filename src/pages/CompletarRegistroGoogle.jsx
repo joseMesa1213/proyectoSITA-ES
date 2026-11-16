@@ -20,7 +20,7 @@ export default function CompletarRegistroGoogle() {
     return (
       <div className="mx-auto max-w-md">
         <div className="tarjeta space-y-4 p-8">
-          <h1 className="text-2xl font-bold">Completa tu registro</h1>
+          <h1 className="titulo-pagina">Completa tu registro</h1>
           <Alerta>Para completar el registro, primero continúe con su cuenta de Google.</Alerta>
           <Link to="/registro" className="btn-primario w-full">Ir a crear cuenta</Link>
         </div>
@@ -78,7 +78,7 @@ function FormularioCompletar({ registro, desde }) {
   return (
     <div className="mx-auto max-w-2xl">
       <div className="tarjeta p-6 sm:p-8">
-        <h1 className="text-2xl font-bold">Completa tu registro</h1>
+        <h1 className="titulo-pagina">Completa tu registro</h1>
         <p className="mt-1 text-sm text-bosque/70">
           Ya verificamos su cuenta de Google. Faltan unos datos académicos (tiene 15 minutos para terminar).
         </p>
@@ -112,7 +112,7 @@ function FormularioCompletar({ registro, desde }) {
 
           <CasillaTutor formulario={formulario} onChange={cambiar} />
 
-          <button type="submit" className="btn-primario w-full" disabled={enviando}>
+          <button type="submit" className="btn-primario w-full" aria-busy={enviando} disabled={enviando}>
             {enviando ? "Creando cuenta..." : "Crear cuenta"}
           </button>
         </form>

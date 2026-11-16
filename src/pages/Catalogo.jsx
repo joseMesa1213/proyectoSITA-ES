@@ -69,7 +69,7 @@ export default function Catalogo() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold">Tutorías disponibles</h1>
+        <h1 className="titulo-pagina">Tutorías disponibles</h1>
         <p className="mt-1 text-bosque/70">Encuentre un compañero que le ayude con la materia que necesita.</p>
       </div>
 

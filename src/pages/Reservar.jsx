@@ -68,7 +68,7 @@ export default function Reservar() {
       <Link to={`/tutorias/${id}`} className="text-sm font-medium text-bosque/70 hover:text-bosque">← Volver al detalle</Link>
       <div>
         <p className="text-sm text-bosque/60">{tutoria.materia.nombre} · {tutoria.modalidad}</p>
-        <h1 className="text-2xl font-bold">Reservar: {tutoria.titulo}</h1>
+        <h1 className="titulo-pagina">Reservar: {tutoria.titulo}</h1>
       </div>
 
       <Paso numero={1} titulo="Elija un horario">
@@ -108,7 +108,7 @@ export default function Reservar() {
             <dd className="font-medium">{horario.recurso.nombre} ({horario.recurso.tipo})</dd>
           </dl>
           <Alerta error={error} />
-          <button type="button" className="btn-primario w-full sm:w-auto" onClick={confirmar} disabled={enviando}>
+          <button type="button" className="btn-primario w-full sm:w-auto" onClick={confirmar} aria-busy={enviando} disabled={enviando}>
             {enviando ? "Reservando..." : "Confirmar reserva"}
           </button>
         </section>
@@ -133,7 +133,7 @@ function Paso({ numero, titulo, bloqueado = false, ayuda, children }) {
 function Opcion({ activa, onClick, children }) {
   return (
     <button type="button" onClick={onClick} aria-pressed={activa}
-      className={`flex min-w-0 flex-col items-start gap-0.5 rounded-lg border px-4 py-3 text-left transition-colors ${
+      className={`flex min-w-0 flex-col items-start gap-0.5 rounded-control border px-4 py-3 text-left transition-colors ${
         activa ? "border-bosque bg-bosque text-white" : "border-bosque/15 bg-white hover:border-acento"
       }`}>
       {children}

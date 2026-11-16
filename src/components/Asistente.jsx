@@ -78,14 +78,14 @@ function Chat({ usuario }) {
     <>
       {abierto && (
         <section role="dialog" aria-labelledby="titulo-asistente"
-          className="fixed right-4 bottom-22 z-50 flex h-[min(34rem,calc(100dvh-7rem))] w-[calc(100vw-2rem)] max-w-sm flex-col overflow-hidden rounded-xl border border-bosque/10 bg-white shadow-xl">
+          className="fixed right-4 bottom-22 z-50 flex h-[min(34rem,calc(100dvh-7rem))] w-[calc(100vw-2rem)] max-w-sm flex-col overflow-hidden rounded-tarjeta border border-bosque/10 bg-white shadow-flotante">
           <header className="flex items-center justify-between bg-bosque px-4 py-3 text-white">
             <div>
               <h2 id="titulo-asistente" className="font-semibold">Asistente SITA</h2>
               <p className="text-xs text-white/70">Respuestas al instante sobre la plataforma</p>
             </div>
             <button type="button" onClick={cerrar} aria-label="Cerrar asistente"
-              className="rounded-md p-1.5 text-white/80 hover:bg-white/10 hover:text-white">
+              className="rounded-control p-1.5 text-white/80 hover:bg-white/10 hover:text-white">
               <svg viewBox="0 0 24 24" className="size-5" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M6 6l12 12M18 6L6 18" />
               </svg>
@@ -125,7 +125,7 @@ function Chat({ usuario }) {
 
       <button type="button" ref={botonFlotante} onClick={() => setAbierto((a) => !a)}
         aria-label={abierto ? "Cerrar asistente" : "Abrir asistente"} aria-expanded={abierto}
-        className="fixed right-4 bottom-4 z-50 flex size-14 items-center justify-center rounded-full bg-bosque text-white shadow-lg ring-2 ring-acento/60 transition-colors hover:bg-bosque-claro">
+        className="fixed right-4 bottom-4 z-50 flex size-14 items-center justify-center rounded-full bg-bosque text-white shadow-flotante ring-2 ring-acento/60 transition-colors hover:bg-bosque-claro">
         <svg viewBox="0 0 24 24" className="size-7" fill="none" stroke="currentColor" strokeWidth="2">
           <path d={abierto ? "M6 6l12 12M18 6L6 18" : "M4 5h16v11H8l-4 4V5zM8 10h.01M12 10h.01M16 10h.01"} />
         </svg>
@@ -138,7 +138,7 @@ function Chat({ usuario }) {
 function Mensaje({ mensaje, opciones, onElegir, onNavegar, deshabilitado }) {
   if (mensaje.de === "usuario") {
     return (
-      <li className="ml-auto w-fit max-w-[85%] rounded-lg rounded-br-sm bg-bosque px-3 py-2 text-sm text-white">
+      <li className="ml-auto w-fit max-w-[85%] rounded-control rounded-br-sm bg-bosque px-3 py-2 text-sm text-white">
         <span className="sr-only">Usted: </span>
         {mensaje.texto}
       </li>
@@ -148,14 +148,14 @@ function Mensaje({ mensaje, opciones, onElegir, onNavegar, deshabilitado }) {
   const { texto, tarjetas = [], enlaces = [] } = mensaje;
   return (
     <li className="max-w-[92%] space-y-2">
-      <p className="rounded-lg rounded-bl-sm border border-bosque/10 bg-white px-3 py-2 text-sm whitespace-pre-line">
+      <p className="rounded-control rounded-bl-sm border border-bosque/10 bg-white px-3 py-2 text-sm whitespace-pre-line">
         <span className="sr-only">Asistente: </span>
         {texto}
       </p>
 
       {tarjetas.map((t) => (
         <Link key={`${t.a}|${t.titulo}|${t.detalle}`} to={t.a} onClick={onNavegar}
-          className="block rounded-lg border border-bosque/10 bg-white px-3 py-2 transition-colors hover:border-acento/50">
+          className="block rounded-control border border-bosque/10 bg-white px-3 py-2 transition-colors hover:border-acento/50">
           <p className="text-sm font-semibold">{t.titulo}</p>
           <p className="text-xs text-bosque/70">{t.subtitulo}</p>
           <p className="mt-1 text-xs font-medium">{t.detalle}</p>
