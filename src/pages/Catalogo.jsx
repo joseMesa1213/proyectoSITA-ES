@@ -111,7 +111,7 @@ export default function Catalogo() {
                 </EstadoVacio>
               )
             ) : (
-              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              <div className="grid gap-4 sm:auto-rows-fr sm:grid-cols-2 lg:grid-cols-3">
                 {visibles.map((t) => (
                   <TarjetaTutoria key={t.id} tutoria={t} />
                 ))}

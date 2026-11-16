@@ -18,7 +18,7 @@ function Contenedor({ className, texto, children }) {
 }
 
 // Tarjetas en cuadrícula, como las del catálogo y "Mis tutorías"
-export function EsqueletoTarjetas({ cantidad = 6, className = "grid gap-4 sm:grid-cols-2 lg:grid-cols-3", texto = "Cargando..." }) {
+export function EsqueletoTarjetas({ cantidad = 6, className = "grid gap-4 sm:auto-rows-fr sm:grid-cols-2 lg:grid-cols-3", texto = "Cargando..." }) {
   return (
     <Contenedor className={className} texto={texto}>
       {repetir(cantidad, (i) => (
