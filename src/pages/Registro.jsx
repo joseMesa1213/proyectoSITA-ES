@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from "react-router";
 import { useAuth } from "../context/AuthContext.jsx";
 import { listarTiposDocumento } from "../api/catalogos.js";
 import Alerta from "../components/Alerta.jsx";
-import ContinuarConGoogle, { SeparadorGoogle } from "../components/ContinuarConGoogle.jsx";
+import ContinuarConGoogle, { SeparadorGoogle, googleDisponible } from "../components/ContinuarConGoogle.jsx";
 import {
   AVISO_SOLICITUD, CAMPOS_ACADEMICOS, Campo, CasillaTutor, SelectorTipoDocumento, cambiarCampo, datosAcademicos,
 } from "../components/CamposRegistro.jsx";
@@ -73,13 +73,9 @@ export default function Registro() {
 
         <div className="mt-6 space-y-4">
           <Alerta error={error} />
-          {/* Con Google se ahorra el correo y la contraseña; después pide solo los datos académicos */}
-          <ContinuarConGoogle onError={setError} />
-          <SeparadorGoogle texto="o con correo y contraseña" />
         </div>
 
         <form onSubmit={enviar} className="mt-4 space-y-6">
-
           <div className="grid gap-4 sm:grid-cols-2">
             <Campo etiqueta="Nombre" name="nombre" value={formulario.nombre} onChange={cambiar} autoComplete="given-name" />
             <Campo etiqueta="Apellido" name="apellido" value={formulario.apellido} onChange={cambiar} autoComplete="family-name" />
@@ -106,6 +102,14 @@ export default function Registro() {
             {enviando ? "Creando cuenta..." : "Crear cuenta"}
           </button>
         </form>
+
+        {/* Con Google se ahorra el correo y la contraseña; después pide solo los datos académicos */}
+        {googleDisponible && (
+          <div className="mt-6 space-y-4">
+            <SeparadorGoogle />
+            <ContinuarConGoogle onError={setError} />
+          </div>
+        )}
 
         <p className="mt-6 text-center text-sm text-texto-suave">
           ¿Ya tiene cuenta?{" "}

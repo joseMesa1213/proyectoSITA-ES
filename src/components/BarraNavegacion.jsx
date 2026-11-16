@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router";
 import { useAuth } from "../context/AuthContext.jsx";
 import BotonTema from "./BotonTema.jsx";
+import { useCierreExterno } from "../utils/useCierreExterno.js";
 import { NOMBRE_ROL, ROL } from "../utils/constantes.js";
 
 // Enlaces del menú según el rol. null = visitante sin sesión.
@@ -39,9 +40,13 @@ export default function BarraNavegacion() {
   const { usuario, logout } = useAuth();
   const navegar = useNavigate();
   const [menuAbierto, setMenuAbierto] = useState(false);
+  const barra = useRef(null);
+  const botonMenu = useRef(null);
 
   const enlaces = ENLACES[usuario?.id_rol ?? "invitado"] ?? ENLACES.invitado;
   const cerrarMenu = () => setMenuAbierto(false);
+  // Menú del celular: se cierra con Escape (el foco vuelve al botón) o con un clic fuera de la barra
+  useCierreExterno(menuAbierto, cerrarMenu, [barra], botonMenu);
 
   const cerrarSesion = () => {
     logout();
@@ -79,7 +84,7 @@ export default function BarraNavegacion() {
   );
 
   return (
-    <header className="border-b border-transparent bg-barra text-barra-texto dark:border-borde">
+    <header ref={barra} className="border-b border-transparent bg-barra text-barra-texto dark:border-borde">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3">
         <Link to="/" className="flex items-center gap-2 text-lg font-bold tracking-tight" onClick={cerrarMenu}>
           <img src="/favicon.svg" alt="" className="size-8" />
@@ -96,11 +101,13 @@ export default function BarraNavegacion() {
 
           {/* Móvil: botón de menú */}
           <button
+            ref={botonMenu}
             type="button"
-            className="rounded-control p-2 text-barra-texto/80 hover:bg-barra-texto/10 lg:hidden"
+            className="rounded-control p-2 text-barra-texto/80 transition-colors duration-150 hover:bg-barra-texto/10 lg:hidden"
             onClick={() => setMenuAbierto((abierto) => !abierto)}
             aria-expanded={menuAbierto}
-            aria-label="Abrir menú"
+            aria-controls="menu-celular"
+            aria-label={menuAbierto ? "Cerrar menú" : "Abrir menú"}
           >
             <svg viewBox="0 0 24 24" className="size-6" fill="none" stroke="currentColor" strokeWidth="2">
               <path d={menuAbierto ? "M6 6l12 12M18 6L6 18" : "M4 7h16M4 12h16M4 17h16"} />
@@ -110,7 +117,7 @@ export default function BarraNavegacion() {
       </div>
 
       {menuAbierto && (
-        <div className="border-t border-barra-texto/10 px-4 pb-4 lg:hidden">
+        <div id="menu-celular" className="animate-[aparecer_160ms_ease-out] border-t border-barra-texto/10 px-4 pb-4 lg:hidden">
           <nav className="flex flex-col gap-1 py-2">{navegacion}</nav>
           <div className="flex flex-wrap items-center gap-2 border-t border-barra-texto/10 pt-3">{cuenta}</div>
         </div>

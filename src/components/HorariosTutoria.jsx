@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { useConfirmar } from "./Confirmar.jsx";
+import { useAvisos } from "./Avisos.jsx";
 import { agregarHorario, desactivarHorario } from "../api/tutorias.js";
 import { obtenerOpciones } from "../api/catalogos.js";
 import { listarRecursos } from "../api/recursos.js";
@@ -16,11 +18,12 @@ import { contarReservas, reservasActivasFuturas } from "../utils/reservas.js";
  * onCambio(horarios, reservasCanceladas) recibe la lista actualizada.
  */
 export default function HorariosTutoria({ tutoria, reservas, onCambio }) {
+  const confirmar = useConfirmar();
   const [dias, setDias] = useState([]);
   const [recursos, setRecursos] = useState([]);
   const [nuevo, setNuevo] = useState({ dia: "", hora_inicio: "", hora_fin: "", id_recurso: "" });
   const [error, setError] = useState(null);
-  const [aviso, setAviso] = useState("");
+  const avisos = useAvisos();
   const [procesando, setProcesando] = useState(false);
 
   useEffect(() => {
@@ -44,7 +47,6 @@ export default function HorariosTutoria({ tutoria, reservas, onCambio }) {
   const agregar = async (evento) => {
     evento.preventDefault();
     setError(null);
-    setAviso("");
     if (nuevo.hora_fin <= nuevo.hora_inicio) {
       return setError(new Error("La hora de fin debe ser posterior a la hora de inicio"));
     }
@@ -52,7 +54,7 @@ export default function HorariosTutoria({ tutoria, reservas, onCambio }) {
     try {
       const horario = await agregarHorario(tutoria.id, { ...nuevo, id_recurso: Number(nuevo.id_recurso) });
       onCambio([...tutoria.horarios, horario]);
-      setAviso(`Horario agregado: ${horario.dia} ${horario.hora_inicio} – ${horario.hora_fin} en ${horario.recurso.nombre}.`);
+      avisos.exito(`Horario agregado: ${horario.dia} ${horario.hora_inicio} – ${horario.hora_fin} en ${horario.recurso.nombre}.`);
       setNuevo({ dia: "", hora_inicio: "", hora_fin: "", id_recurso: "" });
     } catch (err) {
       setError(err);
@@ -70,17 +72,24 @@ export default function HorariosTutoria({ tutoria, reservas, onCambio }) {
         ? `\n\nAtención: tiene ${contarReservas(pendientes)} futuras activas. ` +
           "Las de sesiones que aún no empiezan se cancelarán."
         : "");
-    if (!window.confirm(mensaje)) return;
+    const confirmado = await confirmar({
+      titulo: "Desactivar horario",
+      mensaje,
+      textoConfirmar: "Sí, desactivar",
+      peligro: true,
+    });
+    if (!confirmado) return;
 
-    setError(null);
-    setAviso("");
     setProcesando(true);
     try {
       const { reservas_canceladas, ...actualizado } = await desactivarHorario(tutoria.id, horario.id);
       onCambio(tutoria.horarios.map((h) => (h.id === actualizado.id ? actualizado : h)), reservas_canceladas);
-      if (reservas_canceladas > 0) setAviso(`Horario desactivado. Se cancelaron ${contarReservas(reservas_canceladas)}.`);
+      avisos.exito(reservas_canceladas > 0
+        ? `Horario desactivado. Se cancelaron ${contarReservas(reservas_canceladas)}.`
+        : "Horario desactivado.");
     } catch (err) {
-      setError(err);
+      // Es el resultado de un botón, no de un formulario: va como aviso
+      avisos.error(err);
     } finally {
       setProcesando(false);
     }
@@ -88,7 +97,6 @@ export default function HorariosTutoria({ tutoria, reservas, onCambio }) {
 
   return (
     <div className="space-y-4">
-      {aviso && <Alerta tipo="exito" onCerrar={() => setAviso("")}>{aviso}</Alerta>}
       <Alerta error={error} />
 
       {activos.length === 0 ? (

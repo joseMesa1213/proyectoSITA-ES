@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router";
 import { useAuth } from "../context/AuthContext.jsx";
 import { INVITADO } from "../asistente/intenciones.js";
+import { useCierreExterno } from "../utils/useCierreExterno.js";
 import { opcionesMenu, responder, responderIntencion, saludo } from "../asistente/motor.js";
 
 // Asistente SITA: botón flotante con un chat guiado que orienta y consulta,
@@ -23,6 +24,9 @@ function Chat({ usuario }) {
   const finDeLista = useRef(null);
   const campo = useRef(null);
   const botonFlotante = useRef(null);
+  const panel = useRef(null);
+  // Se cierra con Escape (el foco vuelve al botón flotante) o con un clic fuera del chat
+  useCierreExterno(abierto, () => setAbierto(false), [panel, botonFlotante], botonFlotante);
 
   const agregar = (mensaje) => setMensajes((lista) => [...lista, { id: siguienteId.current++, ...mensaje }]);
 
@@ -65,19 +69,12 @@ function Chat({ usuario }) {
     if (!abierto) return;
     // En el celular no se enfoca el campo: el teclado taparía el menú apenas se abre el chat
     if (window.matchMedia("(min-width: 640px)").matches) campo.current?.focus();
-    const cerrarConEscape = (evento) => {
-      if (evento.key !== "Escape") return;
-      setAbierto(false);
-      botonFlotante.current?.focus();
-    };
-    window.addEventListener("keydown", cerrarConEscape);
-    return () => window.removeEventListener("keydown", cerrarConEscape);
   }, [abierto]);
 
   return (
     <>
       {abierto && (
-        <section role="dialog" aria-labelledby="titulo-asistente"
+        <section ref={panel} role="dialog" aria-labelledby="titulo-asistente"
           className="fixed right-4 bottom-22 z-50 flex h-[min(34rem,calc(100dvh-7rem))] w-[calc(100vw-2rem)] max-w-sm flex-col overflow-hidden rounded-tarjeta border border-borde bg-superficie-elevada shadow-flotante">
           <header className="flex items-center justify-between bg-barra px-4 py-3 text-barra-texto">
             <div>

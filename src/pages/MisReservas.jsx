@@ -1,10 +1,13 @@
 import { useEffect, useState } from "react";
-import { Link, useLocation } from "react-router";
+import { useConfirmar } from "../components/Confirmar.jsx";
+import { useAvisoDeNavegacion, useAvisos } from "../components/Avisos.jsx";
+import { Link } from "react-router";
 import { cancelarReserva, listarMisReservas } from "../api/reservas.js";
 import { crearValoracion } from "../api/valoraciones.js";
 import Alerta from "../components/Alerta.jsx";
 import Cargando from "../components/Cargando.jsx";
 import Estrellas from "../components/Estrellas.jsx";
+import EstadoVacio from "../components/EstadoVacio.jsx";
 import { InsigniaEstado } from "../components/Insignias.jsx";
 import { ESTADO } from "../utils/constantes.js";
 import { formatearFecha } from "../utils/fechas.js";
@@ -18,12 +21,11 @@ const PESTANAS = [
 
 // "Mi agenda": reservas hechas por el usuario (estudiante o tutor que reserva)
 export default function MisReservas() {
-  const ubicacion = useLocation();
   const [reservas, setReservas] = useState(null);
   const [error, setError] = useState(null);
   const [pestana, setPestana] = useState(ESTADO.ACTIVO);
-  // Mensaje que llega desde Reservar ("Reserva confirmada...")
-  const [aviso, setAviso] = useState(ubicacion.state?.aviso ?? "");
+  // Aviso que llega desde Reservar ("Reserva confirmada...")
+  useAvisoDeNavegacion();
 
   useEffect(() => {
     listarMisReservas().then(setReservas).catch(setError);
@@ -47,7 +49,6 @@ export default function MisReservas() {
         <p className="mt-1 text-texto-suave">Sus reservas de tutorías.</p>
       </div>
 
-      {aviso && <Alerta tipo="exito" onCerrar={() => setAviso("")}>{aviso}</Alerta>}
 
       <div className="flex flex-wrap gap-2" role="tablist">
         {PESTANAS.map((p) => {
@@ -65,10 +66,10 @@ export default function MisReservas() {
       </div>
 
       {visibles.length === 0 ? (
-        <div className="tarjeta py-12 text-center text-texto-suave">
-          <p>No tiene reservas en esta sección.</p>
-          <Link to="/tutorias" className="btn-primario mt-4">Buscar tutorías</Link>
-        </div>
+        <EstadoVacio titulo="No tiene reservas en esta sección"
+          accion={<Link to="/tutorias" className="btn-primario">Buscar tutorías</Link>}>
+          Reserve un cupo en el catálogo y aparecerá aquí con su fecha, hora y lugar.
+        </EstadoVacio>
       ) : (
         <ul className="space-y-4">
           {visibles.map((r) => (
@@ -81,19 +82,27 @@ export default function MisReservas() {
 }
 
 function TarjetaReserva({ reserva, onActualizada }) {
+  const confirmar = useConfirmar();
+  const avisos = useAvisos();
   const { tutoria, horario, recurso } = reserva;
-  const [error, setError] = useState(null);
   const [procesando, setProcesando] = useState(false);
   const [valorando, setValorando] = useState(false);
 
   const cancelar = async () => {
-    if (!window.confirm(`¿Cancelar la reserva de "${tutoria.titulo}" del ${formatearFecha(reserva.fecha_sesion)}?`)) return;
-    setError(null);
+    const confirmado = await confirmar({
+      titulo: "Cancelar reserva",
+      mensaje: `¿Cancelar la reserva de "${tutoria.titulo}" del ${formatearFecha(reserva.fecha_sesion)}? Su cupo quedará libre para otra persona.`,
+      textoConfirmar: "Sí, cancelar la reserva",
+      textoCancelar: "No, mantenerla",
+      peligro: true,
+    });
+    if (!confirmado) return;
     setProcesando(true);
     try {
       onActualizada(await cancelarReserva(reserva.id));
+      avisos.exito(`Reserva cancelada: ${tutoria.titulo}. El cupo quedó libre para otra persona.`);
     } catch (err) {
-      setError(err);
+      avisos.error(err);
     } finally {
       setProcesando(false);
     }
@@ -130,8 +139,6 @@ function TarjetaReserva({ reserva, onActualizada }) {
         </p>
       </div>
 
-      <Alerta error={error} />
-
       {/* Acciones según el estado */}
       {reserva.id_estado === ESTADO.ACTIVO && (
         <button type="button" className="btn-peligro" onClick={cancelar} aria-busy={procesando} disabled={procesando}>
@@ -149,9 +156,10 @@ function TarjetaReserva({ reserva, onActualizada }) {
           <FormularioValoracion
             idReserva={reserva.id}
             onCancelar={() => setValorando(false)}
-            onValorada={(valoracion) =>
-              onActualizada({ ...reserva, valoracion: { id: valoracion.id, calificacion: valoracion.calificacion } })
-            }
+            onValorada={(valoracion) => {
+              onActualizada({ ...reserva, valoracion: { id: valoracion.id, calificacion: valoracion.calificacion } });
+              avisos.exito("¡Gracias! Su valoración quedó registrada.");
+            }}
           />
         ) : (
           <button type="button" className="btn-primario" onClick={() => setValorando(true)}>Valorar sesión</button>
@@ -180,7 +188,7 @@ function FormularioValoracion({ idReserva, onValorada, onCancelar }) {
   };
 
   return (
-    <form onSubmit={enviar} className="space-y-3 rounded-control border border-acento/40 p-4">
+    <form onSubmit={enviar} className="space-y-3 border-l-2 border-acento pl-4">
       <div>
         <p className="etiqueta">¿Cómo le pareció la sesión?</p>
         <Estrellas valor={calificacion} onCambiar={setCalificacion} />

@@ -1,8 +1,11 @@
 import { useEffect, useState } from "react";
+import { useConfirmar } from "../components/Confirmar.jsx";
+import { useAvisos } from "../components/Avisos.jsx";
 import { aprobarSolicitud, listarSolicitudes, rechazarSolicitud } from "../api/solicitudes.js";
 import Alerta from "../components/Alerta.jsx";
-import Cargando from "../components/Cargando.jsx";
+import { EsqueletoLista } from "../components/Esqueletos.jsx";
 import { InsigniaEstado } from "../components/Insignias.jsx";
+import EstadoVacio from "../components/EstadoVacio.jsx";
 import { formatearMarcaDeTiempo } from "../utils/fechas.js";
 
 const PESTANAS = [
@@ -18,7 +21,7 @@ export default function AdminSolicitudes() {
   const [pestana, setPestana] = useState("pendientes");
   const [solicitudes, setSolicitudes] = useState(null);
   const [error, setError] = useState(null);
-  const [aviso, setAviso] = useState("");
+  const avisos = useAvisos();
 
   useEffect(() => {
     let vigente = true;
@@ -36,7 +39,7 @@ export default function AdminSolicitudes() {
   const alRevisar = (revisada) => {
     setSolicitudes((lista) => lista.filter((s) => s.id !== revisada.id));
     const persona = nombreDe(revisada.usuario);
-    setAviso(revisada.estado === "Aprobado"
+    avisos.exito(revisada.estado === "Aprobado"
       ? `${persona} ahora es tutor: ya puede asociarse a materias y publicar tutorías.`
       : `Se rechazó la solicitud de ${persona}. Verá el motivo en su perfil y podrá volver a solicitar.`);
   };
@@ -48,12 +51,11 @@ export default function AdminSolicitudes() {
         <p className="mt-1 text-texto-suave">Estudiantes que pidieron ofrecer tutorías. Al aprobar, siguen siendo estudiantes y además pueden ser tutores.</p>
       </div>
 
-      {aviso && <Alerta tipo="exito" onCerrar={() => setAviso("")}>{aviso}</Alerta>}
 
       <div className="flex flex-wrap gap-2" role="tablist">
         {PESTANAS.map((p) => (
           <button key={p.id} type="button" role="tab" aria-selected={pestana === p.id}
-            onClick={() => { setPestana(p.id); setAviso(""); }}
+            onClick={() => setPestana(p.id)}
             className={`rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${
               pestana === p.id ? "bg-primario text-primario-texto" : "bg-superficie text-texto hover:bg-texto/5"
             }`}>
@@ -65,11 +67,16 @@ export default function AdminSolicitudes() {
       <Alerta error={error} />
 
       {!solicitudes ? (
-        !error && <Cargando />
+        !error && <EsqueletoLista filas={1} texto="Cargando solicitudes..." />
       ) : solicitudes.length === 0 ? (
-        <div className="tarjeta py-12 text-center text-texto-suave">
-          {pestana === "pendientes" ? "No hay solicitudes pendientes." : "Todavía no se ha revisado ninguna solicitud."}
-        </div>
+        pestana === "pendientes" ? (
+          <EstadoVacio titulo="No hay solicitudes pendientes"
+            accion={<button type="button" className="btn-secundario" onClick={() => setPestana("historial")}>Ver el historial</button>}>
+            Cuando un estudiante pida ser tutor, su solicitud aparecerá aquí.
+          </EstadoVacio>
+        ) : (
+          <EstadoVacio titulo="Todavía no se ha revisado ninguna solicitud" />
+        )
       ) : (
         <ul className="space-y-4">
           {solicitudes.map((s) => (
@@ -82,6 +89,8 @@ export default function AdminSolicitudes() {
 }
 
 function TarjetaSolicitud({ solicitud, onRevisada }) {
+  const confirmar = useConfirmar();
+  const avisos = useAvisos();
   const { usuario } = solicitud;
   const pendiente = solicitud.estado === "Pendiente";
   const [rechazando, setRechazando] = useState(false);
@@ -95,13 +104,20 @@ function TarjetaSolicitud({ solicitud, onRevisada }) {
     try {
       onRevisada(await accion());
     } catch (err) {
-      setError(err);
+      // Al rechazar hay un formulario (el motivo): el error se queda junto a él. Al aprobar, va como aviso.
+      if (rechazando) setError(err);
+      else avisos.error(err);
       setProcesando(false);
     }
   };
 
-  const aprobar = () => {
-    if (window.confirm(`¿Aprobar a ${nombreDe(usuario)} como tutor?`)) ejecutar(() => aprobarSolicitud(solicitud.id));
+  const aprobar = async () => {
+    const confirmado = await confirmar({
+      titulo: "Aprobar solicitud",
+      mensaje: `¿Aprobar a ${nombreDe(usuario)} como tutor? Seguirá siendo estudiante y además podrá publicar tutorías.`,
+      textoConfirmar: "Sí, aprobar",
+    });
+    if (confirmado) ejecutar(() => aprobarSolicitud(solicitud.id));
   };
 
   const rechazar = (evento) => {
@@ -145,7 +161,7 @@ function TarjetaSolicitud({ solicitud, onRevisada }) {
       )}
 
       {pendiente && rechazando && (
-        <form onSubmit={rechazar} className="space-y-3 rounded-control border border-peligro/30 p-4">
+        <form onSubmit={rechazar} className="space-y-3 border-l-2 border-peligro pl-4">
           <div>
             <label htmlFor={`observacion-${solicitud.id}`} className="etiqueta">Motivo del rechazo (lo verá el estudiante)</label>
             <textarea id={`observacion-${solicitud.id}`} rows={2} maxLength={500} required className="campo"

@@ -4,7 +4,8 @@ import { listarMisTutorias } from "../../api/tutorias.js";
 import { listarMisMaterias } from "../../api/materias.js";
 import { listarReservasRecibidas } from "../../api/reservas.js";
 import Alerta from "../../components/Alerta.jsx";
-import Cargando from "../../components/Cargando.jsx";
+import { useAvisos } from "../../components/Avisos.jsx";
+import { EsqueletoTarjetas } from "../../components/Esqueletos.jsx";
 import BotonEstadoTutoria from "../../components/BotonEstadoTutoria.jsx";
 import { InsigniaEstado, InsigniaModalidad, InsigniaNivel } from "../../components/Insignias.jsx";
 import { ESTADO } from "../../utils/constantes.js";
@@ -12,6 +13,7 @@ import { contarReservas, reservasActivasFuturas } from "../../utils/reservas.js"
 
 // Tutorías del tutor (activas e inactivas), con acceso a editar, horarios e inactivar/reactivar
 export default function MisTutorias() {
+  const avisos = useAvisos();
   const [datos, setDatos] = useState(null);
   const [error, setError] = useState(null);
 
@@ -22,7 +24,15 @@ export default function MisTutorias() {
       .catch(setError);
   }, []);
 
-  if (!datos) return error ? <Alerta error={error} /> : <Cargando />;
+  // Mientras carga se muestra el título y la forma de las tarjetas
+  if (!datos) {
+    return (
+      <div className="space-y-6">
+        <Encabezado />
+        {error ? <Alerta error={error} /> : <EsqueletoTarjetas cantidad={4} className="grid gap-4 md:grid-cols-2" texto="Cargando sus tutorías..." />}
+      </div>
+    );
+  }
 
   const { tutorias, materias, reservas } = datos;
   // Activas primero; dentro de cada grupo se respeta el orden del backend (más recientes primero)
@@ -36,13 +46,7 @@ export default function MisTutorias() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h1 className="titulo-pagina">Mis tutorías</h1>
-          <p className="mt-1 text-texto-suave">Publique tutorías y administre sus horarios.</p>
-        </div>
-        {materias.length > 0 && <Link to="/tutor/tutorias/nueva" className="btn-primario">+ Nueva tutoría</Link>}
-      </div>
+      <Encabezado puedePublicar={materias.length > 0} />
 
       <Alerta error={error} />
 
@@ -80,7 +84,10 @@ export default function MisTutorias() {
                 <p className="text-sm font-medium">{contarReservas(proximas)} {proximas === 1 ? "próxima" : "próximas"}</p>
                 <div className="mt-auto flex flex-wrap gap-2 border-t border-borde pt-3">
                   <Link to={`/tutor/tutorias/${t.id}`} className="btn-primario">Editar y horarios</Link>
-                  <BotonEstadoTutoria tutoria={t} reservasFuturas={proximas} onCambiada={reemplazar} onError={setError} />
+                  <BotonEstadoTutoria tutoria={t} reservasFuturas={proximas} onCambiada={(actualizada) => {
+                    reemplazar(actualizada);
+                    avisos.exito(`Tutoría «${actualizada.titulo}» ${actualizada.id_estado === ESTADO.ACTIVO ? "reactivada" : "inactivada"}.`);
+                  }} onError={avisos.error} />
                 </div>
               </li>
             );
@@ -122,5 +129,17 @@ function PrimerosPasos({ tieneMaterias, tieneTutorias, tieneHorarios }) {
         ))}
       </ol>
     </section>
+  );
+}
+
+function Encabezado({ puedePublicar = false }) {
+  return (
+    <div className="flex flex-wrap items-end justify-between gap-4">
+      <div>
+        <h1 className="titulo-pagina">Mis tutorías</h1>
+        <p className="mt-1 text-texto-suave">Publique tutorías y administre sus horarios.</p>
+      </div>
+      {puedePublicar && <Link to="/tutor/tutorias/nueva" className="btn-primario">+ Nueva tutoría</Link>}
+    </div>
   );
 }

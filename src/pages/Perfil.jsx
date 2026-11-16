@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { Link, useLocation } from "react-router";
+import { Link } from "react-router";
+import { useAvisoDeNavegacion, useAvisos } from "../components/Avisos.jsx";
 import { useAuth } from "../context/AuthContext.jsx";
 import { obtenerMiSolicitud, solicitarSerTutor } from "../api/solicitudes.js";
 import Alerta from "../components/Alerta.jsx";
@@ -11,9 +12,8 @@ import { formatearMarcaDeTiempo } from "../utils/fechas.js";
 // "Mi perfil": datos de la cuenta y, para estudiantes, la solicitud para ser tutor (pedirla y ver su estado).
 export default function Perfil() {
   const { usuario, refrescarPerfil } = useAuth();
-  const ubicacion = useLocation();
   // Aviso que llega desde el registro ("su solicitud quedó en revisión")
-  const [aviso, setAviso] = useState(ubicacion.state?.aviso ?? "");
+  useAvisoDeNavegacion();
 
   // Al entrar se pide el perfil de nuevo: si un administrador aprobó la solicitud, aquí aparece como tutor
   useEffect(() => {
@@ -35,7 +35,6 @@ export default function Perfil() {
         <p className="mt-1 text-texto-suave">Datos de su cuenta en SITA-ES.</p>
       </div>
 
-      {aviso && <Alerta tipo="exito" onCerrar={() => setAviso("")}>{aviso}</Alerta>}
 
       <section className="tarjeta">
         <dl className="divide-y divide-borde">

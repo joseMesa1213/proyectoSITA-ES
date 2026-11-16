@@ -104,7 +104,7 @@ export default function ContinuarConGoogle({ onError, texto = "continue_with" })
   );
 }
 
-// Línea "o" entre el botón de Google y el formulario. Solo aparece si el botón está activo.
+// Línea "o" entre el formulario y el botón de Google (que va debajo). Solo aparece si el botón está activo.
 export function SeparadorGoogle({ texto = "o" }) {
   if (!CLIENT_ID) return null;
   return (

@@ -1,9 +1,12 @@
 import { useEffect, useState } from "react";
+import { useConfirmar } from "../../components/Confirmar.jsx";
+import { useAvisos } from "../../components/Avisos.jsx";
 import { Link } from "react-router";
 import { cancelarReserva, completarReserva, listarReservasRecibidas } from "../../api/reservas.js";
 import { listarMisTutorias } from "../../api/tutorias.js";
 import Alerta from "../../components/Alerta.jsx";
-import Cargando from "../../components/Cargando.jsx";
+import EstadoVacio from "../../components/EstadoVacio.jsx";
+import { EsqueletoLista } from "../../components/Esqueletos.jsx";
 import { InsigniaEstado } from "../../components/Insignias.jsx";
 import { ESTADO } from "../../utils/constantes.js";
 import { formatearFecha } from "../../utils/fechas.js";
@@ -111,16 +114,19 @@ export default function AgendaTutorias() {
       <Alerta error={error} />
 
       {!reservas ? (
-        !error && <Cargando />
+        !error && <EsqueletoLista texto="Cargando la agenda..." />
       ) : sesiones.length === 0 ? (
-        <div className="tarjeta py-12 text-center text-texto-suave">
-          {fecha ? `No hay reservas en esta sección para el ${formatearFecha(fecha).toLowerCase()}.` : "No hay reservas en esta sección."}
-          {pestana === "proximas" && !fecha && (
-            <p className="mt-2 text-sm">
-              ¿Sus tutorías tienen horarios activos? Revíselas en <Link to="/tutor/tutorias" className="underline decoration-acento underline-offset-4">Mis tutorías</Link>.
-            </p>
-          )}
-        </div>
+        fecha ? (
+          <EstadoVacio titulo={`No hay reservas en esta sección para el ${formatearFecha(fecha).toLowerCase()}`}
+            accion={<button type="button" className="btn-secundario" onClick={() => setFecha("")}>Ver todas las fechas</button>} />
+        ) : pestana === "proximas" ? (
+          <EstadoVacio titulo="No hay reservas próximas"
+            accion={<Link to="/tutor/tutorias" className="btn-primario">Revisar mis tutorías</Link>}>
+            Para recibir reservas, sus tutorías necesitan horarios activos.
+          </EstadoVacio>
+        ) : (
+          <EstadoVacio titulo="No hay reservas en esta sección" />
+        )
       ) : (
         <ul className="space-y-4">
           {sesiones.map((s) => (
@@ -154,7 +160,7 @@ function TarjetaSesion({ sesion, cupo, ocupados, onActualizada }) {
         )}
       </div>
 
-      <ul className="divide-y divide-borde rounded-control border border-borde">
+      <ul className="divide-y divide-borde border-t border-borde">
         {reservas.map((r) => (
           <FilaReserva key={r.id} reserva={r} termino={termino} onActualizada={onActualizada} />
         ))}
@@ -164,53 +170,65 @@ function TarjetaSesion({ sesion, cupo, ocupados, onActualizada }) {
 }
 
 function FilaReserva({ reserva, termino, onActualizada }) {
+  const confirmar = useConfirmar();
+  const avisos = useAvisos();
   const { estudiante, recurso } = reserva;
-  const [error, setError] = useState(null);
   const [procesando, setProcesando] = useState(false);
   const activa = reserva.id_estado === ESTADO.ACTIVO;
   const nombre = `${estudiante.nombre} ${estudiante.apellido}`;
 
-  const ejecutar = async (accion, confirmacion) => {
-    if (!window.confirm(confirmacion)) return;
-    setError(null);
+  // confirmacion: opciones del diálogo de confirmación (título, mensaje, botón); exito: texto del aviso
+  const ejecutar = async (accion, confirmacion, exito) => {
+    if (!(await confirmar(confirmacion))) return;
     setProcesando(true);
     try {
       onActualizada(await accion(reserva.id));
+      avisos.exito(exito);
     } catch (err) {
-      setError(err);
+      avisos.error(err);
     } finally {
       setProcesando(false);
     }
   };
 
   return (
-    <li className="space-y-2 px-4 py-3">
-      <div className="flex flex-wrap items-center justify-between gap-3">
+    // En el celular: datos arriba y botones abajo, a lo ancho; desde sm, en una sola fila
+    <li className="py-3">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="min-w-0">
           <p className="font-medium">{nombre}</p>
-          <p className="truncate text-sm text-texto-suave">
+          <p className="text-sm break-words text-texto-suave">
             <a href={`mailto:${estudiante.correo}`} className="underline decoration-borde-fuerte underline-offset-2">{estudiante.correo}</a>
-            {" · "}{recurso.nombre}
           </p>
+          <p className="text-sm text-texto-suave">{recurso.nombre}</p>
         </div>
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2 sm:justify-end">
           {!activa && <InsigniaEstado idEstado={reserva.id_estado} nombre={reserva.estado} />}
           {activa && termino && (
-            <button type="button" className="btn-primario px-3 py-1" disabled={procesando}
-              onClick={() => ejecutar(completarReserva, `¿Marcar como completada la sesión de ${nombre}? Así podrá valorarla.`)}>
+            <button type="button" className="btn-primario flex-1 px-3 py-1.5 sm:flex-none sm:py-1" disabled={procesando}
+              onClick={() => ejecutar(completarReserva, {
+                titulo: "Completar sesión",
+                mensaje: `¿Marcar como completada la sesión de ${nombre}? Así podrá valorarla.`,
+                textoConfirmar: "Sí, completar",
+              }, `Sesión de ${nombre} completada: ya puede valorarla.`)}>
               Completar
             </button>
           )}
           {activa && (
-            <button type="button" className="btn-peligro px-3 py-1" disabled={procesando}
-              onClick={() => ejecutar(cancelarReserva, `¿Cancelar la reserva de ${nombre}?`)}>
+            <button type="button" className="btn-peligro flex-1 px-3 py-1.5 sm:flex-none sm:py-1" disabled={procesando}
+              onClick={() => ejecutar(cancelarReserva, {
+                titulo: "Cancelar reserva",
+                mensaje: `¿Cancelar la reserva de ${nombre}? Se le liberará el cupo.`,
+                textoConfirmar: "Sí, cancelar la reserva",
+                textoCancelar: "No, mantenerla",
+                peligro: true,
+              }, `Reserva de ${nombre} cancelada.`)}>
               Cancelar
             </button>
           )}
-          {activa && !termino && <span className="text-xs text-texto-suave">Completar se habilita al terminar la sesión</span>}
+          {activa && !termino && <span className="w-full text-xs text-texto-suave sm:order-first sm:w-auto">Completar se habilita al terminar la sesión</span>}
         </div>
       </div>
-      <Alerta error={error} />
     </li>
   );
 }

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { actualizarMateria, crearMateria, listarMaterias } from "../api/materias.js";
 import Alerta from "../components/Alerta.jsx";
+import { useAvisos } from "../components/Avisos.jsx";
 import Cargando from "../components/Cargando.jsx";
 
 const porNombre = (a, b) => a.nombre.localeCompare(b.nombre);
@@ -17,7 +18,7 @@ const aCuerpo = (datos) => ({
 export default function AdminMaterias() {
   const [materias, setMaterias] = useState(null);
   const [error, setError] = useState(null);
-  const [aviso, setAviso] = useState("");
+  const avisos = useAvisos();
   const [filtro, setFiltro] = useState("");
 
   useEffect(() => {
@@ -26,7 +27,7 @@ export default function AdminMaterias() {
 
   const alCrear = (materia) => {
     setMaterias((lista) => [...lista, materia].sort(porNombre));
-    setAviso(`Materia "${materia.nombre}" creada.`);
+    avisos.exito(`Materia "${materia.nombre}" creada.`);
   };
 
   const alActualizar = (materia) =>
@@ -47,7 +48,6 @@ export default function AdminMaterias() {
         <p className="mt-1 text-texto-suave">Los tutores solo pueden ofrecer tutorías de las materias de este catálogo.</p>
       </div>
 
-      {aviso && <Alerta tipo="exito" onCerrar={() => setAviso("")}>{aviso}</Alerta>}
 
       <FormularioNuevaMateria onCreada={alCrear} />
 
@@ -167,7 +167,7 @@ function FilaMateria({ materia, onActualizada }) {
 
   return (
     <li className="py-3">
-      <form onSubmit={guardar} className="space-y-3 rounded-control border border-acento/40 p-4">
+      <form onSubmit={guardar} className="space-y-3 border-l-2 border-acento pl-4">
         <div className="grid gap-4 sm:grid-cols-6">
           <CamposMateria datos={datos} onCambio={setDatos} prefijo={`materia-${materia.id}`} />
         </div>

@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { useConfirmar } from "../../components/Confirmar.jsx";
+import { useAvisos } from "../../components/Avisos.jsx";
 import { Link } from "react-router";
 import { asociarMateria, desasociarMateria, listarMaterias, listarMisMaterias } from "../../api/materias.js";
 import Alerta from "../../components/Alerta.jsx";
@@ -6,11 +8,12 @@ import Cargando from "../../components/Cargando.jsx";
 
 // El tutor declara qué materias domina: solo puede publicar tutorías de estas materias.
 export default function MisMaterias() {
+  const confirmar = useConfirmar();
   const [todas, setTodas] = useState(null);
   const [mias, setMias] = useState([]);
   const [busqueda, setBusqueda] = useState("");
   const [error, setError] = useState(null);
-  const [aviso, setAviso] = useState("");
+  const avisos = useAvisos();
   const [procesando, setProcesando] = useState(null); // id de la materia en proceso
 
   useEffect(() => {
@@ -33,15 +36,13 @@ export default function MisMaterias() {
 
   // Ejecuta la acción en el backend y muestra el resultado
   const ejecutar = async (materia, accion, mensaje) => {
-    setError(null);
-    setAviso("");
     setProcesando(materia.id);
     try {
       await accion(materia.id);
       setMias(await listarMisMaterias());
-      setAviso(mensaje);
+      avisos.exito(mensaje);
     } catch (err) {
-      setError(err);
+      avisos.error(err);
     } finally {
       setProcesando(null);
     }
@@ -49,11 +50,14 @@ export default function MisMaterias() {
 
   const asociar = (materia) => ejecutar(materia, asociarMateria, `Ahora puede publicar tutorías de ${materia.nombre}.`);
 
-  const desasociar = (materia) => {
-    const confirmado = window.confirm(
-      `¿Quitar ${materia.nombre} de sus materias?\n\n` +
-        "Sus tutorías ya creadas de esta materia no cambian, pero no podrá publicar nuevas."
-    );
+  const desasociar = async (materia) => {
+    const confirmado = await confirmar({
+      titulo: "Quitar materia",
+      mensaje: `¿Quitar ${materia.nombre} de sus materias?\n\n` +
+        "Sus tutorías ya creadas de esta materia no cambian, pero no podrá publicar nuevas.",
+      textoConfirmar: "Sí, quitar",
+      peligro: true,
+    });
     if (confirmado) ejecutar(materia, desasociarMateria, `Se quitó ${materia.nombre} de sus materias.`);
   };
 
@@ -64,7 +68,6 @@ export default function MisMaterias() {
         <p className="mt-1 text-texto-suave">Solo puede publicar tutorías de las materias que tenga asociadas.</p>
       </div>
 
-      {aviso && <Alerta tipo="exito" onCerrar={() => setAviso("")}>{aviso}</Alerta>}
       <Alerta error={error} />
 
       <div className="grid gap-6 lg:grid-cols-2">

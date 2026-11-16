@@ -36,8 +36,6 @@ export default function Login() {
         <div className="mt-6 space-y-4">
           {avisoSesion && !error && <Alerta>{avisoSesion}</Alerta>}
           <Alerta error={error} />
-          <ContinuarConGoogle onError={setError} />
-          <SeparadorGoogle texto="o con correo y contraseña" />
         </div>
 
         <form onSubmit={enviar} className="mt-4 space-y-4">
@@ -55,11 +53,17 @@ export default function Login() {
           <button type="submit" className="btn-primario w-full" aria-busy={enviando} disabled={enviando}>
             {enviando ? "Ingresando..." : "Ingresar"}
           </button>
-          {/* Quien se registró con Google no tiene contraseña: su cuenta guarda una aleatoria */}
-          {googleDisponible && (
-            <p className="text-center text-xs text-texto-suave">¿Se registró con Google? Use el botón de Google.</p>
-          )}
         </form>
+
+        {/* Primero el formulario (lo que usa la mayoría); Google queda como alternativa debajo */}
+        {googleDisponible && (
+          <div className="mt-6 space-y-4">
+            <SeparadorGoogle />
+            <ContinuarConGoogle onError={setError} />
+            {/* Quien se registró con Google no tiene contraseña: su cuenta guarda una aleatoria */}
+            <p className="text-center text-xs text-texto-suave">Si se registró con Google, ingrese siempre con este botón.</p>
+          </div>
+        )}
 
         <p className="mt-6 text-center text-sm text-texto-suave">
           ¿No tiene cuenta?{" "}

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useConfirmar } from "./Confirmar.jsx";
 import { actualizarTutoria } from "../api/tutorias.js";
 import { ESTADO } from "../utils/constantes.js";
 import { contarReservas } from "../utils/reservas.js";
@@ -11,6 +12,7 @@ import { contarReservas } from "../utils/reservas.js";
  */
 export default function BotonEstadoTutoria({ tutoria, reservasFuturas = 0, onCambiada, onError }) {
   const [procesando, setProcesando] = useState(false);
+  const confirmar = useConfirmar();
   const activa = tutoria.id_estado === ESTADO.ACTIVO;
 
   const cambiar = async () => {
@@ -22,7 +24,13 @@ export default function BotonEstadoTutoria({ tutoria, reservasFuturas = 0, onCam
             "Las de sesiones que aún no empiezan se cancelarán."
           : "")
       : `¿Reactivar «${tutoria.titulo}»? Volverá a aparecer en el catálogo; agregue horarios nuevos para que puedan reservarla.`;
-    if (!window.confirm(mensaje)) return;
+    const confirmado = await confirmar({
+      titulo: activa ? "Inactivar tutoría" : "Reactivar tutoría",
+      mensaje,
+      textoConfirmar: activa ? "Sí, inactivar" : "Sí, reactivar",
+      peligro: activa,
+    });
+    if (!confirmado) return;
 
     setProcesando(true);
     try {

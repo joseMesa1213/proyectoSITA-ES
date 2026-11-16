@@ -4,8 +4,9 @@ import { listarTutorias } from "../api/tutorias.js";
 import { listarMaterias } from "../api/materias.js";
 import { obtenerOpciones } from "../api/catalogos.js";
 import Alerta from "../components/Alerta.jsx";
-import Cargando from "../components/Cargando.jsx";
+import { EsqueletoTarjetas } from "../components/Esqueletos.jsx";
 import TarjetaTutoria from "../components/TarjetaTutoria.jsx";
+import EstadoVacio from "../components/EstadoVacio.jsx";
 
 // Catálogo público de tutorías con filtros por materia, nivel, modalidad y día.
 // Los filtros viven en la URL (?id_materia=3&nivel=Básico&dia=Lunes): se conservan al volver
@@ -91,7 +92,7 @@ export default function Catalogo() {
       <Alerta error={error} />
 
       {cargando ? (
-        <Cargando texto="Buscando tutorías..." />
+        <EsqueletoTarjetas texto="Buscando tutorías..." />
       ) : (
         !error && (
           <>
@@ -99,11 +100,18 @@ export default function Catalogo() {
               {visibles.length} {visibles.length === 1 ? "tutoría encontrada" : "tutorías encontradas"}
             </p>
             {visibles.length === 0 ? (
-              <div className="tarjeta py-12 text-center text-texto-suave">
-                {hayFiltros ? "No hay tutorías con esos filtros." : "Todavía no hay tutorías publicadas."}
-              </div>
+              hayFiltros ? (
+                <EstadoVacio titulo="No hay tutorías con esos filtros"
+                  accion={<button type="button" className="btn-primario" onClick={() => setParametros({}, { replace: true })}>Limpiar filtros</button>}>
+                  Pruebe con otro día, nivel o modalidad, o quite los filtros para ver todas.
+                </EstadoVacio>
+              ) : (
+                <EstadoVacio titulo="Todavía no hay tutorías publicadas">
+                  Cuando los tutores publiquen sus tutorías, aparecerán aquí.
+                </EstadoVacio>
+              )
             ) : (
-              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              <div className="grid gap-4 sm:auto-rows-fr sm:grid-cols-2 lg:grid-cols-3">
                 {visibles.map((t) => (
                   <TarjetaTutoria key={t.id} tutoria={t} />
                 ))}

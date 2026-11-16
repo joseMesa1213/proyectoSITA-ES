@@ -9,12 +9,14 @@ import Estrellas from "../components/Estrellas.jsx";
 import { InsigniaModalidad, InsigniaNivel } from "../components/Insignias.jsx";
 import { ESTADO, ROLES_QUE_RESERVAN } from "../utils/constantes.js";
 import { formatearMarcaDeTiempo } from "../utils/fechas.js";
+import { useTituloPagina } from "../utils/titulos.js";
 
 export default function DetalleTutoria() {
   const { id } = useParams();
   const [tutoria, setTutoria] = useState(null);
   const [resumen, setResumen] = useState(null);
   const [error, setError] = useState(null);
+  useTituloPagina(tutoria?.titulo);
 
   useEffect(() => {
     // La tutoría y sus valoraciones se piden en paralelo
