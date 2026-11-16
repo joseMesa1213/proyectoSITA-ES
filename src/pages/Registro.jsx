@@ -3,6 +3,8 @@ import { Link, useLocation, useNavigate } from "react-router";
 import { useAuth } from "../context/AuthContext.jsx";
 import { listarTiposDocumento } from "../api/catalogos.js";
 import Alerta from "../components/Alerta.jsx";
+import ContinuarConGoogle, { SeparadorGoogle } from "../components/ContinuarConGoogle.jsx";
+import { Campo, SelectorRol, SelectorTipoDocumento, datosAcademicos } from "../components/CamposRegistro.jsx";
 import { ROL } from "../utils/constantes.js";
 
 const FORMULARIO_INICIAL = {
@@ -18,12 +20,6 @@ const FORMULARIO_INICIAL = {
   nombre_programa: "",
   semestre: "",
 };
-
-// El registro solo permite estos dos roles (el administrador se crea en la BD)
-const ROLES_REGISTRO = [
-  { id: ROL.ESTUDIANTE, nombre: "Estudiante", descripcion: "Busco y reservo tutorías" },
-  { id: ROL.TUTOR, nombre: "Tutor", descripcion: "Ofrezco tutorías (también puedo reservar)" },
-];
 
 export default function Registro() {
   const { registro } = useAuth();
@@ -56,14 +52,11 @@ export default function Registro() {
     setEnviando(true);
     try {
       await registro({
-        ...datos,
         nombre: datos.nombre.trim(),
         apellido: datos.apellido.trim(),
-        nombre_programa: datos.nombre_programa.trim(),
-        celular: datos.celular.trim() || null,
-        id_tipo_documento: Number(datos.id_tipo_documento),
-        id_rol: Number(datos.id_rol),
-        semestre: Number(datos.semestre),
+        correo: datos.correo.trim(),
+        contrasena: datos.contrasena,
+        ...datosAcademicos(datos),
       });
       navegar(ubicacion.state?.desde ?? "/", { replace: true });
     } catch (err) {
@@ -79,40 +72,21 @@ export default function Registro() {
         <h1 className="text-2xl font-bold">Crear cuenta</h1>
         <p className="mt-1 text-sm text-bosque/70">Todos los campos son obligatorios, excepto el celular.</p>
 
-        <form onSubmit={enviar} className="mt-6 space-y-6">
+        <div className="mt-6 space-y-4">
           <Alerta error={error} />
+          {/* Con Google se ahorra el correo y la contraseña; después pide solo los datos académicos */}
+          <ContinuarConGoogle onError={setError} />
+          <SeparadorGoogle texto="o con correo y contraseña" />
+        </div>
 
-          <fieldset>
-            <legend className="etiqueta">¿Cómo usará SITA-ES?</legend>
-            <div className="grid gap-3 sm:grid-cols-2">
-              {ROLES_REGISTRO.map((rol) => (
-                <label key={rol.id}
-                  className={`cursor-pointer rounded-lg border p-4 transition-colors ${
-                    formulario.id_rol === String(rol.id) ? "border-acento bg-acento/10" : "border-bosque/15 hover:border-bosque/30"
-                  }`}>
-                  <input type="radio" name="id_rol" value={rol.id} className="sr-only"
-                    checked={formulario.id_rol === String(rol.id)} onChange={cambiar} />
-                  <span className="block font-semibold">{rol.nombre}</span>
-                  <span className="text-sm text-bosque/70">{rol.descripcion}</span>
-                </label>
-              ))}
-            </div>
-          </fieldset>
+        <form onSubmit={enviar} className="mt-4 space-y-6">
+          <SelectorRol value={formulario.id_rol} onChange={cambiar} />
 
           <div className="grid gap-4 sm:grid-cols-2">
             <Campo etiqueta="Nombre" name="nombre" value={formulario.nombre} onChange={cambiar} autoComplete="given-name" />
             <Campo etiqueta="Apellido" name="apellido" value={formulario.apellido} onChange={cambiar} autoComplete="family-name" />
 
-            <div>
-              <label htmlFor="id_tipo_documento" className="etiqueta">Tipo de documento</label>
-              <select id="id_tipo_documento" name="id_tipo_documento" className="campo" required
-                value={formulario.id_tipo_documento} onChange={cambiar}>
-                <option value="">Seleccione...</option>
-                {tiposDocumento.map((t) => (
-                  <option key={t.id} value={t.id}>{t.nombre}</option>
-                ))}
-              </select>
-            </div>
+            <SelectorTipoDocumento value={formulario.id_tipo_documento} onChange={cambiar} tipos={tiposDocumento} />
             <Campo etiqueta="Número de documento" name="num_documento" value={formulario.num_documento} onChange={cambiar} inputMode="numeric" />
 
             <Campo etiqueta="Correo" name="correo" type="email" value={formulario.correo} onChange={cambiar} autoComplete="email" />
@@ -140,16 +114,6 @@ export default function Registro() {
           </Link>
         </p>
       </div>
-    </div>
-  );
-}
-
-// Campo de texto con su etiqueta. Por defecto es obligatorio.
-function Campo({ etiqueta, name, required = true, type = "text", ...resto }) {
-  return (
-    <div>
-      <label htmlFor={name} className="etiqueta">{etiqueta}</label>
-      <input id={name} name={name} type={type} required={required} className="campo" {...resto} />
     </div>
   );
 }

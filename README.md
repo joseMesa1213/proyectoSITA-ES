@@ -19,7 +19,7 @@ cp .env.example .env      # VITE_API_URL=http://localhost:3000/api
 npm run dev               # http://localhost:5173 (el CORS_ORIGIN del backend local permite este puerto)
 ```
 
-Stack: React + Vite, Tailwind CSS v4, React Router y Vitest (pruebas).
+Stack: React + Vite, Tailwind CSS v4, React Router, Vitest (pruebas) y Google Identity Services (login con Google).
 
 Estructura de `src/`:
 - `api/`: `cliente.js` (única puerta a la API: token, formato `{ ok, data | error }` y 401) y un archivo por módulo del backend.
@@ -28,6 +28,29 @@ Estructura de `src/`:
 - `pages/`: una pantalla por ruta.
 - `utils/`: constantes de roles/estados y manejo de fechas en America/Bogota.
 - `asistente/`: lógica del Asistente SITA (ver abajo).
+
+## Inicio de sesión con Google
+
+Login y Registro muestran **"Continuar con Google"** (script oficial de Google Identity Services, sin librerías extra),
+además del formulario de correo y contraseña, que sigue igual.
+
+1. Google entrega un ID token (`credential`) y `components/ContinuarConGoogle.jsx` lo envía a `POST /auth/google`.
+2. Si la persona ya tiene cuenta, entra. Si es nueva, pasa a **Completa tu registro** (`/registro/google`,
+   `pages/CompletarRegistroGoogle.jsx`): el correo viene de Google y no se edita; nombre y apellido llegan llenos y se
+   pueden corregir; faltan rol, documento, programa y semestre. Tiene 15 minutos para terminar.
+3. Solo se aceptan cuentas institucionales `@udea.edu.co` (lo decide el backend con `GOOGLE_DOMINIO`).
+
+Quien se registra con Google **solo entra con Google** (su cuenta no tiene una contraseña conocida); por eso el login
+muestra "¿Se registró con Google? Use el botón de Google".
+
+Configuración:
+- `VITE_GOOGLE_CLIENT_ID` en `.env`: el ID de cliente OAuth (es público, no es un secreto). Debe ser **el mismo**
+  `GOOGLE_CLIENT_ID` del backend. Si se deja vacío, el botón no aparece.
+- En Google Cloud Console → *APIs y servicios → Credenciales* → ese ID de cliente → **Orígenes autorizados de JavaScript**:
+  `http://localhost:5173` y `https://proyectosita-es.onrender.com`. Sin eso, Google rechaza el botón.
+- El proyecto de Google Cloud es **interno** de la UdeA: Google solo deja elegir cuentas institucionales.
+- Las cuentas de **administrador** no entran con Google: usan correo y contraseña.
+- Las cuentas de demostración (`@demo.sita-es.test`) tampoco: no son cuentas de Google; entran con correo y contraseña.
 
 ## Asistente SITA
 
@@ -73,8 +96,9 @@ Se publica como **Static Site** en Render, conectado a la rama `main` (cada push
 | Build Command | `npm install && npm run build` |
 | Publish Directory | `dist` |
 | Variable `VITE_API_URL` | `https://proyectosita-es-backend.onrender.com/api` |
+| Variable `VITE_GOOGLE_CLIENT_ID` | El mismo `GOOGLE_CLIENT_ID` del backend (ver *Inicio de sesión con Google*) |
 
-- `VITE_API_URL` se lee **al compilar**: si cambia, hay que volver a desplegar.
+- `VITE_API_URL` y `VITE_GOOGLE_CLIENT_ID` se leen **al compilar**: si cambian, hay que volver a desplegar.
 - La URL del frontend debe estar en `CORS_ORIGIN` del backend; si no, el navegador bloquea las peticiones.
 - **Rutas internas:** la app usa React Router, así que el servidor debe responder `index.html` en cualquier ruta.
   En Render → *Redirects/Rewrites* agregar la regla **Source** `/*` → **Destination** `/index.html` → **Action** `Rewrite`.
