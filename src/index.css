@@ -27,6 +27,7 @@
   --barra-texto: #ffffff;
   --acento: #d9822b; /* naranja: solo acentos (insignias, estrellas, foco); nunca como texto */
   --sobre-acento: #10241d; /* texto sobre fondo naranja */
+  --estrella: #c97420; /* estrellas llenas: naranja algo más oscuro para llegar a 3:1 sobre blanco y crema */
   --exito: #2e7d57;
   --peligro: #b42318;
   --sombra-tarjeta: 0 1px 2px rgb(16 36 29 / 0.06);
@@ -51,6 +52,7 @@
   --barra: #0a1511;
   --barra-texto: #eceae2;
   --acento: #e3964a; /* un poco más claro para que se distinga sobre el fondo oscuro */
+  --estrella: var(--acento); /* en oscuro el acento ya contrasta de sobra */
   --sobre-acento: #10241d;
   --exito: #62b98c;
   --peligro: #f07a6a;
@@ -76,6 +78,7 @@
   --color-barra-texto: var(--barra-texto);
   --color-acento: var(--acento);
   --color-sobre-acento: var(--sobre-acento);
+  --color-estrella: var(--estrella);
   --color-exito: var(--exito);
   --color-peligro: var(--peligro);
   --shadow-tarjeta: var(--sombra-tarjeta);

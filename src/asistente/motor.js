@@ -175,7 +175,7 @@ function tutoriasPorTexto(tutorias, filtros) {
 }
 
 const NO_ENTENDI = {
-  texto: "No le entendí. Escriba el nombre o código de una materia, o elija una opción:",
+  texto: "No le entendí 🤔. Escriba el nombre o código de una materia, o elija una opción:",
   menu: true,
 };
 

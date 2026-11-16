@@ -6,6 +6,7 @@ import { contarReservas, reservasActivasFuturas } from "../utils/reservas.js";
 
 // Catálogo del asistente. Cada intención tiene:
 //   id        identificador único
+//   icono     emoji del botón (decorativo: el lector de pantalla no lo lee)
 //   etiqueta  texto del botón en el menú (sin etiqueta no aparece en el menú, solo se detecta escribiendo)
 //   roles     quién la ve; sin `roles` la ven todos. INVITADO = visitante sin sesión
 //   frases    ejemplos de cómo lo escribiría alguien (sin tildes ni mayúsculas: el motor normaliza)
@@ -36,6 +37,7 @@ export const INTENCIONES = [
   {
     id: "buscar-tutoria",
     cedeAFiltros: true,
+    icono: "🔎",
     etiqueta: "Buscar tutoría",
     frases: ["buscar tutoria", "busco tutoria", "necesito una tutoria", "quiero una tutoria", "que tutorias hay", "busco un tutor", "monitoria"],
     respuesta: {
@@ -45,6 +47,7 @@ export const INTENCIONES = [
   },
   {
     id: "como-funciona",
+    icono: "❓",
     etiqueta: "¿Cómo funciona SITA-ES?",
     frases: ["como funciona", "que es sita", "que es esto", "para que sirve", "como se usa la plataforma"],
     respuesta: {
@@ -58,6 +61,7 @@ export const INTENCIONES = [
   },
   {
     id: "registro",
+    icono: "📝",
     etiqueta: "¿Cómo me registro?",
     roles: [INVITADO],
     frases: ["como me registro", "crear cuenta", "registrarme", "no tengo cuenta", "como inicio sesion"],
@@ -74,6 +78,7 @@ export const INTENCIONES = [
   },
   {
     id: "ser-tutor",
+    icono: "🎓",
     etiqueta: "¿Cómo ser tutor?",
     roles: [INVITADO, ROL.ESTUDIANTE],
     frases: ["como ser tutor", "quiero ser tutor", "quiero dar tutorias", "puedo ser monitor", "ensenar una materia"],
@@ -142,6 +147,7 @@ export const INTENCIONES = [
   // --- Quienes reservan (estudiante y tutor) ---------------------------------
   {
     id: "mis-reservas",
+    icono: "📅",
     etiqueta: "Mis próximas reservas",
     roles: QUIENES_RESERVAN,
     frases: ["mis reservas", "mis proximas reservas", "que tutorias tengo", "cuando es mi tutoria", "mi agenda", "donde es mi tutoria", "enlace de la reunion"],
@@ -162,6 +168,7 @@ export const INTENCIONES = [
   },
   {
     id: "como-reservar",
+    icono: "🗓️",
     etiqueta: "¿Cómo reservo?",
     roles: [INVITADO, ...QUIENES_RESERVAN],
     frases: ["como reservo", "como hago una reserva", "reservar un cupo", "quiero reservar", "apartar cupo"],
@@ -176,6 +183,7 @@ export const INTENCIONES = [
   },
   {
     id: "no-pude-reservar",
+    icono: "⚠️",
     etiqueta: "¿Por qué no pude reservar?",
     roles: QUIENES_RESERVAN,
     frases: ["no pude reservar", "no me deja reservar", "error al reservar", "por que no puedo reservar", "sin cupo", "no hay cupo"],
@@ -191,6 +199,7 @@ export const INTENCIONES = [
   },
   {
     id: "como-cancelar",
+    icono: "✖️",
     etiqueta: "¿Cómo cancelo?",
     roles: QUIENES_RESERVAN,
     frases: ["como cancelo", "cancelar reserva", "no puedo ir a la tutoria", "anular reserva", "no voy a asistir"],
@@ -217,6 +226,7 @@ export const INTENCIONES = [
   },
   {
     id: "por-calificar",
+    icono: "⭐",
     etiqueta: "¿Qué me falta calificar?",
     roles: QUIENES_RESERVAN,
     frases: ["como califico", "calificar tutoria", "valorar sesion", "dejar comentario", "que me falta calificar", "estrellas"],
@@ -263,6 +273,7 @@ export const INTENCIONES = [
   // --- Tutor -----------------------------------------------------------------
   {
     id: "agenda-hoy",
+    icono: "👥",
     etiqueta: "Mi agenda de hoy",
     roles: [ROL.TUTOR],
     frases: ["agenda de hoy", "quien viene hoy", "mis sesiones de hoy", "tutorias que doy hoy", "estudiantes inscritos"],
@@ -295,6 +306,7 @@ export const INTENCIONES = [
   },
   {
     id: "publicar-tutoria",
+    icono: "➕",
     etiqueta: "¿Cómo publico una tutoría?",
     roles: [ROL.TUTOR],
     frases: ["como publico una tutoria", "crear tutoria", "nueva tutoria", "ofrecer tutoria", "agregar horario", "asociar materia"],
@@ -311,6 +323,7 @@ export const INTENCIONES = [
   },
   {
     id: "error-horario",
+    icono: "⚠️",
     etiqueta: "¿Por qué no me deja crear el horario?",
     roles: [ROL.TUTOR],
     frases: ["no me deja crear el horario", "error al agregar horario", "horario se cruza", "salon ocupado", "capacidad del salon", "recurso no compatible"],
@@ -350,6 +363,7 @@ export const INTENCIONES = [
   // --- Administrador ---------------------------------------------------------
   {
     id: "admin-materias",
+    icono: "📚",
     etiqueta: "¿Cómo gestiono materias?",
     roles: [ROL.ADMINISTRADOR],
     frases: ["crear materia", "nueva materia", "editar materia", "codigo de materia"],
@@ -360,6 +374,7 @@ export const INTENCIONES = [
   },
   {
     id: "admin-recursos",
+    icono: "🏫",
     etiqueta: "¿Cómo gestiono recursos?",
     roles: [ROL.ADMINISTRADOR],
     frases: ["crear recurso", "nuevo salon", "agregar enlace", "inactivar recurso", "no puedo inactivar el salon", "capacidad del recurso"],
@@ -374,6 +389,7 @@ export const INTENCIONES = [
 
   {
     id: "admin-rol",
+    icono: "👥",
     etiqueta: "Solicitudes de tutor",
     roles: [ROL.ADMINISTRADOR],
     frases: ["como cambio el rol de un usuario", "cambiar rol", "convertir estudiante en tutor", "asignar rol",
@@ -403,7 +419,7 @@ export const INTENCIONES = [
     id: "gracias",
     conversacion: true,
     frases: ["gracias", "muchas gracias", "listo", "perfecto", "ok gracias", "chao"],
-    respuesta: { texto: "¡Con gusto! Si necesita algo más, aquí estoy." },
+    respuesta: { texto: "¡Con gusto! Si necesita algo más, aquí estoy. 🎓" },
   },
 ];
 

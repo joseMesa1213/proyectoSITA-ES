@@ -176,6 +176,7 @@ function Mensaje({ mensaje, opciones, onElegir, onNavegar, deshabilitado }) {
             // En el celular los botones son más altos (~40 px) para tocarlos con el dedo
             <button key={o.id} type="button" onClick={() => onElegir(o)} disabled={deshabilitado}
               className="rounded-full border border-borde-fuerte bg-superficie px-3 py-2 text-left text-sm font-medium hover:bg-texto/5 disabled:opacity-50 sm:py-1 sm:text-xs">
+              {o.icono && <span aria-hidden="true">{o.icono} </span>}
               {o.etiqueta}
             </button>
           ))}
