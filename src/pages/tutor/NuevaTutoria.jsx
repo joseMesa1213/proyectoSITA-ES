@@ -28,7 +28,7 @@ export default function NuevaTutoria() {
 
   return (
     <div className="mx-auto max-w-2xl space-y-6">
-      <Link to="/tutor/tutorias" className="text-sm font-medium text-bosque/70 hover:text-bosque">← Mis tutorías</Link>
+      <Link to="/tutor/tutorias" className="text-sm font-medium text-texto-suave hover:text-texto">← Mis tutorías</Link>
       <h1 className="titulo-pagina">Nueva tutoría</h1>
 
       {materias.length === 0 ? (

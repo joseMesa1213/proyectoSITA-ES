@@ -8,7 +8,7 @@ export default function Estrellas({ valor = 0, onCambiar, tamano = "text-lg" }) 
     return (
       <span className={`${tamano} tracking-tight`} aria-label={`${valor} de 5`}>
         {[1, 2, 3, 4, 5].map((n) => (
-          <span key={n} className={n <= redondeado ? "text-acento" : "text-bosque/15"}>★</span>
+          <span key={n} className={n <= redondeado ? "text-acento" : "text-borde-fuerte"}>★</span>
         ))}
       </span>
     );
@@ -19,7 +19,7 @@ export default function Estrellas({ valor = 0, onCambiar, tamano = "text-lg" }) 
       {[1, 2, 3, 4, 5].map((n) => (
         <button key={n} type="button" role="radio" aria-checked={n === valor} aria-label={`${n} de 5`}
           onClick={() => onCambiar(n)}
-          className={`text-2xl leading-none transition-transform hover:scale-110 ${n <= valor ? "text-acento" : "text-bosque/20"}`}>
+          className={`text-2xl leading-none transition-transform hover:scale-110 ${n <= valor ? "text-acento" : "text-borde-fuerte"}`}>
           ★
         </button>
       ))}

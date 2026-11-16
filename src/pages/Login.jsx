@@ -31,7 +31,7 @@ export default function Login() {
     <div className="mx-auto max-w-md">
       <div className="tarjeta p-8">
         <h1 className="titulo-pagina">Iniciar sesión</h1>
-        <p className="mt-1 text-sm text-bosque/70">Ingrese con su correo institucional.</p>
+        <p className="mt-1 text-sm text-texto-suave">Ingrese con su correo institucional.</p>
 
         <div className="mt-6 space-y-4">
           {avisoSesion && !error && <Alerta>{avisoSesion}</Alerta>}
@@ -57,13 +57,13 @@ export default function Login() {
           </button>
           {/* Quien se registró con Google no tiene contraseña: su cuenta guarda una aleatoria */}
           {googleDisponible && (
-            <p className="text-center text-xs text-bosque/60">¿Se registró con Google? Use el botón de Google.</p>
+            <p className="text-center text-xs text-texto-suave">¿Se registró con Google? Use el botón de Google.</p>
           )}
         </form>
 
-        <p className="mt-6 text-center text-sm text-bosque/70">
+        <p className="mt-6 text-center text-sm text-texto-suave">
           ¿No tiene cuenta?{" "}
-          <Link to="/registro" state={ubicacion.state} className="font-semibold text-bosque underline decoration-acento underline-offset-4">
+          <Link to="/registro" state={ubicacion.state} className="font-semibold text-texto underline decoration-acento underline-offset-4">
             Regístrese
           </Link>
         </p>

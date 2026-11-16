@@ -51,11 +51,6 @@
 }
 
 @theme {
-  /* Nombres anteriores de la paleta: se mantienen mientras las pantallas pasan a los nombres por uso */
-  --color-bosque: #10241d;
-  --color-bosque-claro: #1f3d32;
-  --color-crema: #f5f3ec;
-
   /* Solo dos radios: controles (botones, campos) y tarjetas. Las insignias usan rounded-full. */
   --radius-control: 0.5rem;
   --radius-tarjeta: 0.75rem;

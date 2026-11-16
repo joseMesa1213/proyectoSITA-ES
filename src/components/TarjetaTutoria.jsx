@@ -9,13 +9,13 @@ export default function TarjetaTutoria({ tutoria }) {
     <Link to={`/tutorias/${id}`}
       className="tarjeta group flex flex-col gap-3 transition-shadow hover:border-acento/50 hover:shadow-flotante">
       <div>
-        <p className="text-xs font-semibold tracking-wide text-bosque/60 uppercase">
+        <p className="text-xs font-semibold tracking-wide text-texto-suave uppercase">
           {materia.nombre} · {materia.codigo}
         </p>
         <h2 className="mt-1 text-lg leading-snug font-semibold group-hover:underline group-hover:decoration-acento group-hover:underline-offset-4">
           {titulo}
         </h2>
-        <p className="mt-1 text-sm text-bosque/70">
+        <p className="mt-1 text-sm text-texto-suave">
           con {tutor.nombre} {tutor.apellido}
         </p>
       </div>
@@ -23,17 +23,17 @@ export default function TarjetaTutoria({ tutoria }) {
       <div className="flex flex-wrap gap-2">
         <InsigniaNivel nivel={nivel} />
         <InsigniaModalidad modalidad={modalidad} />
-        <span className="insignia bg-bosque/5 text-bosque">
+        <span className="insignia bg-texto/5 text-texto">
           {cupo} {cupo === 1 ? "cupo" : "cupos"} por sesión
         </span>
       </div>
 
-      <ul className="mt-auto space-y-1 border-t border-bosque/10 pt-3 text-sm">
-        {horarios.length === 0 && <li className="text-bosque/50">Sin horarios publicados</li>}
+      <ul className="mt-auto space-y-1 border-t border-borde pt-3 text-sm">
+        {horarios.length === 0 && <li className="text-texto-suave">Sin horarios publicados</li>}
         {horarios.map((h) => (
           <li key={h.id} className="flex justify-between">
             <span className="font-medium">{h.dia}</span>
-            <span className="text-bosque/70">{h.hora_inicio} – {h.hora_fin}</span>
+            <span className="text-texto-suave">{h.hora_inicio} – {h.hora_fin}</span>
           </li>
         ))}
       </ul>

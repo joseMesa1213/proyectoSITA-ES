@@ -51,7 +51,7 @@ export default function AdminRecursos() {
     <div className="space-y-6">
       <div>
         <h1 className="titulo-pagina">Recursos</h1>
-        <p className="mt-1 text-bosque/70">
+        <p className="mt-1 text-texto-suave">
           Salones y enlaces virtuales. Los estudiantes eligen uno activo al reservar, según la modalidad de la tutoría.
         </p>
       </div>
@@ -71,11 +71,11 @@ export default function AdminRecursos() {
           </select>
         </div>
         {visibles.length === 0 ? (
-          <p className="py-6 text-center text-sm text-bosque/60">
+          <p className="py-6 text-center text-sm text-texto-suave">
             {recursos.length === 0 ? "Aún no hay recursos. Cree el primero arriba." : "No hay recursos de este tipo."}
           </p>
         ) : (
-          <ul className="divide-y divide-bosque/10">
+          <ul className="divide-y divide-borde">
             {visibles.map((r) => (
               <FilaRecurso key={r.id} recurso={r} tipos={tipos} onActualizado={alActualizar} />
             ))}
@@ -209,10 +209,10 @@ function FilaRecurso({ recurso, tipos, onActualizado }) {
         <div className={`min-w-0 ${activo ? "" : "opacity-60"}`}>
           <p className="flex flex-wrap items-center gap-2 font-medium">
             {recurso.nombre}
-            <span className="insignia border border-bosque/15 text-bosque">{recurso.tipo}</span>
-            {!activo && <span className="insignia bg-bosque/10 text-bosque">Inactivo</span>}
+            <span className="insignia border border-borde text-texto">{recurso.tipo}</span>
+            {!activo && <span className="insignia bg-texto/10 text-texto">Inactivo</span>}
           </p>
-          <p className="truncate text-xs text-bosque/60">{recurso.ubicacion} · capacidad {recurso.capacidad}</p>
+          <p className="truncate text-xs text-texto-suave">{recurso.ubicacion} · capacidad {recurso.capacidad}</p>
         </div>
         <div className="flex gap-2">
           <button type="button" className="btn-secundario" onClick={abrir} disabled={enviando}>Editar</button>

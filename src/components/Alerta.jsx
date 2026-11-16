@@ -1,7 +1,7 @@
 const ESTILOS = {
   error: "border-peligro/30 bg-peligro/5 text-peligro",
   exito: "border-exito/30 bg-exito/5 text-exito",
-  info: "border-bosque/15 bg-white text-bosque",
+  info: "border-borde bg-superficie text-texto",
 };
 
 /**

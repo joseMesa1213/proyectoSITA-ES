@@ -44,7 +44,7 @@ export default function MisReservas() {
     <div className="space-y-6">
       <div>
         <h1 className="titulo-pagina">Mi agenda</h1>
-        <p className="mt-1 text-bosque/70">Sus reservas de tutorías.</p>
+        <p className="mt-1 text-texto-suave">Sus reservas de tutorías.</p>
       </div>
 
       {aviso && <Alerta tipo="exito" onCerrar={() => setAviso("")}>{aviso}</Alerta>}
@@ -56,7 +56,7 @@ export default function MisReservas() {
             <button key={p.texto} type="button" role="tab" aria-selected={pestana === p.valor}
               onClick={() => setPestana(p.valor)}
               className={`rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${
-                pestana === p.valor ? "bg-bosque text-white" : "bg-white text-bosque hover:bg-bosque/5"
+                pestana === p.valor ? "bg-primario text-primario-texto" : "bg-superficie text-texto hover:bg-texto/5"
               }`}>
               {p.texto} ({cantidad})
             </button>
@@ -65,7 +65,7 @@ export default function MisReservas() {
       </div>
 
       {visibles.length === 0 ? (
-        <div className="tarjeta py-12 text-center text-bosque/70">
+        <div className="tarjeta py-12 text-center text-texto-suave">
           <p>No tiene reservas en esta sección.</p>
           <Link to="/tutorias" className="btn-primario mt-4">Buscar tutorías</Link>
         </div>
@@ -106,20 +106,20 @@ function TarjetaReserva({ reserva, onActualizada }) {
     <li className="tarjeta space-y-3">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <p className="text-xs font-semibold tracking-wide text-bosque/60 uppercase">{tutoria.materia.nombre}</p>
+          <p className="text-xs font-semibold tracking-wide text-texto-suave uppercase">{tutoria.materia.nombre}</p>
           <Link to={`/tutorias/${tutoria.id}`} className="text-lg font-semibold hover:underline hover:decoration-acento hover:underline-offset-4">
             {tutoria.titulo}
           </Link>
-          <p className="text-sm text-bosque/70">con {tutoria.tutor.nombre} {tutoria.tutor.apellido}</p>
+          <p className="text-sm text-texto-suave">con {tutoria.tutor.nombre} {tutoria.tutor.apellido}</p>
         </div>
         <InsigniaEstado idEstado={reserva.id_estado} nombre={reserva.estado} />
       </div>
 
-      <div className="grid gap-2 rounded-control bg-crema px-4 py-3 text-sm sm:grid-cols-3">
-        <p><span className="text-bosque/60">Fecha: </span><span className="font-medium">{formatearFecha(reserva.fecha_sesion)}</span></p>
-        <p><span className="text-bosque/60">Hora: </span><span className="font-medium">{horario.hora_inicio} – {horario.hora_fin}</span></p>
+      <div className="grid gap-2 rounded-control bg-superficie-hundida px-4 py-3 text-sm sm:grid-cols-3">
+        <p><span className="text-texto-suave">Fecha: </span><span className="font-medium">{formatearFecha(reserva.fecha_sesion)}</span></p>
+        <p><span className="text-texto-suave">Hora: </span><span className="font-medium">{horario.hora_inicio} – {horario.hora_fin}</span></p>
         <p className="min-w-0 truncate">
-          <span className="text-bosque/60">{recurso.tipo === "Virtual" ? "Enlace: " : "Lugar: "}</span>
+          <span className="text-texto-suave">{recurso.tipo === "Virtual" ? "Enlace: " : "Lugar: "}</span>
           {esEnlace ? (
             <a href={recurso.ubicacion} target="_blank" rel="noreferrer" className="font-medium underline decoration-acento underline-offset-2">
               {recurso.nombre}
@@ -142,7 +142,7 @@ function TarjetaReserva({ reserva, onActualizada }) {
       {reserva.id_estado === ESTADO.COMPLETADO &&
         (reserva.valoracion ? (
           <p className="flex items-center gap-2 text-sm">
-            <span className="text-bosque/60">Su valoración:</span>
+            <span className="text-texto-suave">Su valoración:</span>
             <Estrellas valor={reserva.valoracion.calificacion} />
           </p>
         ) : valorando ? (

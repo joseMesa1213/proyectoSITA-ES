@@ -78,14 +78,14 @@ function Chat({ usuario }) {
     <>
       {abierto && (
         <section role="dialog" aria-labelledby="titulo-asistente"
-          className="fixed right-4 bottom-22 z-50 flex h-[min(34rem,calc(100dvh-7rem))] w-[calc(100vw-2rem)] max-w-sm flex-col overflow-hidden rounded-tarjeta border border-bosque/10 bg-white shadow-flotante">
-          <header className="flex items-center justify-between bg-bosque px-4 py-3 text-white">
+          className="fixed right-4 bottom-22 z-50 flex h-[min(34rem,calc(100dvh-7rem))] w-[calc(100vw-2rem)] max-w-sm flex-col overflow-hidden rounded-tarjeta border border-borde bg-superficie shadow-flotante">
+          <header className="flex items-center justify-between bg-barra px-4 py-3 text-barra-texto">
             <div>
               <h2 id="titulo-asistente" className="font-semibold">Asistente SITA</h2>
-              <p className="text-xs text-white/70">Respuestas al instante sobre la plataforma</p>
+              <p className="text-xs text-barra-texto/70">Respuestas al instante sobre la plataforma</p>
             </div>
             <button type="button" onClick={cerrar} aria-label="Cerrar asistente"
-              className="rounded-control p-1.5 text-white/80 hover:bg-white/10 hover:text-white">
+              className="rounded-control p-1.5 text-barra-texto/80 hover:bg-barra-texto/10 hover:text-barra-texto">
               <svg viewBox="0 0 24 24" className="size-5" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M6 6l12 12M18 6L6 18" />
               </svg>
@@ -95,21 +95,21 @@ function Chat({ usuario }) {
           {/* Región oculta: el lector de pantalla lee cada respuesta nueva una sola vez */}
           <p className="sr-only" aria-live="polite">{anuncio}</p>
 
-          <ul className="flex-1 space-y-3 overflow-y-auto bg-crema/60 px-4 py-4">
+          <ul className="flex-1 space-y-3 overflow-y-auto bg-fondo px-4 py-4">
             {mensajes.map((m) => (
               <Mensaje key={m.id} mensaje={m} opciones={m.menu ? opcionesMenu(usuario) : []}
                 onElegir={elegir} onNavegar={alNavegar} deshabilitado={pensando} />
             ))}
             {pensando && (
-              <li className="flex items-center gap-2 text-sm text-bosque/60" role="status">
-                <span className="size-4 animate-spin rounded-full border-2 border-bosque/20 border-t-acento" />
+              <li className="flex items-center gap-2 text-sm text-texto-suave" role="status">
+                <span className="size-4 animate-spin rounded-full border-2 border-borde-fuerte border-t-acento" />
                 Buscando...
               </li>
             )}
             <li ref={finDeLista} aria-hidden="true" />
           </ul>
 
-          <form onSubmit={enviar} className="flex items-center gap-2 border-t border-bosque/10 p-3">
+          <form onSubmit={enviar} className="flex items-center gap-2 border-t border-borde p-3">
             <label htmlFor="pregunta-asistente" className="sr-only">Escriba su pregunta</label>
             {/* 16 px en el celular: con menos, el iPhone hace zoom al tocar el campo */}
             <input id="pregunta-asistente" ref={campo} className="campo max-sm:text-base" placeholder="Ej.: cálculo virtual"
@@ -125,7 +125,7 @@ function Chat({ usuario }) {
 
       <button type="button" ref={botonFlotante} onClick={() => setAbierto((a) => !a)}
         aria-label={abierto ? "Cerrar asistente" : "Abrir asistente"} aria-expanded={abierto}
-        className="fixed right-4 bottom-4 z-50 flex size-14 items-center justify-center rounded-full bg-bosque text-white shadow-flotante ring-2 ring-acento/60 transition-colors hover:bg-bosque-claro">
+        className="fixed right-4 bottom-4 z-50 flex size-14 items-center justify-center rounded-full bg-primario text-primario-texto shadow-flotante ring-2 ring-acento/60 transition-colors hover:bg-primario-hover">
         <svg viewBox="0 0 24 24" className="size-7" fill="none" stroke="currentColor" strokeWidth="2">
           <path d={abierto ? "M6 6l12 12M18 6L6 18" : "M4 5h16v11H8l-4 4V5zM8 10h.01M12 10h.01M16 10h.01"} />
         </svg>
@@ -138,7 +138,7 @@ function Chat({ usuario }) {
 function Mensaje({ mensaje, opciones, onElegir, onNavegar, deshabilitado }) {
   if (mensaje.de === "usuario") {
     return (
-      <li className="ml-auto w-fit max-w-[85%] rounded-control rounded-br-sm bg-bosque px-3 py-2 text-sm text-white">
+      <li className="ml-auto w-fit max-w-[85%] rounded-control rounded-br-sm bg-primario px-3 py-2 text-sm text-primario-texto">
         <span className="sr-only">Usted: </span>
         {mensaje.texto}
       </li>
@@ -148,16 +148,16 @@ function Mensaje({ mensaje, opciones, onElegir, onNavegar, deshabilitado }) {
   const { texto, tarjetas = [], enlaces = [] } = mensaje;
   return (
     <li className="max-w-[92%] space-y-2">
-      <p className="rounded-control rounded-bl-sm border border-bosque/10 bg-white px-3 py-2 text-sm whitespace-pre-line">
+      <p className="rounded-control rounded-bl-sm border border-borde bg-superficie px-3 py-2 text-sm whitespace-pre-line">
         <span className="sr-only">Asistente: </span>
         {texto}
       </p>
 
       {tarjetas.map((t) => (
         <Link key={`${t.a}|${t.titulo}|${t.detalle}`} to={t.a} onClick={onNavegar}
-          className="block rounded-control border border-bosque/10 bg-white px-3 py-2 transition-colors hover:border-acento/50">
+          className="block rounded-control border border-borde bg-superficie px-3 py-2 transition-colors hover:border-acento/50">
           <p className="text-sm font-semibold">{t.titulo}</p>
-          <p className="text-xs text-bosque/70">{t.subtitulo}</p>
+          <p className="text-xs text-texto-suave">{t.subtitulo}</p>
           <p className="mt-1 text-xs font-medium">{t.detalle}</p>
         </Link>
       ))}
@@ -166,7 +166,7 @@ function Mensaje({ mensaje, opciones, onElegir, onNavegar, deshabilitado }) {
         <div className="flex flex-col items-start gap-1">
           {enlaces.map((e) => (
             <Link key={e.a} to={e.a} onClick={onNavegar}
-              className="text-sm font-medium underline decoration-acento underline-offset-4 hover:text-bosque-claro">
+              className="text-sm font-medium underline decoration-acento underline-offset-4 hover:text-texto">
               {e.texto} →
             </Link>
           ))}
@@ -178,7 +178,7 @@ function Mensaje({ mensaje, opciones, onElegir, onNavegar, deshabilitado }) {
           {opciones.map((o) => (
             // En el celular los botones son más altos (~40 px) para tocarlos con el dedo
             <button key={o.id} type="button" onClick={() => onElegir(o)} disabled={deshabilitado}
-              className="rounded-full border border-bosque/20 bg-white px-3 py-2 text-left text-sm font-medium hover:bg-bosque/5 disabled:opacity-50 sm:py-1 sm:text-xs">
+              className="rounded-full border border-borde-fuerte bg-superficie px-3 py-2 text-left text-sm font-medium hover:bg-texto/5 disabled:opacity-50 sm:py-1 sm:text-xs">
               {o.icono && <span aria-hidden="true">{o.icono} </span>}
               {o.etiqueta}
             </button>

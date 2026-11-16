@@ -44,7 +44,7 @@ export default function AdminMaterias() {
     <div className="space-y-6">
       <div>
         <h1 className="titulo-pagina">Materias</h1>
-        <p className="mt-1 text-bosque/70">Los tutores solo pueden ofrecer tutorías de las materias de este catálogo.</p>
+        <p className="mt-1 text-texto-suave">Los tutores solo pueden ofrecer tutorías de las materias de este catálogo.</p>
       </div>
 
       {aviso && <Alerta tipo="exito" onCerrar={() => setAviso("")}>{aviso}</Alerta>}
@@ -58,11 +58,11 @@ export default function AdminMaterias() {
             value={filtro} onChange={(e) => setFiltro(e.target.value)} />
         </div>
         {visibles.length === 0 ? (
-          <p className="py-6 text-center text-sm text-bosque/60">
+          <p className="py-6 text-center text-sm text-texto-suave">
             {materias.length === 0 ? "Aún no hay materias. Cree la primera arriba." : "Ninguna materia coincide con el filtro."}
           </p>
         ) : (
-          <ul className="divide-y divide-bosque/10">
+          <ul className="divide-y divide-borde">
             {visibles.map((m) => (
               <FilaMateria key={m.id} materia={m} onActualizada={alActualizar} />
             ))}
@@ -158,7 +158,7 @@ function FilaMateria({ materia, onActualizada }) {
       <li className="flex items-center justify-between gap-3 py-3">
         <div>
           <p className="font-medium">{materia.nombre}</p>
-          <p className="text-xs text-bosque/60">{materia.codigo} · {materia.creditos} créditos</p>
+          <p className="text-xs text-texto-suave">{materia.codigo} · {materia.creditos} créditos</p>
         </div>
         <button type="button" className="btn-secundario" onClick={abrir}>Editar</button>
       </li>

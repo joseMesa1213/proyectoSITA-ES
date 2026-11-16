@@ -23,7 +23,7 @@ export default function Perfil() {
   const fila = (etiqueta, valor) =>
     valor ? (
       <div className="grid gap-1 py-2 sm:grid-cols-[12rem_1fr]">
-        <dt className="text-sm text-bosque/60">{etiqueta}</dt>
+        <dt className="text-sm text-texto-suave">{etiqueta}</dt>
         <dd className="font-medium">{valor}</dd>
       </div>
     ) : null;
@@ -32,13 +32,13 @@ export default function Perfil() {
     <div className="mx-auto max-w-3xl space-y-6">
       <div>
         <h1 className="titulo-pagina">Mi perfil</h1>
-        <p className="mt-1 text-bosque/70">Datos de su cuenta en SITA-ES.</p>
+        <p className="mt-1 text-texto-suave">Datos de su cuenta en SITA-ES.</p>
       </div>
 
       {aviso && <Alerta tipo="exito" onCerrar={() => setAviso("")}>{aviso}</Alerta>}
 
       <section className="tarjeta">
-        <dl className="divide-y divide-bosque/10">
+        <dl className="divide-y divide-borde">
           {fila("Nombre", `${usuario.nombre} ${usuario.apellido}`)}
           {fila("Correo", usuario.correo)}
           {fila("Documento", usuario.tipoDocumento && `${usuario.tipoDocumento.nombre} ${usuario.num_documento}`)}
@@ -79,7 +79,7 @@ function SeccionTutor({ esTutor, onAprobada }) {
 
       {esTutor ? (
         <>
-          <p className="text-bosque/80">
+          <p className="text-texto">
             Usted es <strong>estudiante y tutor</strong>: puede reservar tutorías y también ofrecerlas.
             {solicitud?.fecha_revision && ` Aprobado el ${formatearMarcaDeTiempo(solicitud.fecha_revision)}.`}
           </p>
@@ -94,10 +94,10 @@ function SeccionTutor({ esTutor, onAprobada }) {
         <div className="space-y-2">
           <p className="flex flex-wrap items-center gap-2">
             Su solicitud está <InsigniaEstado idEstado={solicitud.id_estado} nombre="en revisión" />
-            <span className="text-sm text-bosque/60">desde el {formatearMarcaDeTiempo(solicitud.fecha_solicitud)}</span>
+            <span className="text-sm text-texto-suave">desde el {formatearMarcaDeTiempo(solicitud.fecha_solicitud)}</span>
           </p>
-          {solicitud.motivo && <p className="text-sm text-bosque/70">Lo que escribió: «{solicitud.motivo}»</p>}
-          <p className="text-sm text-bosque/70">
+          {solicitud.motivo && <p className="text-sm text-texto-suave">Lo que escribió: «{solicitud.motivo}»</p>}
+          <p className="text-sm text-texto-suave">
             Un administrador la revisará. Mientras tanto puede buscar y reservar tutorías como siempre.
           </p>
         </div>
@@ -137,7 +137,7 @@ function FormularioSolicitud({ onEnviada }) {
 
   return (
     <form onSubmit={enviar} className="space-y-3">
-      <p className="text-bosque/80">
+      <p className="text-texto">
         ¿Quiere ofrecer tutorías? Envíe una solicitud: un administrador la revisará. Seguirá siendo estudiante
         (podrá reservar) y, si la aprueban, además podrá publicar tutorías.
       </p>

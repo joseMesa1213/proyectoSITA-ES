@@ -79,7 +79,7 @@ function FormularioCompletar({ registro, desde }) {
     <div className="mx-auto max-w-2xl">
       <div className="tarjeta p-6 sm:p-8">
         <h1 className="titulo-pagina">Completa tu registro</h1>
-        <p className="mt-1 text-sm text-bosque/70">
+        <p className="mt-1 text-sm text-texto-suave">
           Ya verificamos su cuenta de Google. Faltan unos datos académicos (tiene 15 minutos para terminar).
         </p>
 
@@ -90,9 +90,9 @@ function FormularioCompletar({ registro, desde }) {
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="sm:col-span-2">
               <label htmlFor="correo-google" className="etiqueta">Correo (de su cuenta de Google)</label>
-              <input id="correo-google" className="campo cursor-not-allowed bg-crema text-bosque/70" value={registro.perfil.correo}
+              <input id="correo-google" className="campo cursor-not-allowed bg-superficie-hundida text-texto-suave" value={registro.perfil.correo}
                 readOnly aria-describedby="correo-google-ayuda" />
-              <p id="correo-google-ayuda" className="mt-1 text-xs text-bosque/60">
+              <p id="correo-google-ayuda" className="mt-1 text-xs text-texto-suave">
                 Con esta cuenta entrará siempre con el botón de Google.
               </p>
             </div>

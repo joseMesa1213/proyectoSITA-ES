@@ -31,7 +31,7 @@ const ENLACES = {
 
 const claseEnlace = ({ isActive }) =>
   `rounded-control px-3 py-2 text-sm font-medium transition-colors ${
-    isActive ? "bg-white/10 text-white" : "text-white/75 hover:bg-white/5 hover:text-white"
+    isActive ? "bg-barra-texto/10 text-barra-texto" : "text-barra-texto/75 hover:bg-barra-texto/5 hover:text-barra-texto"
   }`;
 
 export default function BarraNavegacion() {
@@ -58,11 +58,11 @@ export default function BarraNavegacion() {
     <>
       {/* El nombre lleva a "Mi perfil" (para todos los roles) */}
       <Link to="/perfil" onClick={cerrarMenu} title="Mi perfil"
-        className="rounded-control px-2 py-1 text-sm text-white/90 hover:bg-white/10 hover:text-white">
+        className="rounded-control px-2 py-1 text-sm text-barra-texto/90 hover:bg-barra-texto/10 hover:text-barra-texto">
         {usuario.nombre}{" "}
-        <span className="insignia ml-1 bg-acento text-bosque">{NOMBRE_ROL[usuario.id_rol]}</span>
+        <span className="insignia ml-1 bg-acento text-sobre-acento">{NOMBRE_ROL[usuario.id_rol]}</span>
       </Link>
-      <button type="button" onClick={cerrarSesion} className="rounded-control px-3 py-2 text-sm font-medium text-white/75 hover:text-white">
+      <button type="button" onClick={cerrarSesion} className="rounded-control px-3 py-2 text-sm font-medium text-barra-texto/75 hover:text-barra-texto">
         Cerrar sesión
       </button>
     </>
@@ -71,14 +71,14 @@ export default function BarraNavegacion() {
       <NavLink to="/login" className={claseEnlace} onClick={cerrarMenu}>
         Iniciar sesión
       </NavLink>
-      <Link to="/registro" onClick={cerrarMenu} className="btn bg-acento text-bosque hover:bg-acento/90">
+      <Link to="/registro" onClick={cerrarMenu} className="btn bg-acento text-sobre-acento hover:bg-acento/90">
         Registrarse
       </Link>
     </>
   );
 
   return (
-    <header className="bg-bosque text-white">
+    <header className="bg-barra text-barra-texto">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3">
         <Link to="/" className="flex items-center gap-2 text-lg font-bold tracking-tight" onClick={cerrarMenu}>
           <img src="/favicon.svg" alt="" className="size-8" />
@@ -92,7 +92,7 @@ export default function BarraNavegacion() {
         {/* Móvil: botón de menú */}
         <button
           type="button"
-          className="rounded-control p-2 text-white/80 hover:bg-white/10 lg:hidden"
+          className="rounded-control p-2 text-barra-texto/80 hover:bg-barra-texto/10 lg:hidden"
           onClick={() => setMenuAbierto((abierto) => !abierto)}
           aria-expanded={menuAbierto}
           aria-label="Abrir menú"
@@ -104,9 +104,9 @@ export default function BarraNavegacion() {
       </div>
 
       {menuAbierto && (
-        <div className="border-t border-white/10 px-4 pb-4 lg:hidden">
+        <div className="border-t border-barra-texto/10 px-4 pb-4 lg:hidden">
           <nav className="flex flex-col gap-1 py-2">{navegacion}</nav>
-          <div className="flex flex-wrap items-center gap-2 border-t border-white/10 pt-3">{cuenta}</div>
+          <div className="flex flex-wrap items-center gap-2 border-t border-barra-texto/10 pt-3">{cuenta}</div>
         </div>
       )}
     </header>
