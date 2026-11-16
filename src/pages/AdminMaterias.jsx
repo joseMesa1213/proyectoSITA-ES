@@ -43,8 +43,8 @@ export default function AdminMaterias() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold">Materias</h1>
-        <p className="mt-1 text-bosque/70">Los tutores solo pueden ofrecer tutorías de las materias de este catálogo.</p>
+        <h1 className="titulo-pagina">Materias</h1>
+        <p className="mt-1 text-texto-suave">Los tutores solo pueden ofrecer tutorías de las materias de este catálogo.</p>
       </div>
 
       {aviso && <Alerta tipo="exito" onCerrar={() => setAviso("")}>{aviso}</Alerta>}
@@ -53,16 +53,16 @@ export default function AdminMaterias() {
 
       <section className="tarjeta space-y-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <h2 className="text-lg font-semibold">Catálogo ({materias.length})</h2>
+          <h2 className="titulo-seccion">Catálogo ({materias.length})</h2>
           <input type="search" className="campo sm:max-w-xs" placeholder="Filtrar por nombre o código"
             value={filtro} onChange={(e) => setFiltro(e.target.value)} />
         </div>
         {visibles.length === 0 ? (
-          <p className="py-6 text-center text-sm text-bosque/60">
+          <p className="py-6 text-center text-sm text-texto-suave">
             {materias.length === 0 ? "Aún no hay materias. Cree la primera arriba." : "Ninguna materia coincide con el filtro."}
           </p>
         ) : (
-          <ul className="divide-y divide-bosque/10">
+          <ul className="divide-y divide-borde">
             {visibles.map((m) => (
               <FilaMateria key={m.id} materia={m} onActualizada={alActualizar} />
             ))}
@@ -117,12 +117,12 @@ function FormularioNuevaMateria({ onCreada }) {
 
   return (
     <form onSubmit={enviar} className="tarjeta space-y-4">
-      <h2 className="text-lg font-semibold">Nueva materia</h2>
+      <h2 className="titulo-seccion">Nueva materia</h2>
       <div className="grid gap-4 sm:grid-cols-6">
         <CamposMateria datos={datos} onCambio={setDatos} prefijo="nueva" />
       </div>
       {error?.status === 409 ? <Alerta tipo="error">Ya existe una materia con ese código.</Alerta> : <Alerta error={error} />}
-      <button type="submit" className="btn-primario" disabled={enviando}>{enviando ? "Creando..." : "Crear materia"}</button>
+      <button type="submit" className="btn-primario" aria-busy={enviando} disabled={enviando}>{enviando ? "Creando..." : "Crear materia"}</button>
     </form>
   );
 }
@@ -158,7 +158,7 @@ function FilaMateria({ materia, onActualizada }) {
       <li className="flex items-center justify-between gap-3 py-3">
         <div>
           <p className="font-medium">{materia.nombre}</p>
-          <p className="text-xs text-bosque/60">{materia.codigo} · {materia.creditos} créditos</p>
+          <p className="text-xs text-texto-suave">{materia.codigo} · {materia.creditos} créditos</p>
         </div>
         <button type="button" className="btn-secundario" onClick={abrir}>Editar</button>
       </li>
@@ -167,13 +167,13 @@ function FilaMateria({ materia, onActualizada }) {
 
   return (
     <li className="py-3">
-      <form onSubmit={guardar} className="space-y-3 rounded-lg border border-acento/40 p-4">
+      <form onSubmit={guardar} className="space-y-3 rounded-control border border-acento/40 p-4">
         <div className="grid gap-4 sm:grid-cols-6">
           <CamposMateria datos={datos} onCambio={setDatos} prefijo={`materia-${materia.id}`} />
         </div>
         {error?.status === 409 ? <Alerta tipo="error">Ya existe otra materia con ese código.</Alerta> : <Alerta error={error} />}
         <div className="flex gap-2">
-          <button type="submit" className="btn-primario" disabled={enviando}>{enviando ? "Guardando..." : "Guardar"}</button>
+          <button type="submit" className="btn-primario" aria-busy={enviando} disabled={enviando}>{enviando ? "Guardando..." : "Guardar"}</button>
           <button type="button" className="btn-secundario" onClick={() => setEditando(false)}>Cancelar</button>
         </div>
       </form>

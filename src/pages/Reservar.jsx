@@ -65,10 +65,10 @@ export default function Reservar() {
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
-      <Link to={`/tutorias/${id}`} className="text-sm font-medium text-bosque/70 hover:text-bosque">← Volver al detalle</Link>
+      <Link to={`/tutorias/${id}`} className="text-sm font-medium text-texto-suave hover:text-texto">← Volver al detalle</Link>
       <div>
-        <p className="text-sm text-bosque/60">{tutoria.materia.nombre} · {tutoria.modalidad}</p>
-        <h1 className="text-2xl font-bold">Reservar: {tutoria.titulo}</h1>
+        <p className="text-sm text-texto-suave">{tutoria.materia.nombre} · {tutoria.modalidad}</p>
+        <h1 className="titulo-pagina">Reservar: {tutoria.titulo}</h1>
       </div>
 
       <Paso numero={1} titulo="Elija un horario">
@@ -98,17 +98,17 @@ export default function Reservar() {
         <section className="tarjeta space-y-4 border-acento/50 p-6">
           <h2 className="font-semibold">Confirme su reserva</h2>
           <dl className="grid gap-2 text-sm sm:grid-cols-[auto_1fr] sm:gap-x-6">
-            <dt className="text-bosque/60">Tutoría</dt>
+            <dt className="text-texto-suave">Tutoría</dt>
             <dd className="font-medium">{tutoria.titulo} — {tutoria.tutor.nombre} {tutoria.tutor.apellido}</dd>
-            <dt className="text-bosque/60">Fecha</dt>
+            <dt className="text-texto-suave">Fecha</dt>
             <dd className="font-medium">{formatearFecha(fecha)}</dd>
-            <dt className="text-bosque/60">Hora</dt>
+            <dt className="text-texto-suave">Hora</dt>
             <dd className="font-medium">{horario.hora_inicio} – {horario.hora_fin}</dd>
-            <dt className="text-bosque/60">Recurso</dt>
+            <dt className="text-texto-suave">Recurso</dt>
             <dd className="font-medium">{horario.recurso.nombre} ({horario.recurso.tipo})</dd>
           </dl>
           <Alerta error={error} />
-          <button type="button" className="btn-primario w-full sm:w-auto" onClick={confirmar} disabled={enviando}>
+          <button type="button" className="btn-primario w-full sm:w-auto" onClick={confirmar} aria-busy={enviando} disabled={enviando}>
             {enviando ? "Reservando..." : "Confirmar reserva"}
           </button>
         </section>
@@ -121,10 +121,10 @@ function Paso({ numero, titulo, bloqueado = false, ayuda, children }) {
   return (
     <section className={`tarjeta space-y-3 ${bloqueado ? "opacity-60" : ""}`}>
       <h2 className="flex items-center gap-3 font-semibold">
-        <span className="flex size-7 items-center justify-center rounded-full bg-bosque text-sm text-white">{numero}</span>
+        <span className="flex size-7 items-center justify-center rounded-full bg-primario text-sm text-primario-texto">{numero}</span>
         {titulo}
       </h2>
-      {bloqueado ? <p className="text-sm text-bosque/60">{ayuda}</p> : children}
+      {bloqueado ? <p className="text-sm text-texto-suave">{ayuda}</p> : children}
     </section>
   );
 }
@@ -133,8 +133,8 @@ function Paso({ numero, titulo, bloqueado = false, ayuda, children }) {
 function Opcion({ activa, onClick, children }) {
   return (
     <button type="button" onClick={onClick} aria-pressed={activa}
-      className={`flex min-w-0 flex-col items-start gap-0.5 rounded-lg border px-4 py-3 text-left transition-colors ${
-        activa ? "border-bosque bg-bosque text-white" : "border-bosque/15 bg-white hover:border-acento"
+      className={`flex min-w-0 flex-col items-start gap-0.5 rounded-control border px-4 py-3 text-left transition-colors ${
+        activa ? "border-primario bg-primario text-primario-texto" : "border-borde bg-superficie hover:border-acento"
       }`}>
       {children}
     </button>

@@ -68,8 +68,8 @@ export default function Registro() {
   return (
     <div className="mx-auto max-w-2xl">
       <div className="tarjeta p-6 sm:p-8">
-        <h1 className="text-2xl font-bold">Crear cuenta</h1>
-        <p className="mt-1 text-sm text-bosque/70">Todos los campos son obligatorios, excepto el celular.</p>
+        <h1 className="titulo-pagina">Crear cuenta</h1>
+        <p className="mt-1 text-sm text-texto-suave">Todos los campos son obligatorios, excepto el celular.</p>
 
         <div className="mt-6 space-y-4">
           <Alerta error={error} />
@@ -102,14 +102,14 @@ export default function Registro() {
 
           <CasillaTutor formulario={formulario} onChange={cambiar} />
 
-          <button type="submit" className="btn-primario w-full" disabled={enviando}>
+          <button type="submit" className="btn-primario w-full" aria-busy={enviando} disabled={enviando}>
             {enviando ? "Creando cuenta..." : "Crear cuenta"}
           </button>
         </form>
 
-        <p className="mt-6 text-center text-sm text-bosque/70">
+        <p className="mt-6 text-center text-sm text-texto-suave">
           ¿Ya tiene cuenta?{" "}
-          <Link to="/login" state={ubicacion.state} className="font-semibold text-bosque underline decoration-acento underline-offset-4">
+          <Link to="/login" state={ubicacion.state} className="font-semibold text-texto underline decoration-acento underline-offset-4">
             Inicie sesión
           </Link>
         </p>

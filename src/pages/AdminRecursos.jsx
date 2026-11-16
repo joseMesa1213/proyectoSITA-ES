@@ -50,8 +50,8 @@ export default function AdminRecursos() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold">Recursos</h1>
-        <p className="mt-1 text-bosque/70">
+        <h1 className="titulo-pagina">Recursos</h1>
+        <p className="mt-1 text-texto-suave">
           Salones y enlaces virtuales. Los estudiantes eligen uno activo al reservar, según la modalidad de la tutoría.
         </p>
       </div>
@@ -62,7 +62,7 @@ export default function AdminRecursos() {
 
       <section className="tarjeta space-y-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <h2 className="text-lg font-semibold">
+          <h2 className="titulo-seccion">
             Recursos ({activos} activos de {recursos.length})
           </h2>
           <select className="campo sm:max-w-48" value={filtroTipo} onChange={(e) => setFiltroTipo(e.target.value)} aria-label="Filtrar por tipo">
@@ -71,11 +71,11 @@ export default function AdminRecursos() {
           </select>
         </div>
         {visibles.length === 0 ? (
-          <p className="py-6 text-center text-sm text-bosque/60">
+          <p className="py-6 text-center text-sm text-texto-suave">
             {recursos.length === 0 ? "Aún no hay recursos. Cree el primero arriba." : "No hay recursos de este tipo."}
           </p>
         ) : (
-          <ul className="divide-y divide-bosque/10">
+          <ul className="divide-y divide-borde">
             {visibles.map((r) => (
               <FilaRecurso key={r.id} recurso={r} tipos={tipos} onActualizado={alActualizar} />
             ))}
@@ -139,12 +139,12 @@ function FormularioNuevoRecurso({ tipos, onCreado }) {
 
   return (
     <form onSubmit={enviar} className="tarjeta space-y-4">
-      <h2 className="text-lg font-semibold">Nuevo recurso</h2>
+      <h2 className="titulo-seccion">Nuevo recurso</h2>
       <div className="grid gap-4 sm:grid-cols-6">
         <CamposRecurso datos={datos} onCambio={setDatos} tipos={tipos} prefijo="nuevo" />
       </div>
       <Alerta error={error} />
-      <button type="submit" className="btn-primario" disabled={enviando}>{enviando ? "Creando..." : "Crear recurso"}</button>
+      <button type="submit" className="btn-primario" aria-busy={enviando} disabled={enviando}>{enviando ? "Creando..." : "Crear recurso"}</button>
     </form>
   );
 }
@@ -188,13 +188,13 @@ function FilaRecurso({ recurso, tipos, onActualizado }) {
   if (editando) {
     return (
       <li className="py-3">
-        <form onSubmit={guardar} className="space-y-3 rounded-lg border border-acento/40 p-4">
+        <form onSubmit={guardar} className="space-y-3 rounded-control border border-acento/40 p-4">
           <div className="grid gap-4 sm:grid-cols-6">
             <CamposRecurso datos={datos} onCambio={setDatos} tipos={tipos} prefijo={`recurso-${recurso.id}`} />
           </div>
           <Alerta error={error} />
           <div className="flex gap-2">
-            <button type="submit" className="btn-primario" disabled={enviando}>{enviando ? "Guardando..." : "Guardar"}</button>
+            <button type="submit" className="btn-primario" aria-busy={enviando} disabled={enviando}>{enviando ? "Guardando..." : "Guardar"}</button>
             <button type="button" className="btn-secundario" onClick={() => setEditando(false)}>Cancelar</button>
           </div>
         </form>
@@ -209,10 +209,10 @@ function FilaRecurso({ recurso, tipos, onActualizado }) {
         <div className={`min-w-0 ${activo ? "" : "opacity-60"}`}>
           <p className="flex flex-wrap items-center gap-2 font-medium">
             {recurso.nombre}
-            <span className="insignia border border-bosque/15 text-bosque">{recurso.tipo}</span>
-            {!activo && <span className="insignia bg-bosque/10 text-bosque">Inactivo</span>}
+            <span className="insignia border border-borde text-texto">{recurso.tipo}</span>
+            {!activo && <span className="insignia bg-texto/10 text-texto">Inactivo</span>}
           </p>
-          <p className="truncate text-xs text-bosque/60">{recurso.ubicacion} · capacidad {recurso.capacidad}</p>
+          <p className="truncate text-xs text-texto-suave">{recurso.ubicacion} · capacidad {recurso.capacidad}</p>
         </div>
         <div className="flex gap-2">
           <button type="button" className="btn-secundario" onClick={abrir} disabled={enviando}>Editar</button>

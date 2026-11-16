@@ -92,14 +92,14 @@ export default function HorariosTutoria({ tutoria, reservas, onCambio }) {
       <Alerta error={error} />
 
       {activos.length === 0 ? (
-        <p className="text-sm text-bosque/60">No tiene horarios activos: nadie puede reservar esta tutoría todavía.</p>
+        <p className="text-sm text-texto-suave">No tiene horarios activos: nadie puede reservar esta tutoría todavía.</p>
       ) : (
-        <ul className="divide-y divide-bosque/10">
+        <ul className="divide-y divide-borde">
           {activos.map((h) => (
             <li key={h.id} className="flex items-center justify-between gap-3 py-2">
               <span>
                 <span className="font-medium">{h.dia}</span> {h.hora_inicio} – {h.hora_fin}
-                <span className="text-sm text-bosque/60"> · {h.recurso.nombre}</span>
+                <span className="text-sm text-texto-suave"> · {h.recurso.nombre}</span>
               </span>
               <button type="button" className="btn-peligro px-3 py-1" disabled={procesando} onClick={() => desactivar(h)}>
                 Desactivar
@@ -109,7 +109,7 @@ export default function HorariosTutoria({ tutoria, reservas, onCambio }) {
         </ul>
       )}
 
-      <form onSubmit={agregar} className="grid gap-3 rounded-lg bg-crema p-4 sm:grid-cols-[1.3fr_1fr_1fr_1.5fr_auto] sm:items-end">
+      <form onSubmit={agregar} className="grid gap-3 rounded-control bg-superficie-hundida p-4 sm:grid-cols-[1.3fr_1fr_1fr_1.5fr_auto] sm:items-end">
         <div>
           <label htmlFor="dia" className="etiqueta">Día</label>
           <select id="dia" name="dia" className="campo" required value={nuevo.dia} onChange={cambiar}>
@@ -137,9 +137,9 @@ export default function HorariosTutoria({ tutoria, reservas, onCambio }) {
 
       {inactivos.length > 0 && (
         <details className="text-sm">
-          <summary className="cursor-pointer text-bosque/60">Horarios desactivados ({inactivos.length})</summary>
-          <p className="mt-2 text-xs text-bosque/60">No se pueden reactivar; para ofrecerlos de nuevo agréguelos otra vez.</p>
-          <ul className="mt-1 space-y-1 text-bosque/60">
+          <summary className="cursor-pointer text-texto-suave">Horarios desactivados ({inactivos.length})</summary>
+          <p className="mt-2 text-xs text-texto-suave">No se pueden reactivar; para ofrecerlos de nuevo agréguelos otra vez.</p>
+          <ul className="mt-1 space-y-1 text-texto-suave">
             {inactivos.map((h) => (
               <li key={h.id} className="line-through">{h.dia} {h.hora_inicio} – {h.hora_fin} · {h.recurso.nombre}</li>
             ))}

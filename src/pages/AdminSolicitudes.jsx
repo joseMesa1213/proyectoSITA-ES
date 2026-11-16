@@ -44,8 +44,8 @@ export default function AdminSolicitudes() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold">Solicitudes de tutor</h1>
-        <p className="mt-1 text-bosque/70">Estudiantes que pidieron ofrecer tutorías. Al aprobar, siguen siendo estudiantes y además pueden ser tutores.</p>
+        <h1 className="titulo-pagina">Solicitudes de tutor</h1>
+        <p className="mt-1 text-texto-suave">Estudiantes que pidieron ofrecer tutorías. Al aprobar, siguen siendo estudiantes y además pueden ser tutores.</p>
       </div>
 
       {aviso && <Alerta tipo="exito" onCerrar={() => setAviso("")}>{aviso}</Alerta>}
@@ -55,7 +55,7 @@ export default function AdminSolicitudes() {
           <button key={p.id} type="button" role="tab" aria-selected={pestana === p.id}
             onClick={() => { setPestana(p.id); setAviso(""); }}
             className={`rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${
-              pestana === p.id ? "bg-bosque text-white" : "bg-white text-bosque hover:bg-bosque/5"
+              pestana === p.id ? "bg-primario text-primario-texto" : "bg-superficie text-texto hover:bg-texto/5"
             }`}>
             {p.texto}{pestana === p.id && solicitudes ? ` (${solicitudes.length})` : ""}
           </button>
@@ -67,7 +67,7 @@ export default function AdminSolicitudes() {
       {!solicitudes ? (
         !error && <Cargando />
       ) : solicitudes.length === 0 ? (
-        <div className="tarjeta py-12 text-center text-bosque/70">
+        <div className="tarjeta py-12 text-center text-texto-suave">
           {pestana === "pendientes" ? "No hay solicitudes pendientes." : "Todavía no se ha revisado ninguna solicitud."}
         </div>
       ) : (
@@ -114,21 +114,21 @@ function TarjetaSolicitud({ solicitud, onRevisada }) {
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
           <p className="text-lg font-semibold">{nombreDe(usuario)}</p>
-          <p className="truncate text-sm text-bosque/70">
-            <a href={`mailto:${usuario.correo}`} className="underline decoration-bosque/30 underline-offset-2">{usuario.correo}</a>
+          <p className="truncate text-sm text-texto-suave">
+            <a href={`mailto:${usuario.correo}`} className="underline decoration-borde-fuerte underline-offset-2">{usuario.correo}</a>
             {usuario.estudiante && ` · ${usuario.estudiante.nombre_programa}, semestre ${usuario.estudiante.semestre}`}
           </p>
         </div>
         <InsigniaEstado idEstado={solicitud.id_estado} nombre={solicitud.estado} />
       </div>
 
-      <div className="rounded-lg bg-crema px-4 py-3 text-sm">
-        <p className="text-bosque/60">Solicitada el {formatearMarcaDeTiempo(solicitud.fecha_solicitud)}</p>
-        <p className="mt-1">{solicitud.motivo ? `«${solicitud.motivo}»` : <span className="text-bosque/50">Sin motivo escrito.</span>}</p>
+      <div className="rounded-control bg-superficie-hundida px-4 py-3 text-sm">
+        <p className="text-texto-suave">Solicitada el {formatearMarcaDeTiempo(solicitud.fecha_solicitud)}</p>
+        <p className="mt-1">{solicitud.motivo ? `«${solicitud.motivo}»` : <span className="text-texto-suave">Sin motivo escrito.</span>}</p>
       </div>
 
       {!pendiente && (
-        <p className="text-sm text-bosque/70">
+        <p className="text-sm text-texto-suave">
           {solicitud.revisor ? `Revisada por ${nombreDe(solicitud.revisor)}` : "Revisada"}
           {solicitud.fecha_revision && ` el ${formatearMarcaDeTiempo(solicitud.fecha_revision)}`}
           {solicitud.observacion && `: «${solicitud.observacion}»`}
@@ -145,7 +145,7 @@ function TarjetaSolicitud({ solicitud, onRevisada }) {
       )}
 
       {pendiente && rechazando && (
-        <form onSubmit={rechazar} className="space-y-3 rounded-lg border border-peligro/30 p-4">
+        <form onSubmit={rechazar} className="space-y-3 rounded-control border border-peligro/30 p-4">
           <div>
             <label htmlFor={`observacion-${solicitud.id}`} className="etiqueta">Motivo del rechazo (lo verá el estudiante)</label>
             <textarea id={`observacion-${solicitud.id}`} rows={2} maxLength={500} required className="campo"

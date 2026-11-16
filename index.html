@@ -6,6 +6,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="SITA-ES: tutorías académicas entre estudiantes" />
     <title>SITA-ES</title>
+    <meta name="color-scheme" content="light dark" />
+    <!-- Modo oscuro ANTES de pintar la página (sin parpadeo blanco). Es una copia mínima de
+         temaInicial() de src/utils/tema.js: si cambia la clave "sita_tema", cambiarla también aquí. -->
+    <script>
+      (function () {
+        var tema = null;
+        try {
+          tema = localStorage.getItem("sita_tema");
+        } catch (e) {}
+        if (tema !== "oscuro" && tema !== "claro") {
+          tema = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "oscuro" : "claro";
+        }
+        if (tema === "oscuro") document.documentElement.classList.add("dark");
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

@@ -35,7 +35,7 @@ export default function BotonEstadoTutoria({ tutoria, reservasFuturas = 0, onCam
   };
 
   return (
-    <button type="button" className={activa ? "btn-peligro" : "btn-secundario"} onClick={cambiar} disabled={procesando}>
+    <button type="button" className={activa ? "btn-peligro" : "btn-secundario"} onClick={cambiar} aria-busy={procesando} disabled={procesando}>
       {procesando ? "Guardando..." : activa ? "Inactivar" : "Reactivar"}
     </button>
   );

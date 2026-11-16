@@ -84,8 +84,8 @@ export default function AgendaTutorias() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold">Agenda de tutorías</h1>
-        <p className="mt-1 text-bosque/70">Reservas que otros estudiantes hicieron en sus tutorías.</p>
+        <h1 className="titulo-pagina">Agenda de tutorías</h1>
+        <p className="mt-1 text-texto-suave">Reservas que otros estudiantes hicieron en sus tutorías.</p>
       </div>
 
       <div className="flex flex-wrap items-end justify-between gap-4">
@@ -93,7 +93,7 @@ export default function AgendaTutorias() {
           {PESTANAS.map((p) => (
             <button key={p.id} type="button" role="tab" aria-selected={pestana === p.id} onClick={() => setPestana(p.id)}
               className={`rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${
-                pestana === p.id ? "bg-bosque text-white" : "bg-white text-bosque hover:bg-bosque/5"
+                pestana === p.id ? "bg-primario text-primario-texto" : "bg-superficie text-texto hover:bg-texto/5"
               }`}>
               {p.texto} ({reservas ? reservas.filter(p.incluye).length : "…"})
             </button>
@@ -113,7 +113,7 @@ export default function AgendaTutorias() {
       {!reservas ? (
         !error && <Cargando />
       ) : sesiones.length === 0 ? (
-        <div className="tarjeta py-12 text-center text-bosque/70">
+        <div className="tarjeta py-12 text-center text-texto-suave">
           {fecha ? `No hay reservas en esta sección para el ${formatearFecha(fecha).toLowerCase()}.` : "No hay reservas en esta sección."}
           {pestana === "proximas" && !fecha && (
             <p className="mt-2 text-sm">
@@ -143,18 +143,18 @@ function TarjetaSesion({ sesion, cupo, ocupados, onActualizada }) {
     <li className="tarjeta space-y-3">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <p className="text-xs font-semibold tracking-wide text-bosque/60 uppercase">{tutoria.materia.nombre}</p>
-          <h2 className="text-lg font-semibold">{tutoria.titulo}</h2>
-          <p className="text-sm text-bosque/70">{formatearFecha(fecha)} · {horario.hora_inicio} – {horario.hora_fin}</p>
+          <p className="text-xs font-semibold tracking-wide text-texto-suave uppercase">{tutoria.materia.nombre}</p>
+          <h2 className="titulo-seccion">{tutoria.titulo}</h2>
+          <p className="text-sm text-texto-suave">{formatearFecha(fecha)} · {horario.hora_inicio} – {horario.hora_fin}</p>
         </div>
         {cupo !== undefined && (
-          <span className={`insignia ${ocupados >= cupo ? "bg-acento text-bosque" : "bg-bosque/5 text-bosque"}`}>
+          <span className={`insignia ${ocupados >= cupo ? "bg-acento text-sobre-acento" : "bg-texto/5 text-texto"}`}>
             {ocupados}/{cupo} cupos ocupados
           </span>
         )}
       </div>
 
-      <ul className="divide-y divide-bosque/10 rounded-lg border border-bosque/10">
+      <ul className="divide-y divide-borde rounded-control border border-borde">
         {reservas.map((r) => (
           <FilaReserva key={r.id} reserva={r} termino={termino} onActualizada={onActualizada} />
         ))}
@@ -188,8 +188,8 @@ function FilaReserva({ reserva, termino, onActualizada }) {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="min-w-0">
           <p className="font-medium">{nombre}</p>
-          <p className="truncate text-sm text-bosque/70">
-            <a href={`mailto:${estudiante.correo}`} className="underline decoration-bosque/30 underline-offset-2">{estudiante.correo}</a>
+          <p className="truncate text-sm text-texto-suave">
+            <a href={`mailto:${estudiante.correo}`} className="underline decoration-borde-fuerte underline-offset-2">{estudiante.correo}</a>
             {" · "}{recurso.nombre}
           </p>
         </div>
@@ -207,7 +207,7 @@ function FilaReserva({ reserva, termino, onActualizada }) {
               Cancelar
             </button>
           )}
-          {activa && !termino && <span className="text-xs text-bosque/50">Completar se habilita al terminar la sesión</span>}
+          {activa && !termino && <span className="text-xs text-texto-suave">Completar se habilita al terminar la sesión</span>}
         </div>
       </div>
       <Alerta error={error} />

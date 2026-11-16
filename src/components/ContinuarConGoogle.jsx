@@ -98,7 +98,7 @@ export default function ContinuarConGoogle({ onError, texto = "continue_with" })
       {/* Google dibuja aquí su botón; min-h evita que la página "salte" mientras carga */}
       <div ref={contenedor} className="flex min-h-11 justify-center" />
       {procesando && (
-        <p className="mt-2 text-center text-sm text-bosque/70" role="status">Verificando su cuenta de Google...</p>
+        <p className="mt-2 text-center text-sm text-texto-suave" role="status">Verificando su cuenta de Google...</p>
       )}
     </div>
   );
@@ -108,10 +108,10 @@ export default function ContinuarConGoogle({ onError, texto = "continue_with" })
 export function SeparadorGoogle({ texto = "o" }) {
   if (!CLIENT_ID) return null;
   return (
-    <div className="flex items-center gap-3 text-xs text-bosque/50" aria-hidden="true">
-      <span className="h-px flex-1 bg-bosque/15" />
+    <div className="flex items-center gap-3 text-xs text-texto-suave" aria-hidden="true">
+      <span className="h-px flex-1 bg-texto/15" />
       {texto}
-      <span className="h-px flex-1 bg-bosque/15" />
+      <span className="h-px flex-1 bg-texto/15" />
     </div>
   );
 }

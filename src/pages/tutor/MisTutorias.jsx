@@ -38,8 +38,8 @@ export default function MisTutorias() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold">Mis tutorías</h1>
-          <p className="mt-1 text-bosque/70">Publique tutorías y administre sus horarios.</p>
+          <h1 className="titulo-pagina">Mis tutorías</h1>
+          <p className="mt-1 text-texto-suave">Publique tutorías y administre sus horarios.</p>
         </div>
         {materias.length > 0 && <Link to="/tutor/tutorias/nueva" className="btn-primario">+ Nueva tutoría</Link>}
       </div>
@@ -59,26 +59,26 @@ export default function MisTutorias() {
             const horariosActivos = t.horarios.filter((h) => h.id_estado === ESTADO.ACTIVO);
             const proximas = reservasActivasFuturas(reservas, (r) => r.tutoria.id === t.id).length;
             return (
-              <li key={t.id} className={`tarjeta flex flex-col gap-3 ${activa ? "" : "bg-white/60"}`}>
+              <li key={t.id} className={`tarjeta flex flex-col gap-3 ${activa ? "" : "bg-superficie/60"}`}>
                 <div className="flex items-start justify-between gap-3">
                   <div>
-                    <p className="text-xs font-semibold tracking-wide text-bosque/60 uppercase">{t.materia.nombre}</p>
-                    <h2 className="text-lg font-semibold">{t.titulo}</h2>
+                    <p className="text-xs font-semibold tracking-wide text-texto-suave uppercase">{t.materia.nombre}</p>
+                    <h2 className="titulo-seccion">{t.titulo}</h2>
                   </div>
                   <InsigniaEstado idEstado={t.id_estado} nombre={activa ? "Activa" : "Inactiva"} />
                 </div>
                 <div className="flex flex-wrap gap-2">
                   <InsigniaNivel nivel={t.nivel} />
                   <InsigniaModalidad modalidad={t.modalidad} />
-                  <span className="insignia bg-bosque/5 text-bosque">Cupo {t.cupo}</span>
+                  <span className="insignia bg-texto/5 text-texto">Cupo {t.cupo}</span>
                 </div>
-                <p className="text-sm text-bosque/70">
+                <p className="text-sm text-texto-suave">
                   {horariosActivos.length === 0
                     ? "Sin horarios activos: nadie puede reservarla todavía."
                     : horariosActivos.map((h) => `${h.dia} ${h.hora_inicio}–${h.hora_fin}`).join(" · ")}
                 </p>
                 <p className="text-sm font-medium">{contarReservas(proximas)} {proximas === 1 ? "próxima" : "próximas"}</p>
-                <div className="mt-auto flex flex-wrap gap-2 border-t border-bosque/10 pt-3">
+                <div className="mt-auto flex flex-wrap gap-2 border-t border-borde pt-3">
                   <Link to={`/tutor/tutorias/${t.id}`} className="btn-primario">Editar y horarios</Link>
                   <BotonEstadoTutoria tutoria={t} reservasFuturas={proximas} onCambiada={reemplazar} onError={setError} />
                 </div>
@@ -109,14 +109,14 @@ function PrimerosPasos({ tieneMaterias, tieneTutorias, tieneHorarios }) {
         {pasos.map((p, i) => (
           <li key={p.texto} className="flex items-center gap-3">
             <span className={`flex size-6 shrink-0 items-center justify-center rounded-full text-xs font-bold ${
-              p.hecho ? "bg-exito text-white" : i === siguiente ? "bg-acento text-bosque" : "bg-bosque/10"
+              p.hecho ? "bg-exito text-primario-texto" : i === siguiente ? "bg-acento text-sobre-acento" : "bg-texto/10"
             }`}>
               {p.hecho ? "✓" : i + 1}
             </span>
             {i === siguiente && p.a ? (
               <Link to={p.a} className="font-medium underline decoration-acento underline-offset-4">{p.texto}</Link>
             ) : (
-              <span className={p.hecho ? "text-bosque/50 line-through" : ""}>{p.texto}</span>
+              <span className={p.hecho ? "text-texto-suave line-through" : ""}>{p.texto}</span>
             )}
           </li>
         ))}

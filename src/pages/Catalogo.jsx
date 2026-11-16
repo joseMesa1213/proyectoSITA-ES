@@ -69,8 +69,8 @@ export default function Catalogo() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold">Tutorías disponibles</h1>
-        <p className="mt-1 text-bosque/70">Encuentre un compañero que le ayude con la materia que necesita.</p>
+        <h1 className="titulo-pagina">Tutorías disponibles</h1>
+        <p className="mt-1 text-texto-suave">Encuentre un compañero que le ayude con la materia que necesita.</p>
       </div>
 
       <div className="tarjeta grid gap-4 p-4 sm:grid-cols-2 sm:items-end lg:grid-cols-[2fr_1fr_1fr_1fr_auto]">
@@ -95,11 +95,11 @@ export default function Catalogo() {
       ) : (
         !error && (
           <>
-            <p className="text-sm text-bosque/60">
+            <p className="text-sm text-texto-suave">
               {visibles.length} {visibles.length === 1 ? "tutoría encontrada" : "tutorías encontradas"}
             </p>
             {visibles.length === 0 ? (
-              <div className="tarjeta py-12 text-center text-bosque/70">
+              <div className="tarjeta py-12 text-center text-texto-suave">
                 {hayFiltros ? "No hay tutorías con esos filtros." : "Todavía no hay tutorías publicadas."}
               </div>
             ) : (

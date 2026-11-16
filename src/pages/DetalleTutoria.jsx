@@ -40,31 +40,31 @@ export default function DetalleTutoria() {
 
   return (
     <div className="space-y-6">
-      <Link to="/tutorias" className="text-sm font-medium text-bosque/70 hover:text-bosque">← Volver al catálogo</Link>
+      <Link to="/tutorias" className="text-sm font-medium text-texto-suave hover:text-texto">← Volver al catálogo</Link>
 
       <div className="grid gap-6 lg:grid-cols-[2fr_1fr]">
         {/* Información principal */}
         <section className="tarjeta space-y-4 p-6">
           <div>
-            <p className="text-xs font-semibold tracking-wide text-bosque/60 uppercase">{materia.nombre} · {materia.codigo}</p>
-            <h1 className="mt-1 text-3xl font-bold">{titulo}</h1>
-            <p className="mt-1 text-bosque/70">Tutor: {tutor.nombre} {tutor.apellido}</p>
+            <p className="text-xs font-semibold tracking-wide text-texto-suave uppercase">{materia.nombre} · {materia.codigo}</p>
+            <h1 className="mt-1 titulo-pagina">{titulo}</h1>
+            <p className="mt-1 text-texto-suave">Tutor: {tutor.nombre} {tutor.apellido}</p>
           </div>
           <div className="flex flex-wrap gap-2">
             <InsigniaNivel nivel={nivel} />
             <InsigniaModalidad modalidad={modalidad} />
-            <span className="insignia bg-bosque/5 text-bosque">{cupo} {cupo === 1 ? "cupo" : "cupos"} por sesión</span>
+            <span className="insignia bg-texto/5 text-texto">{cupo} {cupo === 1 ? "cupo" : "cupos"} por sesión</span>
           </div>
-          {descripcion && <p className="whitespace-pre-line text-bosque/80">{descripcion}</p>}
+          {descripcion && <p className="whitespace-pre-line text-texto">{descripcion}</p>}
 
           <div>
             <h2 className="mb-2 font-semibold">Horarios semanales</h2>
             {horarios.length === 0 ? (
-              <p className="text-sm text-bosque/60">Esta tutoría aún no tiene horarios publicados.</p>
+              <p className="text-sm text-texto-suave">Esta tutoría aún no tiene horarios publicados.</p>
             ) : (
               <ul className="grid gap-2 sm:grid-cols-2">
                 {horarios.map((h) => (
-                  <li key={h.id} className="flex justify-between rounded-lg bg-crema px-4 py-2 text-sm">
+                  <li key={h.id} className="flex justify-between rounded-control bg-superficie-hundida px-4 py-2 text-sm">
                     <span className="font-medium">{h.dia}</span>
                     <span>{h.hora_inicio} – {h.hora_fin}</span>
                   </li>
@@ -108,7 +108,7 @@ function AccionReservar({ tutoria }) {
   if (!usuario) {
     return (
       <>
-        <p className="text-sm text-bosque/70">Inicie sesión para reservar.</p>
+        <p className="text-sm text-texto-suave">Inicie sesión para reservar.</p>
         <Link to="/login" state={{ desde: `/tutorias/${tutoria.id}/reservar` }} className="btn-primario w-full">
           Iniciar sesión para reservar
         </Link>
@@ -120,14 +120,14 @@ function AccionReservar({ tutoria }) {
   }
   return (
     <>
-      <p className="text-sm text-bosque/70">Elija un horario, la fecha de la sesión y el lugar o enlace.</p>
+      <p className="text-sm text-texto-suave">Elija un horario, la fecha de la sesión y el lugar o enlace.</p>
       <Link to={`/tutorias/${tutoria.id}/reservar`} className="btn-primario w-full">Reservar</Link>
     </>
   );
 }
 
 function Aviso({ children }) {
-  return <p className="rounded-lg bg-crema px-4 py-3 text-sm text-bosque/80">{children}</p>;
+  return <p className="rounded-control bg-superficie-hundida px-4 py-3 text-sm text-texto">{children}</p>;
 }
 
 function Valoraciones({ resumen }) {
@@ -135,28 +135,28 @@ function Valoraciones({ resumen }) {
   return (
     <section className="tarjeta space-y-4 p-6">
       <div className="flex flex-wrap items-center gap-3">
-        <h2 className="text-lg font-semibold">Valoraciones</h2>
+        <h2 className="titulo-seccion">Valoraciones</h2>
         {promedio !== null && (
           <span className="flex items-center gap-2">
             <Estrellas valor={promedio} />
             <span className="font-semibold">{promedio.toFixed(1)}</span>
-            <span className="text-sm text-bosque/60">({total} {total === 1 ? "valoración" : "valoraciones"})</span>
+            <span className="text-sm text-texto-suave">({total} {total === 1 ? "valoración" : "valoraciones"})</span>
           </span>
         )}
       </div>
 
       {total === 0 ? (
-        <p className="text-sm text-bosque/60">Esta tutoría todavía no tiene valoraciones.</p>
+        <p className="text-sm text-texto-suave">Esta tutoría todavía no tiene valoraciones.</p>
       ) : (
-        <ul className="divide-y divide-bosque/10">
+        <ul className="divide-y divide-borde">
           {valoraciones.map((v) => (
             <li key={v.id} className="py-3">
               <div className="flex flex-wrap items-center gap-2 text-sm">
                 <Estrellas valor={v.calificacion} tamano="text-base" />
                 <span className="font-medium">{v.evaluador.nombre}</span>
-                {v.fecha && <span className="text-bosque/50">· {formatearMarcaDeTiempo(v.fecha)}</span>}
+                {v.fecha && <span className="text-texto-suave">· {formatearMarcaDeTiempo(v.fecha)}</span>}
               </div>
-              {v.comentario && <p className="mt-1 text-bosque/80">{v.comentario}</p>}
+              {v.comentario && <p className="mt-1 text-texto">{v.comentario}</p>}
             </li>
           ))}
         </ul>

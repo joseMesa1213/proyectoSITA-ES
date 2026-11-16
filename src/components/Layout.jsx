@@ -12,7 +12,7 @@ export default function Layout() {
       <main className="mx-auto w-full max-w-6xl flex-1 px-4 pt-8 pb-24">
         <Outlet />
       </main>
-      <footer className="border-t border-bosque/10 py-4 text-center text-xs text-bosque/60">
+      <footer className="border-t border-borde py-4 text-center text-xs text-texto-suave">
         SITA-ES · Proyecto Integrador I · Universidad de Antioquia
       </footer>
       <Asistente />

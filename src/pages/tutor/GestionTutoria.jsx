@@ -67,12 +67,12 @@ export default function GestionTutoria() {
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
-      <Link to="/tutor/tutorias" className="text-sm font-medium text-bosque/70 hover:text-bosque">← Mis tutorías</Link>
+      <Link to="/tutor/tutorias" className="text-sm font-medium text-texto-suave hover:text-texto">← Mis tutorías</Link>
 
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <p className="text-sm text-bosque/60">{tutoria.materia.nombre}</p>
-          <h1 className="flex flex-wrap items-center gap-3 text-3xl font-bold">
+          <p className="text-sm text-texto-suave">{tutoria.materia.nombre}</p>
+          <h1 className="flex flex-wrap items-center gap-3 titulo-pagina">
             {tutoria.titulo}
             <InsigniaEstado idEstado={tutoria.id_estado} nombre={activa ? "Activa" : "Inactiva"} />
           </h1>
@@ -88,7 +88,7 @@ export default function GestionTutoria() {
       {!activa && <Alerta>Esta tutoría está inactiva: no aparece en el catálogo ni se puede reservar.</Alerta>}
 
       <section className="tarjeta space-y-3">
-        <h2 className="text-lg font-semibold">Horarios semanales</h2>
+        <h2 className="titulo-seccion">Horarios semanales</h2>
         <HorariosTutoria tutoria={tutoria} reservas={reservas} onCambio={(horarios, canceladas) => {
           setTutoria({ ...tutoria, horarios });
           if (canceladas > 0) recargarReservas();
@@ -96,7 +96,7 @@ export default function GestionTutoria() {
       </section>
 
       <section className="tarjeta space-y-3">
-        <h2 className="text-lg font-semibold">Datos de la tutoría</h2>
+        <h2 className="titulo-seccion">Datos de la tutoría</h2>
         {/* key: si la tutoría cambia (guardar), el formulario se reinicia con los datos nuevos */}
         <FormularioTutoria key={JSON.stringify([tutoria.titulo, tutoria.descripcion, tutoria.nivel, tutoria.modalidad, tutoria.cupo])}
           tutoria={tutoria} reservasActivas={futuras} onGuardar={guardar} />
