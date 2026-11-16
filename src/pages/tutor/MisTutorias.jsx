@@ -4,6 +4,7 @@ import { listarMisTutorias } from "../../api/tutorias.js";
 import { listarMisMaterias } from "../../api/materias.js";
 import { listarReservasRecibidas } from "../../api/reservas.js";
 import Alerta from "../../components/Alerta.jsx";
+import { useAvisos } from "../../components/Avisos.jsx";
 import Cargando from "../../components/Cargando.jsx";
 import BotonEstadoTutoria from "../../components/BotonEstadoTutoria.jsx";
 import { InsigniaEstado, InsigniaModalidad, InsigniaNivel } from "../../components/Insignias.jsx";
@@ -12,6 +13,7 @@ import { contarReservas, reservasActivasFuturas } from "../../utils/reservas.js"
 
 // Tutorías del tutor (activas e inactivas), con acceso a editar, horarios e inactivar/reactivar
 export default function MisTutorias() {
+  const avisos = useAvisos();
   const [datos, setDatos] = useState(null);
   const [error, setError] = useState(null);
 
@@ -80,7 +82,10 @@ export default function MisTutorias() {
                 <p className="text-sm font-medium">{contarReservas(proximas)} {proximas === 1 ? "próxima" : "próximas"}</p>
                 <div className="mt-auto flex flex-wrap gap-2 border-t border-borde pt-3">
                   <Link to={`/tutor/tutorias/${t.id}`} className="btn-primario">Editar y horarios</Link>
-                  <BotonEstadoTutoria tutoria={t} reservasFuturas={proximas} onCambiada={reemplazar} onError={setError} />
+                  <BotonEstadoTutoria tutoria={t} reservasFuturas={proximas} onCambiada={(actualizada) => {
+                    reemplazar(actualizada);
+                    avisos.exito(`Tutoría «${actualizada.titulo}» ${actualizada.id_estado === ESTADO.ACTIVO ? "reactivada" : "inactivada"}.`);
+                  }} onError={avisos.error} />
                 </div>
               </li>
             );

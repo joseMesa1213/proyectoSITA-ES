@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useConfirmar } from "../components/Confirmar.jsx";
+import { useAvisos } from "../components/Avisos.jsx";
 import { obtenerOpciones } from "../api/catalogos.js";
 import { actualizarRecurso, crearRecurso, listarRecursos } from "../api/recursos.js";
 import Alerta from "../components/Alerta.jsx";
@@ -21,7 +22,7 @@ export default function AdminRecursos() {
   const [recursos, setRecursos] = useState(null);
   const [tipos, setTipos] = useState([]);
   const [error, setError] = useState(null);
-  const [aviso, setAviso] = useState("");
+  const avisos = useAvisos();
   const [filtroTipo, setFiltroTipo] = useState("");
 
   useEffect(() => {
@@ -36,7 +37,7 @@ export default function AdminRecursos() {
 
   const alCrear = (recurso) => {
     setRecursos((lista) => [...lista, recurso].sort(porNombre));
-    setAviso(`Recurso "${recurso.nombre}" creado.`);
+    avisos.exito(`Recurso "${recurso.nombre}" creado.`);
   };
 
   const alActualizar = (recurso) =>
@@ -57,7 +58,6 @@ export default function AdminRecursos() {
         </p>
       </div>
 
-      {aviso && <Alerta tipo="exito" onCerrar={() => setAviso("")}>{aviso}</Alerta>}
 
       <FormularioNuevoRecurso tipos={tipos} onCreado={alCrear} />
 
@@ -152,6 +152,7 @@ function FormularioNuevoRecurso({ tipos, onCreado }) {
 
 function FilaRecurso({ recurso, tipos, onActualizado }) {
   const confirmar = useConfirmar();
+  const avisos = useAvisos();
   const [editando, setEditando] = useState(false);
   const [datos, setDatos] = useState(recurso);
   const [error, setError] = useState(null);
@@ -189,7 +190,16 @@ function FilaRecurso({ recurso, tipos, onActualizado }) {
       textoConfirmar: "Sí, desactivar",
       peligro: true,
     }))) return;
-    ejecutar({ id_estado: activo ? ESTADO.INACTIVO : ESTADO.ACTIVO });
+    // Activar o desactivar es un botón, no un formulario: el resultado va como aviso
+    setEnviando(true);
+    try {
+      onActualizado(await actualizarRecurso(recurso.id, { id_estado: activo ? ESTADO.INACTIVO : ESTADO.ACTIVO }));
+      avisos.exito(`Recurso "${recurso.nombre}" ${activo ? "desactivado" : "activado"}.`);
+    } catch (err) {
+      avisos.error(err);
+    } finally {
+      setEnviando(false);
+    }
   };
 
   if (editando) {

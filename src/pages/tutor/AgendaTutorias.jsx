@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useConfirmar } from "../../components/Confirmar.jsx";
+import { useAvisos } from "../../components/Avisos.jsx";
 import { Link } from "react-router";
 import { cancelarReserva, completarReserva, listarReservasRecibidas } from "../../api/reservas.js";
 import { listarMisTutorias } from "../../api/tutorias.js";
@@ -166,21 +167,21 @@ function TarjetaSesion({ sesion, cupo, ocupados, onActualizada }) {
 
 function FilaReserva({ reserva, termino, onActualizada }) {
   const confirmar = useConfirmar();
+  const avisos = useAvisos();
   const { estudiante, recurso } = reserva;
-  const [error, setError] = useState(null);
   const [procesando, setProcesando] = useState(false);
   const activa = reserva.id_estado === ESTADO.ACTIVO;
   const nombre = `${estudiante.nombre} ${estudiante.apellido}`;
 
-  // confirmacion: opciones del diálogo de confirmación (título, mensaje, botón)
-  const ejecutar = async (accion, confirmacion) => {
+  // confirmacion: opciones del diálogo de confirmación (título, mensaje, botón); exito: texto del aviso
+  const ejecutar = async (accion, confirmacion, exito) => {
     if (!(await confirmar(confirmacion))) return;
-    setError(null);
     setProcesando(true);
     try {
       onActualizada(await accion(reserva.id));
+      avisos.exito(exito);
     } catch (err) {
-      setError(err);
+      avisos.error(err);
     } finally {
       setProcesando(false);
     }
@@ -204,7 +205,7 @@ function FilaReserva({ reserva, termino, onActualizada }) {
                 titulo: "Completar sesión",
                 mensaje: `¿Marcar como completada la sesión de ${nombre}? Así podrá valorarla.`,
                 textoConfirmar: "Sí, completar",
-              })}>
+              }, `Sesión de ${nombre} completada: ya puede valorarla.`)}>
               Completar
             </button>
           )}
@@ -216,14 +217,13 @@ function FilaReserva({ reserva, termino, onActualizada }) {
                 textoConfirmar: "Sí, cancelar la reserva",
                 textoCancelar: "No, mantenerla",
                 peligro: true,
-              })}>
+              }, `Reserva de ${nombre} cancelada.`)}>
               Cancelar
             </button>
           )}
           {activa && !termino && <span className="text-xs text-texto-suave">Completar se habilita al terminar la sesión</span>}
         </div>
       </div>
-      <Alerta error={error} />
     </li>
   );
 }

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { Link, useLocation, useParams } from "react-router";
+import { Link, useParams } from "react-router";
+import { useAvisoDeNavegacion, useAvisos } from "../../components/Avisos.jsx";
 import { actualizarTutoria, listarMisTutorias } from "../../api/tutorias.js";
 import { listarReservasRecibidas } from "../../api/reservas.js";
 import Alerta from "../../components/Alerta.jsx";
@@ -15,11 +16,11 @@ import { contarReservas, reservasActivasFuturas } from "../../utils/reservas.js"
 // Se usa GET /tutorias/mias (y no GET /tutorias/:id) porque trae también los horarios inactivos.
 export default function GestionTutoria() {
   const { id } = useParams();
-  const ubicacion = useLocation();
+  const avisos = useAvisos();
+  useAvisoDeNavegacion(); // "Tutoría publicada..." al llegar desde Nueva tutoría
   const [tutoria, setTutoria] = useState(null);
   const [reservas, setReservas] = useState([]);
   const [error, setError] = useState(null);
-  const [aviso, setAviso] = useState(ubicacion.state?.aviso ?? "");
 
   useEffect(() => {
     Promise.all([listarMisTutorias(), listarReservasRecibidas()])
@@ -51,13 +52,13 @@ export default function GestionTutoria() {
 
   const guardar = async (datos) => {
     setTutoria(await actualizarTutoria(tutoria.id, datos));
-    setAviso("Cambios guardados.");
+    avisos.exito("Cambios guardados.");
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const cambioDeEstado = ({ reservas_canceladas, ...actualizada }) => {
     setTutoria(actualizada);
-    setAviso(
+    avisos.exito(
       actualizada.id_estado === ESTADO.ACTIVO
         ? "Tutoría reactivada. Agregue horarios para que puedan reservarla."
         : `Tutoría inactivada.${reservas_canceladas > 0 ? ` Se cancelaron ${contarReservas(reservas_canceladas)}.` : ""}`
@@ -79,11 +80,10 @@ export default function GestionTutoria() {
         </div>
         <div className="flex gap-2">
           {activa && <Link to={`/tutorias/${tutoria.id}`} className="btn-secundario">Ver en el catálogo</Link>}
-          <BotonEstadoTutoria tutoria={tutoria} reservasFuturas={futuras} onCambiada={cambioDeEstado} onError={setError} />
+          <BotonEstadoTutoria tutoria={tutoria} reservasFuturas={futuras} onCambiada={cambioDeEstado} onError={avisos.error} />
         </div>
       </div>
 
-      {aviso && <Alerta tipo="exito" onCerrar={() => setAviso("")}>{aviso}</Alerta>}
       <Alerta error={error} />
       {!activa && <Alerta>Esta tutoría está inactiva: no aparece en el catálogo ni se puede reservar.</Alerta>}
 

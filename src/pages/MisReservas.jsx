@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useConfirmar } from "../components/Confirmar.jsx";
-import { Link, useLocation } from "react-router";
+import { useAvisoDeNavegacion, useAvisos } from "../components/Avisos.jsx";
+import { Link } from "react-router";
 import { cancelarReserva, listarMisReservas } from "../api/reservas.js";
 import { crearValoracion } from "../api/valoraciones.js";
 import Alerta from "../components/Alerta.jsx";
@@ -19,12 +20,11 @@ const PESTANAS = [
 
 // "Mi agenda": reservas hechas por el usuario (estudiante o tutor que reserva)
 export default function MisReservas() {
-  const ubicacion = useLocation();
   const [reservas, setReservas] = useState(null);
   const [error, setError] = useState(null);
   const [pestana, setPestana] = useState(ESTADO.ACTIVO);
-  // Mensaje que llega desde Reservar ("Reserva confirmada...")
-  const [aviso, setAviso] = useState(ubicacion.state?.aviso ?? "");
+  // Aviso que llega desde Reservar ("Reserva confirmada...")
+  useAvisoDeNavegacion();
 
   useEffect(() => {
     listarMisReservas().then(setReservas).catch(setError);
@@ -48,7 +48,6 @@ export default function MisReservas() {
         <p className="mt-1 text-texto-suave">Sus reservas de tutorías.</p>
       </div>
 
-      {aviso && <Alerta tipo="exito" onCerrar={() => setAviso("")}>{aviso}</Alerta>}
 
       <div className="flex flex-wrap gap-2" role="tablist">
         {PESTANAS.map((p) => {
@@ -83,8 +82,8 @@ export default function MisReservas() {
 
 function TarjetaReserva({ reserva, onActualizada }) {
   const confirmar = useConfirmar();
+  const avisos = useAvisos();
   const { tutoria, horario, recurso } = reserva;
-  const [error, setError] = useState(null);
   const [procesando, setProcesando] = useState(false);
   const [valorando, setValorando] = useState(false);
 
@@ -97,12 +96,12 @@ function TarjetaReserva({ reserva, onActualizada }) {
       peligro: true,
     });
     if (!confirmado) return;
-    setError(null);
     setProcesando(true);
     try {
       onActualizada(await cancelarReserva(reserva.id));
+      avisos.exito(`Reserva cancelada: ${tutoria.titulo}. El cupo quedó libre para otra persona.`);
     } catch (err) {
-      setError(err);
+      avisos.error(err);
     } finally {
       setProcesando(false);
     }
@@ -139,8 +138,6 @@ function TarjetaReserva({ reserva, onActualizada }) {
         </p>
       </div>
 
-      <Alerta error={error} />
-
       {/* Acciones según el estado */}
       {reserva.id_estado === ESTADO.ACTIVO && (
         <button type="button" className="btn-peligro" onClick={cancelar} aria-busy={procesando} disabled={procesando}>
@@ -158,9 +155,10 @@ function TarjetaReserva({ reserva, onActualizada }) {
           <FormularioValoracion
             idReserva={reserva.id}
             onCancelar={() => setValorando(false)}
-            onValorada={(valoracion) =>
-              onActualizada({ ...reserva, valoracion: { id: valoracion.id, calificacion: valoracion.calificacion } })
-            }
+            onValorada={(valoracion) => {
+              onActualizada({ ...reserva, valoracion: { id: valoracion.id, calificacion: valoracion.calificacion } });
+              avisos.exito("¡Gracias! Su valoración quedó registrada.");
+            }}
           />
         ) : (
           <button type="button" className="btn-primario" onClick={() => setValorando(true)}>Valorar sesión</button>
