@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router";
 import { useAuth } from "../context/AuthContext.jsx";
+import BotonTema from "./BotonTema.jsx";
 import { NOMBRE_ROL, ROL } from "../utils/constantes.js";
 
 // Enlaces del menú según el rol. null = visitante sin sesión.
@@ -78,7 +79,7 @@ export default function BarraNavegacion() {
   );
 
   return (
-    <header className="bg-barra text-barra-texto">
+    <header className="border-b border-transparent bg-barra text-barra-texto dark:border-borde">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3">
         <Link to="/" className="flex items-center gap-2 text-lg font-bold tracking-tight" onClick={cerrarMenu}>
           <img src="/favicon.svg" alt="" className="size-8" />
@@ -87,20 +88,25 @@ export default function BarraNavegacion() {
 
         {/* Escritorio */}
         <nav className="hidden flex-1 items-center gap-1 lg:flex">{navegacion}</nav>
-        <div className="hidden items-center gap-2 lg:flex">{cuenta}</div>
 
-        {/* Móvil: botón de menú */}
-        <button
-          type="button"
-          className="rounded-control p-2 text-barra-texto/80 hover:bg-barra-texto/10 lg:hidden"
-          onClick={() => setMenuAbierto((abierto) => !abierto)}
-          aria-expanded={menuAbierto}
-          aria-label="Abrir menú"
-        >
-          <svg viewBox="0 0 24 24" className="size-6" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d={menuAbierto ? "M6 6l12 12M18 6L6 18" : "M4 7h16M4 12h16M4 17h16"} />
-          </svg>
-        </button>
+        <div className="flex items-center gap-2">
+          {/* Modo claro/oscuro: siempre visible, también en celular y sin sesión (login y registro) */}
+          <BotonTema />
+          <div className="hidden items-center gap-2 lg:flex">{cuenta}</div>
+
+          {/* Móvil: botón de menú */}
+          <button
+            type="button"
+            className="rounded-control p-2 text-barra-texto/80 hover:bg-barra-texto/10 lg:hidden"
+            onClick={() => setMenuAbierto((abierto) => !abierto)}
+            aria-expanded={menuAbierto}
+            aria-label="Abrir menú"
+          >
+            <svg viewBox="0 0 24 24" className="size-6" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d={menuAbierto ? "M6 6l12 12M18 6L6 18" : "M4 7h16M4 12h16M4 17h16"} />
+            </svg>
+          </button>
+        </div>
       </div>
 
       {menuAbierto && (

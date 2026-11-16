@@ -78,7 +78,7 @@ function Chat({ usuario }) {
     <>
       {abierto && (
         <section role="dialog" aria-labelledby="titulo-asistente"
-          className="fixed right-4 bottom-22 z-50 flex h-[min(34rem,calc(100dvh-7rem))] w-[calc(100vw-2rem)] max-w-sm flex-col overflow-hidden rounded-tarjeta border border-borde bg-superficie shadow-flotante">
+          className="fixed right-4 bottom-22 z-50 flex h-[min(34rem,calc(100dvh-7rem))] w-[calc(100vw-2rem)] max-w-sm flex-col overflow-hidden rounded-tarjeta border border-borde bg-superficie-elevada shadow-flotante">
           <header className="flex items-center justify-between bg-barra px-4 py-3 text-barra-texto">
             <div>
               <h2 id="titulo-asistente" className="font-semibold">Asistente SITA</h2>
