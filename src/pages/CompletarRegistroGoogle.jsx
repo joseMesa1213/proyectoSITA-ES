@@ -4,8 +4,9 @@ import { useAuth } from "../context/AuthContext.jsx";
 import { listarTiposDocumento } from "../api/catalogos.js";
 import Alerta from "../components/Alerta.jsx";
 import ContinuarConGoogle from "../components/ContinuarConGoogle.jsx";
-import { Campo, SelectorRol, SelectorTipoDocumento, datosAcademicos } from "../components/CamposRegistro.jsx";
-import { ROL } from "../utils/constantes.js";
+import {
+  AVISO_SOLICITUD, CAMPOS_ACADEMICOS, Campo, CasillaTutor, SelectorTipoDocumento, cambiarCampo, datosAcademicos,
+} from "../components/CamposRegistro.jsx";
 
 // "Completa tu registro": la persona entró con Google pero aún no tiene cuenta en SITA-ES.
 // El correo viene de Google y no se puede cambiar (el backend lo toma del token, no de este formulario).
@@ -38,12 +39,7 @@ function FormularioCompletar({ registro, desde }) {
   const [formulario, setFormulario] = useState(() => ({
     nombre: registro.perfil.nombre ?? "",
     apellido: registro.perfil.apellido ?? "",
-    id_rol: String(ROL.ESTUDIANTE),
-    id_tipo_documento: "",
-    num_documento: "",
-    nombre_programa: "",
-    semestre: "",
-    celular: "",
+    ...CAMPOS_ACADEMICOS,
   }));
   const [tiposDocumento, setTiposDocumento] = useState([]);
   const [error, setError] = useState(null);
@@ -53,20 +49,21 @@ function FormularioCompletar({ registro, desde }) {
     listarTiposDocumento().then(setTiposDocumento).catch(setError);
   }, []);
 
-  const cambiar = (evento) => setFormulario({ ...formulario, [evento.target.name]: evento.target.value });
+  const cambiar = cambiarCampo(formulario, setFormulario);
 
   const enviar = async (evento) => {
     evento.preventDefault();
     setError(null);
     setEnviando(true);
     try {
-      await registroConGoogle({
+      const { solicitud_tutor_pendiente } = await registroConGoogle({
         token_registro: registro.token_registro,
         nombre: formulario.nombre.trim(),
         apellido: formulario.apellido.trim(),
         ...datosAcademicos(formulario),
       });
-      navegar(desde ?? "/", { replace: true });
+      if (solicitud_tutor_pendiente) navegar("/perfil", { replace: true, state: { aviso: AVISO_SOLICITUD } });
+      else navegar(desde ?? "/", { replace: true });
     } catch (err) {
       setError(err);
       setEnviando(false);
@@ -90,8 +87,6 @@ function FormularioCompletar({ registro, desde }) {
           <Alerta error={error} />
           {vencido && <ContinuarConGoogle onError={setError} />}
 
-          <SelectorRol value={formulario.id_rol} onChange={cambiar} />
-
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="sm:col-span-2">
               <label htmlFor="correo-google" className="etiqueta">Correo (de su cuenta de Google)</label>
@@ -114,6 +109,8 @@ function FormularioCompletar({ registro, desde }) {
             <Campo etiqueta="Celular (opcional)" name="celular" type="tel" value={formulario.celular} onChange={cambiar}
               required={false} autoComplete="tel" />
           </div>
+
+          <CasillaTutor formulario={formulario} onChange={cambiar} />
 
           <button type="submit" className="btn-primario w-full" disabled={enviando}>
             {enviando ? "Creando cuenta..." : "Crear cuenta"}

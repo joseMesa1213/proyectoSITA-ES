@@ -6,9 +6,11 @@ import { NOMBRE_ROL, ROL } from "../utils/constantes.js";
 // Enlaces del menú según el rol. null = visitante sin sesión.
 const ENLACES = {
   invitado: [{ a: "/tutorias", texto: "Tutorías" }],
+  // "Mi perfil" está a la vista del estudiante porque desde ahí solicita ser tutor
   [ROL.ESTUDIANTE]: [
     { a: "/tutorias", texto: "Tutorías" },
     { a: "/mis-reservas", texto: "Mi agenda" },
+    { a: "/perfil", texto: "Mi perfil" },
   ],
   // El tutor también reserva tutorías de otros, por eso tiene "Mi agenda" además de su panel
   [ROL.TUTOR]: [
@@ -23,6 +25,7 @@ const ENLACES = {
     { a: "/tutorias", texto: "Tutorías" },
     { a: "/admin/materias", texto: "Materias" },
     { a: "/admin/recursos", texto: "Recursos" },
+    { a: "/admin/solicitudes", texto: "Solicitudes" },
   ],
 };
 
@@ -53,10 +56,12 @@ export default function BarraNavegacion() {
 
   const cuenta = usuario ? (
     <>
-      <span className="text-sm text-white/90">
+      {/* El nombre lleva a "Mi perfil" (para todos los roles) */}
+      <Link to="/perfil" onClick={cerrarMenu} title="Mi perfil"
+        className="rounded-md px-2 py-1 text-sm text-white/90 hover:bg-white/10 hover:text-white">
         {usuario.nombre}{" "}
         <span className="insignia ml-1 bg-acento text-bosque">{NOMBRE_ROL[usuario.id_rol]}</span>
-      </span>
+      </Link>
       <button type="button" onClick={cerrarSesion} className="rounded-md px-3 py-2 text-sm font-medium text-white/75 hover:text-white">
         Cerrar sesión
       </button>

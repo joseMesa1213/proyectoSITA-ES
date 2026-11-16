@@ -1,4 +1,5 @@
 import { listarMisReservas, listarReservasRecibidas } from "../api/reservas.js";
+import { listarSolicitudes, obtenerMiSolicitud } from "../api/solicitudes.js";
 import { ESTADO, ROL } from "../utils/constantes.js";
 import { diaDeLaSemana, formatearFechaCorta, hoy } from "../utils/fechas.js";
 import { contarReservas, reservasActivasFuturas } from "../utils/reservas.js";
@@ -66,8 +67,9 @@ export const INTENCIONES = [
     frases: ["como me registro", "crear cuenta", "registrarme", "no tengo cuenta", "como inicio sesion"],
     respuesta: {
       texto:
-        "Regístrese con su correo institucional y elija si entra como Estudiante o como Tutor. " +
-        "Con la cuenta creada ya puede reservar. Si ya tiene cuenta, inicie sesión.",
+        "Regístrese con su correo institucional (o con «Continuar con Google»). Todos entran como estudiantes " +
+        "y pueden reservar de inmediato. Si quiere ofrecer tutorías, marque «Quiero ser tutor». " +
+        "Si ya tiene cuenta, inicie sesión.",
       enlaces: [
         { a: "/registro", texto: "Registrarme" },
         { a: "/login", texto: "Iniciar sesión" },
@@ -80,14 +82,19 @@ export const INTENCIONES = [
     etiqueta: "¿Cómo ser tutor?",
     roles: [INVITADO, ROL.ESTUDIANTE],
     frases: ["como ser tutor", "quiero ser tutor", "quiero dar tutorias", "puedo ser monitor", "ensenar una materia"],
-    respuesta: {
+    // Ser tutor se SOLICITA: un administrador la revisa y, mientras tanto, se sigue siendo estudiante
+    responder: (usuario) => ({
       texto:
-        "Al registrarse elija el rol Tutor. Luego:\n" +
+        (usuario
+          ? "Pídalo desde «Mi perfil» → «Solicitar ser tutor» (puede contar qué materias domina). "
+          : "Al registrarse marque «Quiero ser tutor» (o pídalo después desde «Mi perfil»). ") +
+        "Un administrador revisa la solicitud; mientras tanto puede reservar como siempre. Cuando la aprueben:\n" +
         "1. En «Mis materias» asóciese a las materias que domina.\n" +
         "2. En «Mis tutorías» publique una tutoría con nivel, modalidad y cupo.\n" +
         "3. Agregue sus horarios semanales con el salón o enlace.\n" +
-        "Si ya tiene cuenta de estudiante, la coordinación puede cambiar su rol.",
-    },
+        "Seguirá siendo estudiante: una sola cuenta para reservar y para ofrecer tutorías.",
+      enlaces: usuario ? [{ a: "/perfil", texto: "Ir a Mi perfil" }] : [{ a: "/registro", texto: "Registrarme" }],
+    }),
   },
   {
     id: "modalidades",
@@ -241,6 +248,28 @@ export const INTENCIONES = [
     },
   },
 
+  {
+    id: "estado-solicitud",
+    roles: [ROL.ESTUDIANTE, ROL.TUTOR],
+    frases: ["estado de mi solicitud", "mi solicitud de tutor", "ya me aprobaron", "cuando me aprueban como tutor",
+      "por que me rechazaron", "solicitud rechazada"],
+    async responder(usuario) {
+      if (usuario.id_rol === ROL.TUTOR) {
+        return { texto: "Su solicitud ya fue aprobada: usted es estudiante y tutor.", enlaces: [{ a: "/tutor/tutorias", texto: "Ir a Mis tutorías" }] };
+      }
+      const solicitud = await obtenerMiSolicitud();
+      const enlaces = [{ a: "/perfil", texto: "Ir a Mi perfil" }];
+      if (!solicitud) return { texto: "Todavía no ha solicitado ser tutor. Puede hacerlo desde «Mi perfil».", enlaces };
+      if (solicitud.id_estado === ESTADO.PENDIENTE) {
+        return { texto: "Su solicitud está en revisión. Un administrador la responderá; mientras tanto puede reservar como siempre.", enlaces };
+      }
+      if (solicitud.id_estado === ESTADO.RECHAZADO) {
+        return { texto: `Su solicitud fue rechazada: «${solicitud.observacion}». Puede enviar una nueva desde «Mi perfil».`, enlaces };
+      }
+      return { texto: "Su solicitud fue aprobada. Abra «Mi perfil» para actualizar su menú de tutor.", enlaces };
+    },
+  },
+
   // --- Tutor -----------------------------------------------------------------
   {
     id: "agenda-hoy",
@@ -360,14 +389,22 @@ export const INTENCIONES = [
 
   {
     id: "admin-rol",
+    icono: "👥",
+    etiqueta: "Solicitudes de tutor",
     roles: [ROL.ADMINISTRADOR],
-    frases: ["como cambio el rol de un usuario", "cambiar rol", "convertir estudiante en tutor", "asignar rol", "hacer administrador a un usuario"],
-    respuesta: {
-      texto:
-        "Todavía no hay una pantalla para cambiar roles. Se hace en la base de datos:\n" +
-        "1. En Supabase (Table Editor) o en Prisma Studio (npm run db:studio) abra la tabla tbl_usuario.\n" +
-        "2. Busque al usuario por su correo y cambie id_rol: 1 Estudiante, 2 Tutor, 3 Administrador.\n" +
-        "3. Pídale que cierre sesión y vuelva a entrar: el rol viaja dentro del token de la sesión.",
+    frases: ["como cambio el rol de un usuario", "cambiar rol", "convertir estudiante en tutor", "asignar rol",
+      "hacer administrador a un usuario", "aprobar tutores", "solicitudes de tutor", "crear administrador"],
+    async responder() {
+      const pendientes = (await listarSolicitudes("pendientes")).length;
+      return {
+        texto:
+          (pendientes === 0 ? "No hay solicitudes pendientes. " : `Hay ${pendientes} ${pendientes === 1 ? "solicitud pendiente" : "solicitudes pendientes"}. `) +
+          "Para hacer tutor a alguien, apruebe su solicitud en «Solicitudes»: el cambio aplica de inmediato, " +
+          "sin que tenga que volver a iniciar sesión (los estudiantes la piden desde su perfil o al registrarse).\n" +
+          "Los administradores no se crean desde la aplicación: el dueño de la base de datos usa el comando " +
+          "npm run crear-admin en el backend.",
+        enlaces: [{ a: "/admin/solicitudes", texto: "Ir a Solicitudes" }],
+      };
     },
   },
 

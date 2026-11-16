@@ -1,5 +1,7 @@
 // Mismos IDs que proyectoSITA-ES_backend/src/constants/catalogos.js (sembrados en la BD).
 
+// id_rol es un NIVEL de permisos: 1 Estudiante (todos al registrarse), 2 Estudiante + Tutor
+// (solicitud aprobada por un administrador), 3 Administrador. Nadie lo elige al registrarse.
 export const ROL = Object.freeze({
   ESTUDIANTE: 1,
   TUTOR: 2,
@@ -21,6 +23,8 @@ export const ESTADO = Object.freeze({
   PENDIENTE: 3,
   CANCELADO: 4,
   COMPLETADO: 5,
+  APROBADO: 6, // solicitud de tutor
+  RECHAZADO: 7, // solicitud de tutor
 });
 
 // Tipo de recurso que acepta cada modalidad (Híbrida: cualquiera → undefined)
