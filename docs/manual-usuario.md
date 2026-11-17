@@ -52,6 +52,16 @@ Si no puede reservar, la plataforma explica el motivo: no hay cupo, ya tiene otr
 
 ---
 
+## Notificaciones
+
+La **campana** de la barra (arriba, junto al botón de modo oscuro) muestra cuántos avisos tiene sin leer. Le avisa cuando:
+- reservan, o cancelan, una sesión de sus tutorías (tutor);
+- su tutor cancela su reserva, o se cancela porque desactivó el horario o la tutoría (estudiante);
+- una sesión suya se completa y ya puede **valorarla** (estudiante);
+- su solicitud para ser tutor es aprobada o rechazada, o (administrador) llega una solicitud nueva.
+
+Al pulsar un aviso se marca como leído y lo lleva a la pantalla correspondiente. **Marcar todas como leídas** limpia el contador. Los avisos leídos se borran solos después de 30 días.
+
 ## 5. Ofrecer tutorías (tutor)
 
 1. **Mis materias:** busque por nombre o código y asóciese a las materias que va a dictar.
