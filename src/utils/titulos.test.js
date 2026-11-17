@@ -12,6 +12,7 @@ describe("título de la pestaña según la ruta", () => {
     ["/tutor/tutorias/nueva", "Nueva tutoría"],
     ["/tutor/tutorias/3", "Gestionar tutoría"],
     ["/tutor/reservas", "Agenda de tutorías"],
+    ["/tutor/horario", "Mi horario"],
     ["/admin/solicitudes", "Solicitudes de tutor"],
     ["/no-existe", "Página no encontrada"],
   ])("%s → %s", (ruta, titulo) => {

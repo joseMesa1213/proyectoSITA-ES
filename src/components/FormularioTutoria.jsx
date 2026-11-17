@@ -3,6 +3,7 @@ import { useConfirmar } from "./Confirmar.jsx";
 import { obtenerOpciones } from "../api/catalogos.js";
 import Alerta from "./Alerta.jsx";
 import { contarReservas } from "../utils/reservas.js";
+import { CUPO_MAXIMO_VIRTUAL } from "../utils/constantes.js";
 
 /**
  * Formulario para crear o editar una tutoría.
@@ -37,6 +38,7 @@ export default function FormularioTutoria({ tutoria, materias = [], reservasActi
   const cambiaModalidad = editando && formulario.modalidad !== tutoria.modalidad;
   const cambiaCupo = editando && Number(formulario.cupo) !== tutoria.cupo;
   const advertir = reservasActivas > 0 && (cambiaModalidad || cambiaCupo);
+  const esVirtual = formulario.modalidad === "Virtual";
 
   const enviar = async (evento) => {
     evento.preventDefault();
@@ -100,9 +102,16 @@ export default function FormularioTutoria({ tutoria, materias = [], reservasActi
           opciones={opciones.modalidades.map((m) => ({ valor: m, texto: m }))} />
         <div>
           <label htmlFor="cupo" className="etiqueta">Cupo por sesión</label>
-          <input id="cupo" name="cupo" type="number" min="1" className="campo" required value={formulario.cupo} onChange={cambiar} />
+          <input id="cupo" name="cupo" type="number" min="1" max={esVirtual ? CUPO_MAXIMO_VIRTUAL : undefined}
+            className="campo" required value={formulario.cupo} onChange={cambiar} />
         </div>
       </div>
+
+      {esVirtual && !tutoria?.enlace_reunion && (
+        <p className="text-sm text-texto-suave">
+          Se creará automáticamente una sala de Jitsi Meet para esta tutoría (máximo {CUPO_MAXIMO_VIRTUAL} cupos).
+        </p>
+      )}
 
       {advertir && (
         <Alerta>

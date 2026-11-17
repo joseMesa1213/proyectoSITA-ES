@@ -20,6 +20,7 @@ const TITULOS = [
   ["/tutor/tutorias/:id", "Gestionar tutoría"],
   ["/tutor/tutorias", "Mis tutorías"],
   ["/tutor/reservas", "Agenda de tutorías"],
+  ["/tutor/horario", "Mi horario"],
   ["/admin/materias", "Materias"],
   ["/admin/recursos", "Recursos"],
   ["/admin/solicitudes", "Solicitudes de tutor"],

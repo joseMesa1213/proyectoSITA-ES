@@ -18,6 +18,7 @@ const ENLACES = {
   [ROL.TUTOR]: [
     { a: "/tutorias", texto: "Tutorías" },
     { a: "/tutor/tutorias", texto: "Mis tutorías" },
+    { a: "/tutor/horario", texto: "Mi horario" },
     { a: "/tutor/reservas", texto: "Agenda de tutorías" },
     { a: "/tutor/materias", texto: "Mis materias" },
     { a: "/mis-reservas", texto: "Mi agenda" },
