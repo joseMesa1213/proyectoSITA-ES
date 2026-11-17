@@ -6,7 +6,7 @@ import { useAuth } from "../context/AuthContext.jsx";
 // 1. Google muestra su botón y, al elegir la cuenta, entrega un ID token (credential).
 // 2. Se envía al backend (POST /auth/google), que lo verifica.
 // 3. Si la persona ya tiene cuenta → entra. Si es nueva → va a "Completa tu registro".
-// Sin VITE_GOOGLE_CLIENT_ID el botón no aparece y el login con correo sigue igual.
+// Es la única forma de entrar a SITA-ES. Sin VITE_GOOGLE_CLIENT_ID el botón no aparece (Login avisa).
 
 const CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 const URL_SCRIPT = "https://accounts.google.com/gsi/client";
