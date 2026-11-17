@@ -151,11 +151,11 @@ function Mensaje({ mensaje, opciones, onElegir, onNavegar, deshabilitado }) {
       </p>
 
       {tarjetas.map((t) => (
-        <Link key={`${t.a}|${t.titulo}|${t.detalle}`} to={t.a} onClick={onNavegar}
+        <Link key={`${t.a}|${t.titulo}|${t.subtitulo}|${t.detalle}`} to={t.a} onClick={onNavegar}
           className="block rounded-control border border-borde bg-superficie px-3 py-2 transition-colors hover:border-acento/50">
           <p className="text-sm font-semibold">{t.titulo}</p>
           <p className="text-xs text-texto-suave">{t.subtitulo}</p>
-          <p className="mt-1 text-xs font-medium">{t.detalle}</p>
+          {t.detalle && <p className="mt-1 text-xs font-medium">{t.detalle}</p>}
         </Link>
       ))}
 

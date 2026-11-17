@@ -1,6 +1,8 @@
 import { listarMisReservas, listarReservasRecibidas } from "../api/reservas.js";
 import { listarSolicitudes, obtenerMiSolicitud } from "../api/solicitudes.js";
-import { ESTADO, ROL } from "../utils/constantes.js";
+import { listarMisSolicitudesTutoria, listarSolicitudesParaMi } from "../api/solicitudesTutoria.js";
+import { obtenerEstadisticas } from "../api/estadisticas.js";
+import { ESTADO, ESTADO_SOLICITUD_TUTORIA, MAXIMO_SOLICITUDES_ABIERTAS, ROL } from "../utils/constantes.js";
 import { diaDeLaSemana, formatearFechaCorta, hoy } from "../utils/fechas.js";
 import { contarReservas, reservasActivasFuturas } from "../utils/reservas.js";
 
@@ -55,8 +57,55 @@ export const INTENCIONES = [
         "SITA-ES conecta estudiantes con tutores de la universidad:\n" +
         "• Los tutores publican tutorías por materia con horarios semanales.\n" +
         "• Usted elige una tutoría, un horario y la fecha de la sesión, y reserva su cupo.\n" +
-        "• Después de la sesión, el tutor la marca como completada y usted puede calificarla.",
+        "• Después de la sesión puede calificarla (el tutor la marca como completada, o se completa sola a las 24 horas).\n" +
+        "• ¿No encuentra lo que necesita? Pida una tutoría y los tutores de esa materia reciben un aviso.\n" +
+        "• La campana de arriba le avisa de reservas, cancelaciones y respuestas.",
       enlaces: [{ a: "/tutorias", texto: "Ver tutorías" }],
+    },
+  },
+  {
+    // "Pedir una tutoría" (solicitudes de tutoría): el visitante necesita iniciar sesión
+    id: "pedir-tutoria",
+    icono: "🙋",
+    etiqueta: "Pedir una tutoría",
+    roles: [INVITADO, ...QUIENES_RESERVAN],
+    frases: ["pedir una tutoria", "como pido una tutoria", "solicitar una tutoria", "no encuentro la tutoria que necesito", "no encuentro lo que busco",
+      "nadie dicta esa materia", "que abran una tutoria", "mis pedidos de tutoria", "me respondieron mi pedido"],
+    async responder(usuario) {
+      const comoFunciona =
+        "Si no encuentra en el catálogo lo que necesita, pídala: elija la materia, escriba el tema y, si quiere, su disponibilidad. " +
+        "Los tutores de esa materia reciben un aviso y, cuando uno la atiende, le llega una notificación con el enlace a la tutoría. " +
+        `Puede tener hasta ${MAXIMO_SOLICITUDES_ABIERTAS} abiertas; vencen a los 30 días sin respuesta.`;
+      if (!usuario) {
+        return { texto: `${comoFunciona} Para pedirla necesita iniciar sesión.`, enlaces: [{ a: "/login", texto: "Iniciar sesión" }] };
+      }
+      const solicitudes = await listarMisSolicitudesTutoria();
+      const abiertas = solicitudes.filter((x) => x.id_estado === ESTADO_SOLICITUD_TUTORIA.ABIERTA);
+      const atendidas = solicitudes.filter((x) => x.id_estado === ESTADO_SOLICITUD_TUTORIA.ATENDIDA && x.tutoria);
+      const estado =
+        abiertas.length === 0 && atendidas.length === 0
+          ? ""
+          : `\nUsted tiene ${abiertas.length} ${abiertas.length === 1 ? "abierta" : "abiertas"}` +
+            (atendidas.length ? ` y ${atendidas.length} ${atendidas.length === 1 ? "atendida" : "atendidas"}.` : ".");
+      return {
+        texto: comoFunciona + estado,
+        tarjetas: atendidas.slice(0, 3).map((x) => ({
+          titulo: x.tutoria.titulo,
+          subtitulo: `${x.materia.nombre} · respondió a «${x.tema}»`,
+          a: `/tutorias/${x.tutoria.id}`,
+        })),
+        enlaces: [{ a: "/solicitudes", texto: abiertas.length >= MAXIMO_SOLICITUDES_ABIERTAS ? "Ver mis solicitudes" : "Pedir una tutoría" }],
+      };
+    },
+  },
+  {
+    id: "compartir",
+    frases: ["compartir tutoria", "compartir el enlace de una tutoria", "enviar tutoria por whatsapp", "recomendar tutoria a un amigo", "divulgar mi tutoria"],
+    respuesta: {
+      texto:
+        "Abra la tutoría en el catálogo y pulse «Compartir»: puede copiar el enlace, enviarlo por WhatsApp o usar el menú " +
+        "de compartir del teléfono. Quien lo abra ve el detalle sin necesidad de iniciar sesión.",
+      enlaces: [{ a: "/tutorias", texto: "Ir al catálogo" }],
     },
   },
   {
@@ -90,7 +139,7 @@ export const INTENCIONES = [
         "Un administrador revisa la solicitud; mientras tanto puede reservar como siempre. Cuando la aprueben:\n" +
         "1. En «Mis materias» asóciese a las materias que domina.\n" +
         "2. En «Mis tutorías» publique una tutoría con nivel, modalidad y cupo.\n" +
-        "3. Agregue sus horarios semanales con el salón o enlace.\n" +
+        "3. Agregue sus horarios semanales con el salón (las tutorías virtuales reciben su propia sala de Jitsi).\n" +
         "Seguirá siendo estudiante: una sola cuenta para reservar y para ofrecer tutorías.",
       enlaces: usuario ? [{ a: "/perfil", texto: "Ir a Mi perfil" }] : [{ a: "/login", texto: "Iniciar sesión" }],
     }),
@@ -101,7 +150,7 @@ export const INTENCIONES = [
     frases: ["que es hibrida", "modalidad virtual", "modalidad presencial", "diferencia entre presencial y virtual", "niveles de tutoria", "que modalidades hay"],
     respuesta: {
       texto:
-        "Modalidades:\n• Presencial: en un salón de la universidad.\n• Virtual: por un enlace de reunión.\n• Híbrida: puede usar salón o enlace.\n" +
+        "Modalidades:\n• Presencial: en un salón de la universidad.\n• Virtual: cada tutoría tiene su propia sala de Jitsi Meet.\n• Híbrida: puede usar salón o enlace.\n" +
         "Niveles: Básico, Intermedio y Avanzado, según lo que ya domine de la materia.\n" +
         "El salón o enlace de cada sesión aparece en «Mi agenda» cuando ya tiene la reserva.",
     },
@@ -217,7 +266,8 @@ export const INTENCIONES = [
     respuesta: {
       texto:
         "Si el tutor desactiva un horario o inactiva la tutoría, las reservas de las sesiones que aún no empiezan se cancelan solas. " +
-        "El tutor también puede cancelar una reserva desde su agenda. Las verá en «Mi agenda» → «Canceladas».",
+        "El tutor también puede cancelar una reserva desde su agenda. En cualquier caso le llega un aviso a la campana, " +
+        "y las verá en «Mi agenda» → «Canceladas».",
       enlaces: [
         { a: "/mis-reservas", texto: "Ir a Mi agenda" },
         { a: "/tutorias", texto: "Buscar otra tutoría" },
@@ -235,8 +285,8 @@ export const INTENCIONES = [
         (r) => r.id_estado === ESTADO.COMPLETADO && !r.valoracion
       );
       const comoCalificar =
-        "Cuando el tutor marca la sesión como completada, en «Mi agenda» → «Completadas» aparece «Valorar sesión» " +
-        "para calificarla de 1 a 5 estrellas (una vez por reserva).";
+        "Cuando la sesión se completa (la marca el tutor, o sola 24 horas después de terminar), le llega un aviso y en " +
+        "«Mi agenda» → «Completadas» aparece «Valorar sesión» para calificarla de 1 a 5 estrellas (una vez por reserva).";
       if (pendientes.length === 0) {
         return { texto: `No tiene sesiones pendientes por calificar. ${comoCalificar}` };
       }
@@ -248,6 +298,58 @@ export const INTENCIONES = [
     },
   },
 
+  {
+    id: "sesion-virtual",
+    roles: QUIENES_RESERVAN,
+    frases: ["enlace de jitsi", "como entro a la sesion virtual", "jitsi me pide iniciar sesion", "sala virtual",
+      "link de la reunion", "donde esta el link", "no puedo entrar a la reunion"],
+    responder: (usuario) => ({
+      texto:
+        "Cada tutoría virtual tiene su propia sala de Jitsi Meet (la misma para todos sus horarios).\n" +
+        "• Estudiante: el enlace aparece en «Mi agenda», en su reserva.\n" +
+        (usuario?.id_rol === ROL.TUTOR ? "• Tutor: lo ve en «Mis tutorías» → «Editar y horarios».\n" : "") +
+        "Quien abre la sala primero debe iniciar sesión en Jitsi (por ejemplo, con Google); los demás entran solo con el enlace. " +
+        "Por eso conviene que el tutor entre unos minutos antes.",
+      enlaces: [
+        { a: "/mis-reservas", texto: "Ir a Mi agenda" },
+        ...(usuario?.id_rol === ROL.TUTOR ? [{ a: "/tutor/tutorias", texto: "Mis tutorías" }] : []),
+      ],
+    }),
+  },
+  {
+    id: "calendario",
+    roles: QUIENES_RESERVAN,
+    frases: ["agregar al calendario", "google calendar", "recordatorio de la tutoria", "que me recuerde la tutoria",
+      "exportar mi horario", "outlook", "alarma antes de la sesion"],
+    responder: (usuario) => ({
+      texto:
+        "En «Mi agenda», cada reserva tiene «Agregar al calendario»: Google Calendar o un archivo .ics (Outlook, Apple), " +
+        "con un recordatorio 30 minutos antes." +
+        (usuario?.id_rol === ROL.TUTOR
+          ? " Como tutor, también puede agregar cada sesión desde «Agenda de tutorías», o llevar todo su horario semanal " +
+            "con «Exportar horario (.ics)» en «Mi horario»."
+          : ""),
+      enlaces: [
+        { a: "/mis-reservas", texto: "Ir a Mi agenda" },
+        ...(usuario?.id_rol === ROL.TUTOR ? [{ a: "/tutor/horario", texto: "Mi horario" }] : []),
+      ],
+    }),
+  },
+  {
+    // Todos los que tienen sesión reciben avisos (el administrador, de solicitudes para ser tutor)
+    id: "notificaciones",
+    roles: [ROL.ESTUDIANTE, ROL.TUTOR, ROL.ADMINISTRADOR],
+    frases: ["notificaciones", "avisos", "campana", "no me llegan los avisos", "que significa la campana", "marcar como leidas"],
+    responder: (usuario) => ({
+      texto:
+        "La campana de arriba muestra cuántos avisos tiene sin leer. " +
+        (usuario?.id_rol === ROL.ADMINISTRADOR
+          ? "Le avisa de cada solicitud nueva para ser tutor."
+          : "Le avisa cuando reservan o cancelan en sus tutorías (tutor), cuando cancelan su reserva, cuando una sesión " +
+            "se completa y ya puede valorarla, y cuando responden sus solicitudes.") +
+        " Al pulsar un aviso se marca como leído y lo lleva a la pantalla correspondiente. Los leídos se borran a los 30 días.",
+    }),
+  },
   {
     id: "estado-solicitud",
     roles: [ROL.ESTUDIANTE, ROL.TUTOR],
@@ -271,6 +373,48 @@ export const INTENCIONES = [
   },
 
   // --- Tutor -----------------------------------------------------------------
+  {
+    id: "solicitudes-estudiantes",
+    icono: "📬",
+    etiqueta: "Solicitudes de estudiantes",
+    roles: [ROL.TUTOR],
+    frases: ["solicitudes de estudiantes", "que tutorias piden", "que piden los estudiantes", "pedidos de los estudiantes",
+      "atender una solicitud", "alguien pidio una tutoria"],
+    async responder() {
+      const solicitudes = await listarSolicitudesParaMi();
+      const enlaces = [{ a: "/tutor/solicitudes", texto: "Ver Solicitudes de estudiantes" }];
+      if (solicitudes.length === 0) {
+        return {
+          texto: "No hay solicitudes abiertas en sus materias. Cuando alguien pida una, le llega un aviso a la campana.",
+          enlaces,
+        };
+      }
+      return {
+        texto:
+          `Hay ${solicitudes.length} ${solicitudes.length === 1 ? "solicitud abierta" : "solicitudes abiertas"} en sus materias. ` +
+          "Atiéndalas publicando una tutoría nueva (con los datos ya puestos) u ofreciendo una de las suyas:",
+        tarjetas: solicitudes.slice(0, 3).map((x) => ({
+          titulo: x.tema,
+          subtitulo: `${x.materia.nombre} · ${x.estudiante.nombre} ${x.estudiante.apellido}`,
+          detalle: x.disponibilidad ? `Disponibilidad: ${x.disponibilidad}` : undefined,
+          a: "/tutor/solicitudes",
+        })),
+        enlaces,
+      };
+    },
+  },
+  {
+    id: "mi-horario",
+    roles: [ROL.TUTOR],
+    frases: ["mi horario", "ver mi semana", "grilla de horarios", "mi horario semanal", "cuantas horas dicto"],
+    respuesta: {
+      texto:
+        "«Mi horario» muestra su semana en una grilla: sus tutorías resaltadas (cada una de un color, con las reservas de cada " +
+        "sesión) y las que usted reservó como estudiante. Haga clic en un espacio libre para agregar un horario ese día y a esa hora, " +
+        "y con «Exportar horario (.ics)» lo lleva a su calendario.",
+      enlaces: [{ a: "/tutor/horario", texto: "Ir a Mi horario" }],
+    },
+  },
   {
     id: "agenda-hoy",
     icono: "👥",
@@ -314,7 +458,8 @@ export const INTENCIONES = [
       texto:
         "1. En «Mis materias» asóciese a la materia (solo puede publicar de materias asociadas).\n" +
         "2. En «Mis tutorías» pulse «Nueva tutoría»: título, nivel, modalidad y cupo.\n" +
-        "3. En «Editar y horarios» agregue los bloques semanales con su salón o enlace.",
+        "3. En «Editar y horarios» agregue los bloques semanales con su salón (o haga clic en un hueco de «Mi horario»). " +
+        "Si es virtual no elige enlace: se le crea su sala de Jitsi automáticamente.",
       enlaces: [
         { a: "/tutor/materias", texto: "Mis materias" },
         { a: "/tutor/tutorias/nueva", texto: "Nueva tutoría" },
@@ -331,8 +476,8 @@ export const INTENCIONES = [
       texto:
         "Un horario nuevo se rechaza si:\n" +
         "• La tutoría está inactiva.\n" +
-        "• El recurso no corresponde a la modalidad (Presencial → salón, Virtual → enlace).\n" +
-        "• La capacidad del salón o enlace es menor que el cupo de la tutoría.\n" +
+        "• El salón no corresponde a la modalidad (las virtuales usan su sala de Jitsi; no se elige recurso).\n" +
+        "• La capacidad del salón es menor que el cupo de la tutoría (una virtual admite hasta 100 cupos).\n" +
         "• Se cruza con otro horario suyo o con otro horario en el mismo salón.\n" +
         "• Se cruza con una reserva que usted hizo como estudiante.",
     },
@@ -343,8 +488,9 @@ export const INTENCIONES = [
     frases: ["completar sesion", "marcar completada", "como completo una reserva", "no me deja completar"],
     respuesta: {
       texto:
-        "En «Agenda de tutorías», pestaña «Por completar», marque la sesión como completada. " +
-        "Solo se puede cuando la sesión ya terminó; así sus estudiantes pueden calificarla.",
+        "En «Agenda de tutorías», pestaña «Por completar», marque la sesión como completada (solo cuando ya terminó); así " +
+        "sus estudiantes pueden calificarla. Si no lo hace, se completa sola 24 horas después: si alguien no asistió, " +
+        "cancele su reserva antes de ese plazo.",
       enlaces: [{ a: "/tutor/reservas", texto: "Ir a Agenda de tutorías" }],
     },
   },
@@ -355,7 +501,7 @@ export const INTENCIONES = [
     respuesta: {
       texto:
         "Al desactivar un horario o inactivar una tutoría, se cancelan las reservas de las sesiones que aún no empiezan " +
-        "(inactivar la tutoría también desactiva sus horarios). El cupo no puede quedar por debajo de las reservas de una sesión futura " +
+        "(inactivar la tutoría también desactiva sus horarios) y cada estudiante recibe un aviso. El cupo no puede quedar por debajo de las reservas de una sesión futura " +
         "ni superar la capacidad del salón, y la modalidad debe seguir siendo compatible con sus recursos.",
     },
   },
@@ -382,7 +528,9 @@ export const INTENCIONES = [
       texto:
         "En «Recursos» pulse «Nuevo recurso»: tipo (Físico o Virtual), nombre, ubicación o enlace y capacidad.\n" +
         "Si un recurso tiene horarios activos no se puede inactivar ni cambiar de tipo, y su capacidad no puede quedar " +
-        "por debajo del cupo de esas tutorías.",
+        "por debajo del cupo de esas tutorías.\n" +
+        "Las tutorías virtuales no usan estos enlaces: cada una recibe su sala de Jitsi automáticamente (no aparecen en la lista). " +
+        "Los enlaces que cree aquí sirven para las híbridas.",
       enlaces: [{ a: "/admin/recursos", texto: "Ir a Recursos" }],
     },
   },
@@ -408,6 +556,38 @@ export const INTENCIONES = [
     },
   },
 
+  {
+    id: "estadisticas",
+    icono: "📊",
+    etiqueta: "¿Dónde faltan tutores?",
+    roles: [ROL.ADMINISTRADOR],
+    // "estadísticas" sola también es el nombre de una materia (Métodos Estadísticos): en empate gana la búsqueda
+    frases: ["estadisticas de la plataforma", "ver estadisticas de uso", "reportes", "donde faltan tutores", "que materias necesitan tutores", "demanda sin tutor",
+      "cuantas reservas hay", "ocupacion de las tutorias", "indicadores"],
+    async responder() {
+      const { resumen, demanda_sin_oferta: faltan, periodo } = await obtenerEstadisticas();
+      const cifras =
+        `En las últimas ${periodo.semanas} semanas: ${resumen.reservas} reservas` +
+        (resumen.valoracion_promedio === null ? "" : `, valoración promedio ${resumen.valoracion_promedio.toLocaleString("es-CO")} / 5`) +
+        ` y ${resumen.solicitudes_abiertas} ${resumen.solicitudes_abiertas === 1 ? "solicitud de tutoría abierta" : "solicitudes de tutoría abiertas"}.`;
+      return {
+        texto:
+          cifras +
+          (faltan.length === 0
+            ? " Ninguna materia tiene demanda sin tutorías."
+            : ` ${faltan.length === 1 ? "Esta materia pide" : "Estas materias piden"} tutorías y no tiene${faltan.length === 1 ? "" : "n"} ninguna activa:`),
+        tarjetas: faltan.slice(0, 4).map((m) => ({
+          titulo: m.nombre,
+          subtitulo: `${m.solicitudes_abiertas} ${m.solicitudes_abiertas === 1 ? "abierta" : "abiertas"}` +
+            (m.solicitudes_vencidas ? ` · ${m.solicitudes_vencidas} vencidas` : ""),
+          detalle: m.tutores === 0 ? "Sin tutores asociados" : `${m.tutores} ${m.tutores === 1 ? "tutor asociado" : "tutores asociados"}`,
+          a: "/admin/estadisticas",
+        })),
+        enlaces: [{ a: "/admin/estadisticas", texto: "Ver Estadísticas" }],
+      };
+    },
+  },
+
   // --- Conversación ----------------------------------------------------------
   {
     id: "saludo",
@@ -425,7 +605,8 @@ export const INTENCIONES = [
 
 // Visitante sin sesión: las preguntas sobre SUS reservas se responden pidiendo iniciar sesión.
 // Las frases se toman de esas intenciones, así una pregunta nueva de ese tipo queda cubierta sola.
-const REQUIEREN_SESION = ["mis-reservas", "no-pude-reservar", "como-cancelar", "reserva-cancelada", "por-calificar"];
+const REQUIEREN_SESION = ["mis-reservas", "no-pude-reservar", "como-cancelar", "reserva-cancelada", "por-calificar",
+  "sesion-virtual", "calendario", "notificaciones"];
 INTENCIONES.push({
   id: "requiere-sesion",
   roles: [INVITADO],
