@@ -85,6 +85,7 @@ Si desactiva un horario o una tutoría, se cancelan las reservas de las sesiones
 - **Materias:** crear y editar las materias del catálogo.
 - **Recursos:** crear salones físicos y enlaces virtuales con su capacidad, o desactivarlos (no se puede si tienen horarios activos).
 - **Solicitudes:** en *Pendientes*, **Aprobar** o **Rechazar** (con una observación) a quien quiere ser tutor. *Historial* muestra las revisadas.
+- **Estadísticas:** elija el período (4, 8, 12 o 26 semanas) y vea las reservas y cancelaciones, la ocupación de los cupos, las valoraciones, la oferta actual (horas por semana, tutorías y tutores) y una tabla por materia. Arriba aparecen las **materias que piden y no tienen tutorías**: allí hacen falta tutores. Cada gráfico tiene **Ver datos** con la misma información en tabla.
 
 ---
 

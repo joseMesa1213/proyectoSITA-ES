@@ -17,6 +17,7 @@ import AgendaTutorias from "./pages/tutor/AgendaTutorias.jsx";
 import MiHorario from "./pages/tutor/MiHorario.jsx";
 import SolicitudesEstudiantes from "./pages/tutor/SolicitudesEstudiantes.jsx";
 import PedirTutoria from "./pages/PedirTutoria.jsx";
+import AdminEstadisticas from "./pages/AdminEstadisticas.jsx";
 import AdminMaterias from "./pages/AdminMaterias.jsx";
 import AdminRecursos from "./pages/AdminRecursos.jsx";
 import AdminSolicitudes from "./pages/AdminSolicitudes.jsx";
@@ -72,6 +73,7 @@ export default function App() {
           <Route path="materias" element={<AdminMaterias />} />
           <Route path="recursos" element={<AdminRecursos />} />
           <Route path="solicitudes" element={<AdminSolicitudes />} />
+          <Route path="estadisticas" element={<AdminEstadisticas />} />
         </Route>
 
         <Route path="*" element={<NoEncontrada />} />

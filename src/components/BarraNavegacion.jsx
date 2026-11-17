@@ -31,6 +31,7 @@ const ENLACES = {
     { a: "/admin/materias", texto: "Materias" },
     { a: "/admin/recursos", texto: "Recursos" },
     { a: "/admin/solicitudes", texto: "Solicitudes" },
+    { a: "/admin/estadisticas", texto: "Estadísticas" },
   ],
 };
 

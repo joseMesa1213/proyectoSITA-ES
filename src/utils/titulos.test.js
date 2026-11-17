@@ -16,6 +16,7 @@ describe("título de la pestaña según la ruta", () => {
     ["/tutor/solicitudes", "Solicitudes de estudiantes"],
     ["/solicitudes", "Pedir una tutoría"],
     ["/admin/solicitudes", "Solicitudes de tutor"],
+    ["/admin/estadisticas", "Estadísticas"],
     ["/no-existe", "Página no encontrada"],
   ])("%s → %s", (ruta, titulo) => {
     expect(tituloDeRuta(ruta)).toBe(titulo);

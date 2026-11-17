@@ -26,6 +26,7 @@ const TITULOS = [
   ["/admin/materias", "Materias"],
   ["/admin/recursos", "Recursos"],
   ["/admin/solicitudes", "Solicitudes de tutor"],
+  ["/admin/estadisticas", "Estadísticas"],
 ];
 
 export const NOMBRE_APP = "SITA-ES";
