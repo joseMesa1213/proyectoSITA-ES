@@ -9,6 +9,7 @@ import { EsqueletoLista } from "../../components/Esqueletos.jsx";
 import { ESTADO } from "../../utils/constantes.js";
 import { formatearFechaCorta, horaActual, hoy } from "../../utils/fechas.js";
 import { aMinutos, armarSemana, lunesDe, sumarDias } from "../../utils/horarioSemanal.js";
+import { archivoIcs, descargarIcs, eventosDelHorario } from "../../utils/calendario.js";
 
 // Alto de una hora en la grilla (px)
 const ALTO_HORA = 56;
@@ -95,16 +96,10 @@ export default function MiHorario() {
       {!datos ? (
         !error && <EsqueletoLista texto="Cargando su horario..." />
       ) : (
-        <Semana {...armarSemana({ ...datos, lunes })} lunes={lunes} ahora={ahora}
-          onElegirHueco={puedeAgregar ? setHueco : undefined} />
-      )}
-
-      {hueco && (
-        <DialogoHorario hueco={hueco} tutorias={tutoriasActivas} onCerrar={() => setHueco(null)}
-          onAgregado={() => {
-            setHueco(null);
-            cargar();
-          }} />
+        <>
+          <Semana {...armarSemana({ ...datos, lunes })} lunes={lunes} ahora={ahora} />
+          <ExportarHorario tutorias={datos.tutorias} />
+        </>
       )}
     </div>
   );
@@ -315,43 +310,19 @@ function ListaPorDia({ dias, ahora }) {
   );
 }
 
-// Diálogo para crear un horario desde la grilla: primero la tutoría, luego el formulario de siempre
-function DialogoHorario({ hueco, tutorias, onCerrar, onAgregado }) {
-  const dialogo = useRef(null);
-  const [idTutoria, setIdTutoria] = useState(tutorias.length === 1 ? String(tutorias[0].id) : "");
-  const tutoria = tutorias.find((t) => String(t.id) === idTutoria);
-
-  useEffect(() => {
-    const elemento = dialogo.current;
-    if (!elemento.open) elemento.showModal();
-    return () => elemento.open && elemento.close();
-  }, []);
-
+// Exporta el horario semanal a un .ics (ver eventosDelHorario en utils/calendario.js)
+function ExportarHorario({ tutorias }) {
+  const eventos = eventosDelHorario(tutorias, lunesDe(hoy()));
+  if (eventos.length === 0) return null;
   return (
-    <dialog ref={dialogo} aria-labelledby="dialogo-horario-titulo"
-      onCancel={(evento) => {
-        evento.preventDefault();
-        onCerrar();
-      }}
-      onClick={(evento) => evento.target === dialogo.current && onCerrar()}
-      className="fixed inset-0 m-auto h-fit max-h-[calc(100vh-2rem)] w-[min(36rem,calc(100vw-2rem))] overflow-y-auto rounded-tarjeta border border-borde bg-superficie-elevada p-0 text-texto shadow-flotante backdrop:bg-black/50 open:animate-[aparecer_160ms_ease-out]">
-      <div className="space-y-4 p-5">
-        <div className="flex items-start justify-between gap-3">
-          <h2 id="dialogo-horario-titulo" className="titulo-seccion">
-            Agregar horario{hueco.dia ? ` · ${hueco.dia} ${hueco.hora_inicio}` : ""}
-          </h2>
-          <button type="button" className="btn-secundario px-3 py-1" onClick={onCerrar} aria-label="Cerrar">✕</button>
-        </div>
-        <div>
-          <label htmlFor="dialogo-tutoria" className="etiqueta">Tutoría</label>
-          <select id="dialogo-tutoria" className="campo" value={idTutoria} onChange={(e) => setIdTutoria(e.target.value)} autoFocus>
-            <option value="">Seleccione...</option>
-            {tutorias.map((t) => <option key={t.id} value={t.id}>{t.titulo} ({t.modalidad}, cupo {t.cupo})</option>)}
-          </select>
-        </div>
-        {/* key: al cambiar de tutoría el formulario se reinicia con el hueco elegido y sus recursos */}
-        {tutoria && <FormularioHorario key={tutoria.id} tutoria={tutoria} inicial={hueco} onAgregado={onAgregado} apilado />}
-      </div>
-    </dialog>
+    <section className="tarjeta flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <p className="text-sm text-texto-suave">
+        Lleve su horario a Google Calendar, Outlook o Apple: cada bloque se repite cada semana y le avisa 30 minutos antes.
+      </p>
+      <button type="button" className="btn-secundario shrink-0"
+        onClick={() => descargarIcs("mi-horario-sita-es.ics", archivoIcs(eventos))}>
+        Exportar horario (.ics)
+      </button>
+    </section>
   );
 }

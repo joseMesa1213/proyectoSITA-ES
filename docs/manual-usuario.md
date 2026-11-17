@@ -34,7 +34,7 @@ Sin iniciar sesión también puede ver el catálogo y el detalle de las tutoría
 1. En el detalle de la tutoría pulse **Reservar**.
 2. **Paso 1:** elija un horario semanal. **Paso 2:** elija la fecha de la sesión entre las próximas disponibles.
 3. Revise el resumen y pulse **Confirmar reserva**. Verá un aviso con la reserva confirmada.
-4. En **Mi agenda** encuentra sus sesiones en las pestañas **Próximas**, **Completadas** y **Canceladas**, con el salón o el enlace de cada una.
+4. En **Mi agenda** encuentra sus sesiones en las pestañas **Próximas**, **Completadas** y **Canceladas**, con el salón o el enlace de cada una. Con **Agregar al calendario** la lleva a Google Calendar o descarga un archivo `.ics` (Outlook, Apple), con un recordatorio 30 minutos antes.
 
 **Cancelar:** en *Mi agenda*, pulse **Cancelar reserva** en una sesión próxima y confirme.
 
@@ -58,8 +58,8 @@ Si no puede reservar, la plataforma explica el motivo: no hay cupo, ya tiene otr
 2. **Mis tutorías → + Nueva tutoría:** elija la materia, escriba título y descripción, y defina nivel, modalidad y cupo.
 3. En la tutoría, **Editar y horarios → Agregar** un horario: día, hora de inicio y de fin, y el salón (presencial o híbrida). Las tutorías **virtuales** no eligen enlace: al publicarlas se crea su propia sala de **Jitsi Meet**, que aparece en esa misma pantalla y sirve para todos sus horarios. Entre unos minutos antes: quien abre la sala debe iniciar sesión (por ejemplo, con Google).
    La plataforma no deja crear el horario si se cruza con otro suyo, si el salón ya está ocupado o si su capacidad es menor que el cupo.
-4. **Mi horario:** grilla de la semana (lunes a domingo) con sus tutorías resaltadas, cada una de un color, con las reservas de cada sesión, y las que usted reservó como estudiante (borde punteado). Muestra las horas de tutoría por semana y los días libres; con las flechas pasa de semana y al pulsar un bloque va a esa tutoría. **Para agregar un horario**, haga clic en un espacio libre (el día y la hora quedan puestos) o use **+ Agregar horario**, y elija la tutoría. En el celular se ve como lista por día.
-5. **Agenda de tutorías:** vea quién reservó cada sesión en **Próximas**. Cuando la sesión termine, en **Por completar** pulse **Completar sesión**; así el estudiante puede calificarla. También puede cancelar una reserva.
+4. **Mi horario:** grilla de la semana (lunes a domingo) con sus tutorías resaltadas, cada una de un color, con las reservas de cada sesión, y las que usted reservó como estudiante (borde punteado). Muestra las horas de tutoría por semana y los días libres; con las flechas pasa de semana y al pulsar un bloque va a esa tutoría. **Exportar horario (.ics)** lleva todos sus bloques a su calendario, repetidos cada semana. En el celular se ve como lista por día.
+5. **Agenda de tutorías:** vea quién reservó cada sesión en **Próximas** (con **Agregar al calendario** en cada una). Cuando la sesión termine, en **Por completar** pulse **Completar sesión**; así el estudiante puede calificarla. También puede cancelar una reserva.
 
 Si desactiva un horario o una tutoría, se cancelan las reservas de las sesiones que todavía no han empezado.
 
