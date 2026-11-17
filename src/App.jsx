@@ -14,6 +14,7 @@ import MisTutorias from "./pages/tutor/MisTutorias.jsx";
 import NuevaTutoria from "./pages/tutor/NuevaTutoria.jsx";
 import GestionTutoria from "./pages/tutor/GestionTutoria.jsx";
 import AgendaTutorias from "./pages/tutor/AgendaTutorias.jsx";
+import MiHorario from "./pages/tutor/MiHorario.jsx";
 import AdminMaterias from "./pages/AdminMaterias.jsx";
 import AdminRecursos from "./pages/AdminRecursos.jsx";
 import AdminSolicitudes from "./pages/AdminSolicitudes.jsx";
@@ -58,6 +59,7 @@ export default function App() {
           <Route path="tutorias/nueva" element={<NuevaTutoria />} />
           <Route path="tutorias/:id" element={<GestionTutoria />} />
           <Route path="reservas" element={<AgendaTutorias />} />
+          <Route path="horario" element={<MiHorario />} />
         </Route>
 
         {/* Panel del administrador */}

@@ -11,6 +11,7 @@ import { contarReservas, reservasActivasFuturas } from "../utils/reservas.js";
 /**
  * Horarios semanales de una tutoría: agregar un bloque (ej. Lunes 10:00–12:00 en el Salón 101) y desactivar.
  * - Solo se ofrecen recursos compatibles con la modalidad y con capacidad para el cupo.
+ * - Tutoría Virtual: no hay selector; todos sus horarios usan su sala de Jitsi (la crea el backend).
  * - Si el bloque se cruza con otro horario del tutor o el salón ya está ocupado en esa franja,
  *   el backend responde 409 y Alerta muestra con cuál se cruza.
  * - Desactivar cancela las reservas de sesiones que aún no empiezan.
@@ -25,6 +26,7 @@ export default function HorariosTutoria({ tutoria, reservas, onCambio }) {
   const [error, setError] = useState(null);
   const avisos = useAvisos();
   const [procesando, setProcesando] = useState(false);
+  const esVirtual = tutoria.modalidad === "Virtual";
 
   useEffect(() => {
     // El backend guarda Domingo primero; en la interfaz se muestra Lunes primero
@@ -34,10 +36,11 @@ export default function HorariosTutoria({ tutoria, reservas, onCambio }) {
   }, []);
 
   useEffect(() => {
+    if (esVirtual) return;
     listarRecursos(RECURSO_POR_MODALIDAD[tutoria.modalidad])
       .then((lista) => setRecursos(lista.filter((r) => r.capacidad >= tutoria.cupo)))
       .catch(setError);
-  }, [tutoria.modalidad, tutoria.cupo]);
+  }, [esVirtual, tutoria.modalidad, tutoria.cupo]);
 
   const activos = tutoria.horarios.filter((h) => h.id_estado === ESTADO.ACTIVO);
   const inactivos = tutoria.horarios.filter((h) => h.id_estado !== ESTADO.ACTIVO);
@@ -52,9 +55,10 @@ export default function HorariosTutoria({ tutoria, reservas, onCambio }) {
     }
     setProcesando(true);
     try {
-      const horario = await agregarHorario(tutoria.id, { ...nuevo, id_recurso: Number(nuevo.id_recurso) });
+      const { id_recurso, ...franja } = nuevo;
+      const horario = await agregarHorario(tutoria.id, esVirtual ? franja : { ...franja, id_recurso: Number(id_recurso) });
       onCambio([...tutoria.horarios, horario]);
-      avisos.exito(`Horario agregado: ${horario.dia} ${horario.hora_inicio} – ${horario.hora_fin} en ${horario.recurso.nombre}.`);
+      avisos.exito(`Horario agregado: ${horario.dia} ${horario.hora_inicio} – ${horario.hora_fin}${esVirtual ? "" : ` en ${horario.recurso.nombre}`}.`);
       setNuevo({ dia: "", hora_inicio: "", hora_fin: "", id_recurso: "" });
     } catch (err) {
       setError(err);
@@ -133,13 +137,20 @@ export default function HorariosTutoria({ tutoria, reservas, onCambio }) {
           <label htmlFor="hora_fin" className="etiqueta">Hasta</label>
           <input id="hora_fin" name="hora_fin" type="time" className="campo" required value={nuevo.hora_fin} onChange={cambiar} />
         </div>
-        <div>
-          <label htmlFor="id_recurso" className="etiqueta">Salón o enlace</label>
-          <select id="id_recurso" name="id_recurso" className="campo" required value={nuevo.id_recurso} onChange={cambiar}>
-            <option value="">{recursos.length ? "Seleccione..." : "No hay recursos disponibles"}</option>
-            {recursos.map((r) => <option key={r.id} value={r.id}>{r.nombre} (cap. {r.capacidad})</option>)}
-          </select>
-        </div>
+        {esVirtual ? (
+          <div>
+            <p className="etiqueta">Lugar</p>
+            <p className="rounded-control px-3 py-2 text-sm text-texto-suave">Sala de Jitsi de la tutoría</p>
+          </div>
+        ) : (
+          <div>
+            <label htmlFor="id_recurso" className="etiqueta">Salón o enlace</label>
+            <select id="id_recurso" name="id_recurso" className="campo" required value={nuevo.id_recurso} onChange={cambiar}>
+              <option value="">{recursos.length ? "Seleccione..." : "No hay recursos disponibles"}</option>
+              {recursos.map((r) => <option key={r.id} value={r.id}>{r.nombre} (cap. {r.capacidad})</option>)}
+            </select>
+          </div>
+        )}
         <button type="submit" className="btn-primario" disabled={procesando}>Agregar</button>
       </form>
 

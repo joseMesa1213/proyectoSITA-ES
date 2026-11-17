@@ -91,9 +91,30 @@ export default function GestionTutoria() {
 
       <section className="tarjeta space-y-3">
         <h2 className="titulo-seccion">Horarios semanales</h2>
+        {tutoria.modalidad === "Virtual" && tutoria.enlace_reunion && (
+          <div className="rounded-control bg-superficie-hundida p-3 text-sm">
+            <p>
+              <span className="text-texto-suave">Sala de Jitsi Meet: </span>
+              <a href={tutoria.enlace_reunion} target="_blank" rel="noreferrer"
+                className="break-all font-medium underline decoration-acento underline-offset-2">
+                {tutoria.enlace_reunion}
+              </a>
+            </p>
+            <p className="mt-1 text-xs text-texto-suave">
+              Es la misma para todos los horarios. Los estudiantes la ven al reservar.
+              Entre unos minutos antes: quien abre la sala debe iniciar sesión (por ejemplo, con Google).
+            </p>
+          </div>
+        )}
         <HorariosTutoria tutoria={tutoria} reservas={reservas} onCambio={(horarios, canceladas) => {
           setTutoria({ ...tutoria, horarios });
           if (canceladas > 0) recargarReservas();
+          // Una tutoría Virtual anterior a las salas Jitsi recibe la suya con su primer horario nuevo
+          if (tutoria.modalidad === "Virtual" && !tutoria.enlace_reunion) {
+            listarMisTutorias()
+              .then((lista) => setTutoria((t) => ({ ...t, enlace_reunion: lista.find((x) => x.id === t.id)?.enlace_reunion ?? null })))
+              .catch(setError);
+          }
         }} />
       </section>
 

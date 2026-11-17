@@ -32,3 +32,7 @@ export const RECURSO_POR_MODALIDAD = Object.freeze({
   Presencial: "Físico",
   Virtual: "Virtual",
 });
+
+// Las tutorías Virtuales tienen su propia sala de Jitsi Meet, creada por el backend.
+// Cupo máximo que admite esa sala (CAPACIDAD_SALA_JITSI en el backend).
+export const CUPO_MAXIMO_VIRTUAL = 100;
