@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
-import { useSearchParams } from "react-router";
+import { Link, useSearchParams } from "react-router";
+import { useAuth } from "../context/AuthContext.jsx";
+import { ROLES_QUE_RESERVAN } from "../utils/constantes.js";
 import { listarTutorias } from "../api/tutorias.js";
 import { listarMaterias } from "../api/materias.js";
 import { obtenerOpciones } from "../api/catalogos.js";
@@ -13,6 +15,7 @@ import EstadoVacio from "../components/EstadoVacio.jsx";
 // desde el detalle y se pueden compartir como enlace (el asistente también enlaza así).
 export default function Catalogo() {
   const [parametros, setParametros] = useSearchParams();
+  const { usuario } = useAuth();
   const filtros = {
     id_materia: parametros.get("id_materia") ?? "",
     nivel: parametros.get("nivel") ?? "",
@@ -66,12 +69,20 @@ export default function Catalogo() {
   const dias = [...opciones.dias.slice(1), ...opciones.dias.slice(0, 1)];
 
   const hayFiltros = Boolean(id_materia || nivel || modalidad || dia);
+  // "Pedir una tutoría": visitantes (los lleva a iniciar sesión), estudiantes y tutores; el administrador no
+  const puedePedir = !usuario || ROLES_QUE_RESERVAN.includes(usuario.id_rol);
+  const enlacePedir = `/solicitudes${id_materia ? `?id_materia=${id_materia}` : ""}`;
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="titulo-pagina">Tutorías disponibles</h1>
-        <p className="mt-1 text-texto-suave">Encuentre un compañero que le ayude con la materia que necesita.</p>
+      <div className="flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <h1 className="titulo-pagina">Tutorías disponibles</h1>
+          <p className="mt-1 text-texto-suave">Encuentre un compañero que le ayude con la materia que necesita.</p>
+        </div>
+        {puedePedir && (
+          <Link to={enlacePedir} className="btn-secundario">¿No la encuentra? Pida una tutoría</Link>
+        )}
       </div>
 
       <div className="tarjeta grid gap-4 p-4 sm:grid-cols-2 sm:items-end lg:grid-cols-[2fr_1fr_1fr_1fr_auto]">
@@ -102,8 +113,11 @@ export default function Catalogo() {
             {visibles.length === 0 ? (
               hayFiltros ? (
                 <EstadoVacio titulo="No hay tutorías con esos filtros"
-                  accion={<button type="button" className="btn-primario" onClick={() => setParametros({}, { replace: true })}>Limpiar filtros</button>}>
-                  Pruebe con otro día, nivel o modalidad, o quite los filtros para ver todas.
+                  accion={<>
+                    <button type="button" className="btn-primario" onClick={() => setParametros({}, { replace: true })}>Limpiar filtros</button>
+                    {puedePedir && <Link to={enlacePedir} className="btn-secundario">Pedir esta tutoría</Link>}
+                  </>}>
+                  Pruebe con otro día, nivel o modalidad, quite los filtros para ver todas, o pida la tutoría que necesita.
                 </EstadoVacio>
               ) : (
                 <EstadoVacio titulo="Todavía no hay tutorías publicadas">

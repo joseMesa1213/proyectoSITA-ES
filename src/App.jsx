@@ -15,6 +15,8 @@ import NuevaTutoria from "./pages/tutor/NuevaTutoria.jsx";
 import GestionTutoria from "./pages/tutor/GestionTutoria.jsx";
 import AgendaTutorias from "./pages/tutor/AgendaTutorias.jsx";
 import MiHorario from "./pages/tutor/MiHorario.jsx";
+import SolicitudesEstudiantes from "./pages/tutor/SolicitudesEstudiantes.jsx";
+import PedirTutoria from "./pages/PedirTutoria.jsx";
 import AdminMaterias from "./pages/AdminMaterias.jsx";
 import AdminRecursos from "./pages/AdminRecursos.jsx";
 import AdminSolicitudes from "./pages/AdminSolicitudes.jsx";
@@ -49,6 +51,7 @@ export default function App() {
         <Route element={<RutaProtegida roles={ROLES_QUE_RESERVAN} />}>
           <Route path="tutorias/:id/reservar" element={<Reservar />} />
           <Route path="mis-reservas" element={<MisReservas />} />
+          <Route path="solicitudes" element={<PedirTutoria />} />
         </Route>
 
         {/* Panel del tutor */}
@@ -60,6 +63,7 @@ export default function App() {
           <Route path="tutorias/:id" element={<GestionTutoria />} />
           <Route path="reservas" element={<AgendaTutorias />} />
           <Route path="horario" element={<MiHorario />} />
+          <Route path="solicitudes" element={<SolicitudesEstudiantes />} />
         </Route>
 
         {/* Panel del administrador */}

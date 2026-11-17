@@ -13,6 +13,7 @@ const ENLACES = {
   [ROL.ESTUDIANTE]: [
     { a: "/tutorias", texto: "Tutorías" },
     { a: "/mis-reservas", texto: "Mi agenda" },
+    { a: "/solicitudes", texto: "Pedir tutoría" },
     { a: "/perfil", texto: "Mi perfil" },
   ],
   // El tutor también reserva tutorías de otros, por eso tiene "Mi agenda" además de su panel
@@ -33,8 +34,17 @@ const ENLACES = {
   ],
 };
 
+// whitespace-nowrap: un enlace nunca se parte en dos líneas; si no caben, se usa el menú (ver xl abajo)
+// Desde qué ancho cabe el menú de escritorio. El del tutor (6 enlaces) necesita ~1100 px: con lg
+// (1024) los enlaces se apretaban; por debajo de xl (1280) usa el menú de hamburguesa.
+// Clases completas (no armadas por partes) para que Tailwind las encuentre.
+const DISTRIBUCION = {
+  lg: { nav: "hidden flex-1 items-center gap-1 lg:flex", cuenta: "hidden items-center gap-2 lg:flex", soloMovil: "lg:hidden" },
+  xl: { nav: "hidden flex-1 items-center gap-1 xl:flex", cuenta: "hidden items-center gap-2 xl:flex", soloMovil: "xl:hidden" },
+};
+
 const claseEnlace = ({ isActive }) =>
-  `rounded-control px-3 py-2 text-sm font-medium transition-colors ${
+  `whitespace-nowrap rounded-control px-3 py-2 text-sm font-medium transition-colors ${
     isActive ? "bg-barra-texto/10 text-barra-texto" : "text-barra-texto/75 hover:bg-barra-texto/5 hover:text-barra-texto"
   }`;
 
@@ -46,6 +56,7 @@ export default function BarraNavegacion() {
   const botonMenu = useRef(null);
 
   const enlaces = ENLACES[usuario?.id_rol ?? "invitado"] ?? ENLACES.invitado;
+  const d = DISTRIBUCION[usuario?.id_rol === ROL.TUTOR ? "xl" : "lg"];
   const cerrarMenu = () => setMenuAbierto(false);
   // Menú del celular: se cierra con Escape (el foco vuelve al botón) o con un clic fuera de la barra
   useCierreExterno(menuAbierto, cerrarMenu, [barra], botonMenu);
@@ -66,11 +77,11 @@ export default function BarraNavegacion() {
     <>
       {/* El nombre lleva a "Mi perfil" (para todos los roles) */}
       <Link to="/perfil" onClick={cerrarMenu} title="Mi perfil"
-        className="rounded-control px-2 py-1 text-sm text-barra-texto/90 hover:bg-barra-texto/10 hover:text-barra-texto">
+        className="whitespace-nowrap rounded-control px-2 py-1 text-sm text-barra-texto/90 hover:bg-barra-texto/10 hover:text-barra-texto">
         {usuario.nombre}{" "}
         <span className="insignia ml-1 bg-acento text-sobre-acento">{NOMBRE_ROL[usuario.id_rol]}</span>
       </Link>
-      <button type="button" onClick={cerrarSesion} className="rounded-control px-3 py-2 text-sm font-medium text-barra-texto/75 hover:text-barra-texto">
+      <button type="button" onClick={cerrarSesion} className="whitespace-nowrap rounded-control px-3 py-2 text-sm font-medium text-barra-texto/75 hover:text-barra-texto">
         Cerrar sesión
       </button>
     </>
@@ -90,20 +101,20 @@ export default function BarraNavegacion() {
         </Link>
 
         {/* Escritorio */}
-        <nav className="hidden flex-1 items-center gap-1 lg:flex">{navegacion}</nav>
+        <nav className={d.nav}>{navegacion}</nav>
 
         <div className="flex items-center gap-2">
           {/* Modo claro/oscuro: siempre visible, también en celular y sin sesión (también en el login) */}
           <BotonTema />
           {/* Avisos: solo con sesión; visible también en celular (fuera del menú) */}
           {usuario && <Campanita />}
-          <div className="hidden items-center gap-2 lg:flex">{cuenta}</div>
+          <div className={d.cuenta}>{cuenta}</div>
 
           {/* Móvil: botón de menú */}
           <button
             ref={botonMenu}
             type="button"
-            className="rounded-control p-2 text-barra-texto/80 transition-colors duration-150 hover:bg-barra-texto/10 lg:hidden"
+            className={`rounded-control p-2 text-barra-texto/80 transition-colors duration-150 hover:bg-barra-texto/10 ${d.soloMovil}`}
             onClick={() => setMenuAbierto((abierto) => !abierto)}
             aria-expanded={menuAbierto}
             aria-controls="menu-celular"
@@ -117,7 +128,7 @@ export default function BarraNavegacion() {
       </div>
 
       {menuAbierto && (
-        <div id="menu-celular" className="animate-[aparecer_160ms_ease-out] border-t border-barra-texto/10 px-4 pb-4 lg:hidden">
+        <div id="menu-celular" className={`animate-[aparecer_160ms_ease-out] border-t border-barra-texto/10 px-4 pb-4 ${d.soloMovil}`}>
           <nav className="flex flex-col gap-1 py-2">{navegacion}</nav>
           <div className="flex flex-wrap items-center gap-2 border-t border-barra-texto/10 pt-3">{cuenta}</div>
         </div>

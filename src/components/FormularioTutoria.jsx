@@ -9,17 +9,18 @@ import { CUPO_MAXIMO_VIRTUAL } from "../utils/constantes.js";
  * Formulario para crear o editar una tutoría.
  * - Crear:  <FormularioTutoria materias={misMaterias} onGuardar={...} />
  * - Editar: <FormularioTutoria tutoria={tutoria} reservasActivas={n} onGuardar={...} />
+ * - inicial: valores con que arranca al crear (desde una solicitud: { id_materia, titulo, descripcion })
  *   Al editar la materia es fija (el backend no permite cambiarla).
  * onGuardar(datos) debe devolver una promesa; si falla, aquí se muestra el error.
  */
-export default function FormularioTutoria({ tutoria, materias = [], reservasActivas = 0, onGuardar, textoBoton }) {
+export default function FormularioTutoria({ tutoria, materias = [], reservasActivas = 0, onGuardar, textoBoton, inicial = {} }) {
   const confirmar = useConfirmar();
   const editando = Boolean(tutoria);
   const [opciones, setOpciones] = useState({ niveles: [], modalidades: [] });
   const [formulario, setFormulario] = useState(() => ({
-    id_materia: "",
-    titulo: tutoria?.titulo ?? "",
-    descripcion: tutoria?.descripcion ?? "",
+    id_materia: inicial.id_materia ? String(inicial.id_materia) : "",
+    titulo: tutoria?.titulo ?? inicial.titulo ?? "",
+    descripcion: tutoria?.descripcion ?? inicial.descripcion ?? "",
     nivel: tutoria?.nivel ?? "",
     modalidad: tutoria?.modalidad ?? "",
     cupo: tutoria?.cupo ?? 1,
