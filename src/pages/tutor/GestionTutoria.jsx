@@ -6,6 +6,7 @@ import { listarReservasRecibidas } from "../../api/reservas.js";
 import Alerta from "../../components/Alerta.jsx";
 import Cargando from "../../components/Cargando.jsx";
 import BotonEstadoTutoria from "../../components/BotonEstadoTutoria.jsx";
+import BotonCompartir from "../../components/BotonCompartir.jsx";
 import FormularioTutoria from "../../components/FormularioTutoria.jsx";
 import HorariosTutoria from "../../components/HorariosTutoria.jsx";
 import { InsigniaEstado } from "../../components/Insignias.jsx";
@@ -80,8 +81,9 @@ export default function GestionTutoria() {
             <InsigniaEstado idEstado={tutoria.id_estado} nombre={activa ? "Activa" : "Inactiva"} />
           </h1>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           {activa && <Link to={`/tutorias/${tutoria.id}`} className="btn-secundario">Ver en el catálogo</Link>}
+          {activa && <BotonCompartir tutoria={tutoria} />}
           <BotonEstadoTutoria tutoria={tutoria} reservasFuturas={futuras} onCambiada={cambioDeEstado} onError={avisos.error} />
         </div>
       </div>
