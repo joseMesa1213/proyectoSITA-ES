@@ -23,11 +23,15 @@ Para usar el backend **local** sin tocar `.env` (por ejemplo, si `.env` apunta a
 `.env.api-local.local` (ignorado por git) con `VITE_API_URL=http://localhost:3000/api` y correr
 `npm run dev -- --mode api-local`.
 
+**Solo se entra con Google @udea.edu.co.** Para entrar en local con las cuentas de la semilla (correo y contraseña),
+poner `VITE_LOGIN_CONTRASENA=true` en el `.env` local (ya viene en `.env.example`) y `LOGIN_CONTRASENA=true` en el
+backend local. En producción ninguna de las dos se define.
+
 Stack: React + Vite, Tailwind CSS v4, React Router, Vitest (pruebas) y Google Identity Services (login con Google).
 
 Estructura de `src/`:
 - `api/`: `cliente.js` (única puerta a la API: token, formato `{ ok, data | error }` y 401) y un archivo por módulo del backend.
-- `context/`: `AuthContext.jsx` (usuario actual, login, registro y logout).
+- `context/`: `AuthContext.jsx` (usuario actual, entrar con Google o —solo en desarrollo— con contraseña, registro con Google y logout).
 - `components/`: piezas reutilizables (barra de navegación, rutas protegidas, alertas, tarjetas).
 - `pages/`: una pantalla por ruta.
 - `utils/`: constantes de roles/estados y manejo de fechas en America/Bogota.
@@ -35,8 +39,9 @@ Estructura de `src/`:
 
 ## Inicio de sesión con Google
 
-Login y Registro muestran **"Continuar con Google"** (script oficial de Google Identity Services, sin librerías extra),
-además del formulario de correo y contraseña, que sigue igual.
+**Es la única forma de entrar y de registrarse**, también para los administradores. `/login` muestra solo
+**"Continuar con Google"** (script oficial de Google Identity Services, sin librerías extra). No hay página de registro:
+`/registro` lleva a `/login` y el backend responde 403 a `POST /auth/registro`.
 
 1. Google entrega un ID token (`credential`) y `components/ContinuarConGoogle.jsx` lo envía a `POST /auth/google`.
 2. Si la persona ya tiene cuenta, entra. Si es nueva, pasa a **Completa tu registro** (`/registro/google`,
@@ -44,24 +49,31 @@ además del formulario de correo y contraseña, que sigue igual.
    pueden corregir; faltan documento, programa y semestre (y, si quiere, «Quiero ser tutor»). Tiene 15 minutos para terminar.
 3. Solo se aceptan cuentas institucionales `@udea.edu.co` (lo decide el backend con `GOOGLE_DOMINIO`).
 
-Quien se registra con Google **solo entra con Google** (su cuenta no tiene una contraseña conocida); por eso el login
-muestra "¿Se registró con Google? Use el botón de Google".
+Las cuentas guardan una contraseña aleatoria que nadie conoce: no hay contraseña que cambiar ni recuperar. Quien no
+pueda entrar a su correo institucional acude al soporte de la Universidad.
+
+**Formulario de correo y contraseña (solo desarrollo):** aparece debajo del botón, marcado «Solo desarrollo», cuando
+`VITE_LOGIN_CONTRASENA=true` (solo `true` exacto). Sirve para las cuentas de la semilla y necesita
+`LOGIN_CONTRASENA=true` en el backend; si no, el backend responde 403 «Use «Continuar con Google»…». En Render no se
+define. Pruebas en `pages/Login.test.jsx`.
 
 Configuración:
 - `VITE_GOOGLE_CLIENT_ID` en `.env`: el ID de cliente OAuth (es público, no es un secreto). Debe ser **el mismo**
-  `GOOGLE_CLIENT_ID` del backend. Si se deja vacío, el botón no aparece.
+  `GOOGLE_CLIENT_ID` del backend. Si se deja vacío, no hay forma de entrar y el login avisa que falta.
 - En Google Cloud Console → *APIs y servicios → Credenciales* → ese ID de cliente → **Orígenes autorizados de JavaScript**:
   `http://localhost:5173` y `https://proyectosita-es.onrender.com`. Sin eso, Google rechaza el botón.
 - El proyecto de Google Cloud es **interno** de la UdeA: Google solo deja elegir cuentas institucionales.
-- Las cuentas de **administrador** no entran con Google: usan correo y contraseña.
-- Las cuentas de demostración (`@demo.sita-es.test`) tampoco: no son cuentas de Google; entran con correo y contraseña.
+- Los **administradores** también entran con Google (su correo @udea.edu.co). El rol sale de la BD y solo
+  `npm run crear-admin` (backend) lo asigna.
+- Las cuentas de demostración (`@demo.sita-es.test`) no son cuentas de Google: solo entran en local con el formulario
+  de desarrollo. En producción están inactivas.
 
 ## Estudiante y tutor con una sola cuenta
 
 `usuario.id_rol` es un **nivel de permisos**, no algo que se elige: 1 Estudiante (todos), 2 Estudiante + Tutor,
 3 Administrador.
 
-- **Registro** (normal y con Google): no hay selector de rol. Todos entran como estudiantes; la casilla
+- **Registro** (solo con Google): no hay selector de rol. Todos entran como estudiantes; la casilla
   **«Quiero ser tutor»** (`components/CamposRegistro.jsx`) crea una solicitud que revisa un administrador. Con la
   casilla marcada, al terminar se llega a *Mi perfil* con el aviso de que la solicitud está en revisión.
 - **Mi perfil** (`/perfil`, `pages/Perfil.jsx`): datos de la cuenta y, para estudiantes, el estado de la solicitud
@@ -71,7 +83,7 @@ Configuración:
 - **Sin volver a iniciar sesión:** el backend lee el rol de la BD en cada petición y `AuthContext.refrescarPerfil()`
   vuelve a pedir el perfil al abrir *Mi perfil* y al volver a la pestaña. Así, cuando aprueban la solicitud, el menú de
   tutor aparece solo.
-- `SoloInvitados` (Login y Registro) solo redirige a quien entra con la sesión ya iniciada; si la persona inicia sesión
+- `SoloInvitados` (Login y Completa tu registro) solo redirige a quien entra con la sesión ya iniciada; si la persona inicia sesión
   o se registra ahí mismo, la página decide a dónde ir (por ejemplo, a *Mi perfil*).
 
 ## Asistente SITA
@@ -118,9 +130,12 @@ Se publica como **Static Site** en Render, conectado a la rama `main` (cada push
 | Build Command | `npm install && npm run build` |
 | Publish Directory | `dist` |
 | Variable `VITE_API_URL` | `https://proyectosita-es-backend.onrender.com/api` |
-| Variable `VITE_GOOGLE_CLIENT_ID` | El mismo `GOOGLE_CLIENT_ID` del backend (ver *Inicio de sesión con Google*) |
+| Variable `VITE_GOOGLE_CLIENT_ID` | El mismo `GOOGLE_CLIENT_ID` del backend (ver *Inicio de sesión con Google*). Obligatoria: es la única forma de entrar |
+| Variable `VITE_LOGIN_CONTRASENA` | **No se define** (solo desarrollo) |
 
-- `VITE_API_URL` y `VITE_GOOGLE_CLIENT_ID` se leen **al compilar**: si cambian, hay que volver a desplegar.
+- Las variables `VITE_` se leen **al compilar**: si cambian, hay que volver a desplegar (*Clear build cache & deploy*).
+- Pasos y orden para publicar «solo Google» (administrador, backend, frontend, cuentas de demostración): ver
+  `docs/despliegue-solo-google.md` en el repositorio del backend.
 - La URL del frontend debe estar en `CORS_ORIGIN` del backend; si no, el navegador bloquea las peticiones.
 - **Rutas internas:** la app usa React Router, así que el servidor debe responder `index.html` en cualquier ruta.
   En Render → *Redirects/Rewrites* agregar la regla **Source** `/*` → **Destination** `/index.html` → **Action** `Rewrite`.
