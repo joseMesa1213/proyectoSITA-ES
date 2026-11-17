@@ -10,7 +10,7 @@ import { EsqueletoLista } from "../../components/Esqueletos.jsx";
 import { InsigniaEstado } from "../../components/Insignias.jsx";
 import { ESTADO } from "../../utils/constantes.js";
 import { formatearFecha } from "../../utils/fechas.js";
-import { sesionTermino } from "../../utils/reservas.js";
+import { sesionTermino, textoAutocompletado } from "../../utils/reservas.js";
 
 // Pestañas: cada una decide qué reservas muestra y en qué orden van las sesiones
 const PESTANAS = [
@@ -112,6 +112,12 @@ export default function AgendaTutorias() {
       </div>
 
       <Alerta error={error} />
+      {pestana === "por-completar" && (
+        <p className="rounded-control border border-borde bg-superficie px-4 py-3 text-sm text-texto-suave">
+          Las sesiones que no marque se completan solas 24 horas después de terminar, para que los estudiantes
+          puedan valorarlas. Si alguien no asistió, cancele su reserva antes de ese plazo.
+        </p>
+      )}
 
       {!reservas ? (
         !error && <EsqueletoLista texto="Cargando la agenda..." />
@@ -152,6 +158,9 @@ function TarjetaSesion({ sesion, cupo, ocupados, onActualizada }) {
           <p className="text-xs font-semibold tracking-wide text-texto-suave uppercase">{tutoria.materia.nombre}</p>
           <h2 className="titulo-seccion">{tutoria.titulo}</h2>
           <p className="text-sm text-texto-suave">{formatearFecha(fecha)} · {horario.hora_inicio} – {horario.hora_fin}</p>
+          {termino && reservas.some((r) => r.id_estado === ESTADO.ACTIVO) && (
+            <p className="text-xs text-texto-suave">Se completa sola el {textoAutocompletado(fecha, horario.hora_fin).toLowerCase()}.</p>
+          )}
         </div>
         {cupo !== undefined && (
           <span className={`insignia ${ocupados >= cupo ? "bg-acento text-sobre-acento" : "bg-texto/5 text-texto"}`}>

@@ -59,7 +59,7 @@ Si no puede reservar, la plataforma explica el motivo: no hay cupo, ya tiene otr
 3. En la tutoría, **Editar y horarios → Agregar** un horario: día, hora de inicio y de fin, y el salón (presencial o híbrida). Las tutorías **virtuales** no eligen enlace: al publicarlas se crea su propia sala de **Jitsi Meet**, que aparece en esa misma pantalla y sirve para todos sus horarios. Entre unos minutos antes: quien abre la sala debe iniciar sesión (por ejemplo, con Google).
    La plataforma no deja crear el horario si se cruza con otro suyo, si el salón ya está ocupado o si su capacidad es menor que el cupo.
 4. **Mi horario:** grilla de la semana (lunes a domingo) con sus tutorías resaltadas, cada una de un color, con las reservas de cada sesión, y las que usted reservó como estudiante (borde punteado). Muestra las horas de tutoría por semana y los días libres; con las flechas pasa de semana y al pulsar un bloque va a esa tutoría. En el celular se ve como lista por día.
-5. **Agenda de tutorías:** vea quién reservó cada sesión en **Próximas**. Cuando la sesión termine, en **Por completar** pulse **Completar sesión**; así el estudiante puede calificarla. También puede cancelar una reserva.
+5. **Agenda de tutorías:** vea quién reservó cada sesión en **Próximas**. Cuando la sesión termine, en **Por completar** pulse **Completar sesión**; así el estudiante puede calificarla. Si no lo hace, la sesión **se completa sola 24 horas después** de terminar; si alguien no asistió, cancele su reserva antes de ese plazo. También puede cancelar una reserva.
 
 Si desactiva un horario o una tutoría, se cancelan las reservas de las sesiones que todavía no han empezado.
 

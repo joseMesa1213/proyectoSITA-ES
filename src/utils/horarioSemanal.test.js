@@ -1,5 +1,6 @@
 import { describe, expect, test } from "vitest";
 import { aMinutos, armarSemana, lunesDe, sumarDias } from "./horarioSemanal.js";
+import { textoAutocompletado } from "./reservas.js";
 
 const horario = (id, dia, hora_inicio, hora_fin, cambios = {}) => ({
   id, dia, hora_inicio, hora_fin, id_estado: 1, recurso: { nombre: "Aula 19-101" }, ...cambios,
@@ -86,5 +87,11 @@ describe("armarSemana", () => {
     const tutorias = [tutoria(1, [horario(1, "Lunes", "15:00", "16:00"), horario(2, "Lunes", "08:00", "09:00")])];
     const { dias } = armarSemana({ tutorias, lunes: LUNES });
     expect(dias[0].bloques.map((b) => b.hora_inicio)).toEqual(["08:00", "15:00"]);
+  });
+});
+
+describe("textoAutocompletado", () => {
+  test("un día después de la sesión, a la hora en que terminó", () => {
+    expect(textoAutocompletado("2026-11-20", "19:30")).toBe("Sáb, 21 de nov a las 19:30");
   });
 });
