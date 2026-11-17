@@ -99,7 +99,9 @@ las acciones (reservar, cancelar, calificar) se hacen en sus pantallas, así tod
 | `asistente/temas.js` | Diccionario tema → materia ("derivadas" → Cálculo Diferencial, "sql" → Bases de Datos, "mate" → materias de matemáticas). **Para que entienda un tema nuevo, agregar la palabra aquí.** |
 | `asistente/intenciones.js` | Preguntas frecuentes por rol (frases de ejemplo y respuesta). **Para agregar una pregunta, agregar un objeto aquí.** |
 | `asistente/motor.js` | Arma la respuesta: consulta tutorías y reservas, aplica los filtros y crea los enlaces al catálogo. |
-| `asistente/clasificador.test.js` | Pruebas: tabla de frases → resultado esperado por rol. |
+| `asistente/clasificador.test.js` | Pruebas: tabla de frases → resultado esperado por rol (incluye frases parecidas que no deben cambiar de destino). |
+| `asistente/motor.test.js` | Pruebas de las respuestas que consultan la API (con la API simulada). |
+| `asistente/enlaces.test.js` | Revisa que **cada enlace del asistente lleve a una ruta que existe** (según `utils/titulos.js`). |
 | `components/Asistente.jsx` | La ventana del chat. |
 
 Cómo decide (`clasificar()`):
@@ -111,6 +113,11 @@ Cómo decide (`clasificar()`):
 4. Gana lo que comparta más palabras. Con filtros, la búsqueda gana salvo que se pida una definición ("¿qué es híbrida?").
 
 Los enlaces del asistente abren el catálogo con los mismos filtros: `/tutorias?id_materia=&nivel=&modalidad=&dia=`.
+Si la búsqueda no encuentra tutorías, ofrece **«Pedir una tutoría»** con la materia ya elegida (`/solicitudes?id_materia=`).
+
+**Cada funcionalidad nueva → revisar el asistente**: corregir las respuestas que la mencionen, agregar su pregunta en
+`intenciones.js` con casos en `clasificador.test.js` (también frases parecidas a otras intenciones) y correr `npm test`.
+Si se agrega una pantalla, registrarla en `utils/titulos.js`: `enlaces.test.js` falla si el asistente enlaza a una ruta que no existe.
 
 ### Pruebas
 

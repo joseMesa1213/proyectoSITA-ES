@@ -95,6 +95,10 @@ El botón flotante de la esquina abre un chat que responde preguntas frecuentes 
 
 - «cálculo virtual el martes» o «derivadas» → muestra tutorías y abre el catálogo con esos filtros.
 - «mis reservas», «qué tengo por calificar», «cómo cancelo» o «quiero ser tutor».
+- «pedir una tutoría», «enlace de Jitsi», «agregar al calendario» o «notificaciones».
+- Tutor: «solicitudes de estudiantes» o «mi horario». Administrador: «¿dónde faltan tutores?».
+
+Si busca una materia y no hay tutorías, le ofrece **pedirla** con la materia ya elegida.
 
 El asistente solo orienta y le da enlaces: las reservas y demás acciones se hacen en la pantalla correspondiente.
 
