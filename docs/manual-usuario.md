@@ -34,7 +34,7 @@ Sin iniciar sesión también puede ver el catálogo y el detalle de las tutoría
 1. En el detalle de la tutoría pulse **Reservar**.
 2. **Paso 1:** elija un horario semanal. **Paso 2:** elija la fecha de la sesión entre las próximas disponibles.
 3. Revise el resumen y pulse **Confirmar reserva**. Verá un aviso con la reserva confirmada.
-4. En **Mi agenda** encuentra sus sesiones en las pestañas **Próximas**, **Completadas** y **Canceladas**, con el salón o el enlace de cada una.
+4. En **Mi agenda** encuentra sus sesiones en las pestañas **Próximas**, **Completadas** y **Canceladas**, con el salón o el enlace de cada una. Con **Agregar al calendario** la lleva a Google Calendar o descarga un archivo `.ics` (Outlook, Apple), con un recordatorio 30 minutos antes.
 
 **Cancelar:** en *Mi agenda*, pulse **Cancelar reserva** en una sesión próxima y confirme.
 

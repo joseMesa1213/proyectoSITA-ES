@@ -8,6 +8,8 @@ import Alerta from "../../components/Alerta.jsx";
 import EstadoVacio from "../../components/EstadoVacio.jsx";
 import { EsqueletoLista } from "../../components/Esqueletos.jsx";
 import { InsigniaEstado } from "../../components/Insignias.jsx";
+import BotonCalendario from "../../components/BotonCalendario.jsx";
+import { lugarDeRecurso } from "../../utils/calendario.js";
 import { ESTADO } from "../../utils/constantes.js";
 import { formatearFecha } from "../../utils/fechas.js";
 import { sesionTermino, textoAutocompletado } from "../../utils/reservas.js";
@@ -150,6 +152,7 @@ export default function AgendaTutorias() {
 function TarjetaSesion({ sesion, cupo, ocupados, onActualizada }) {
   const { fecha, horario, tutoria, reservas } = sesion;
   const termino = sesionTermino(fecha, horario.hora_fin);
+  const activas = reservas.filter((r) => r.id_estado === ESTADO.ACTIVO);
 
   return (
     <li className="tarjeta space-y-3">
@@ -162,11 +165,25 @@ function TarjetaSesion({ sesion, cupo, ocupados, onActualizada }) {
             <p className="text-xs text-texto-suave">Se completa sola el {textoAutocompletado(fecha, horario.hora_fin).toLowerCase()}.</p>
           )}
         </div>
-        {cupo !== undefined && (
-          <span className={`insignia ${ocupados >= cupo ? "bg-acento text-sobre-acento" : "bg-texto/5 text-texto"}`}>
-            {ocupados}/{cupo} cupos ocupados
-          </span>
-        )}
+        <div className="flex flex-wrap items-center gap-2">
+          {cupo !== undefined && (
+            <span className={`insignia ${ocupados >= cupo ? "bg-acento text-sobre-acento" : "bg-texto/5 text-texto"}`}>
+              {ocupados}/{cupo} cupos ocupados
+            </span>
+          )}
+          {!termino && activas.length > 0 && (
+            <BotonCalendario evento={{
+              uid: `sesion-${horario.id}-${fecha}@sita-es`,
+              titulo: `Dictar: ${tutoria.titulo}`,
+              fecha,
+              hora_inicio: horario.hora_inicio,
+              hora_fin: horario.hora_fin,
+              lugar: lugarDeRecurso(activas[0].recurso),
+              detalles: `${tutoria.materia.nombre}\nEstudiantes: ${activas.map((r) => `${r.estudiante.nombre} ${r.estudiante.apellido}`).join(", ")}`,
+              url: `${window.location.origin}/tutor/reservas`,
+            }} />
+          )}
+        </div>
       </div>
 
       <ul className="divide-y divide-borde border-t border-borde">

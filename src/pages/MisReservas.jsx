@@ -149,9 +149,23 @@ function TarjetaReserva({ reserva, onActualizada }) {
 
       {/* Acciones según el estado */}
       {reserva.id_estado === ESTADO.ACTIVO && (
-        <button type="button" className="btn-peligro" onClick={cancelar} aria-busy={procesando} disabled={procesando}>
-          {procesando ? "Cancelando..." : "Cancelar reserva"}
-        </button>
+        <div className="flex flex-wrap gap-2">
+          {!sesionTermino(reserva.fecha_sesion, horario.hora_fin) && (
+            <BotonCalendario className="btn-secundario" evento={{
+              uid: `reserva-${reserva.id}@sita-es`,
+              titulo: `Tutoría: ${tutoria.titulo}`,
+              fecha: reserva.fecha_sesion,
+              hora_inicio: horario.hora_inicio,
+              hora_fin: horario.hora_fin,
+              lugar: lugarDeRecurso(recurso),
+              detalles: `Con ${tutoria.tutor.nombre} ${tutoria.tutor.apellido} · ${tutoria.materia.nombre}\nSu agenda en SITA-ES: ${window.location.origin}/mis-reservas`,
+              url: `${window.location.origin}/mis-reservas`,
+            }} />
+          )}
+          <button type="button" className="btn-peligro" onClick={cancelar} aria-busy={procesando} disabled={procesando}>
+            {procesando ? "Cancelando..." : "Cancelar reserva"}
+          </button>
+        </div>
       )}
 
       {reserva.id_estado === ESTADO.COMPLETADO &&

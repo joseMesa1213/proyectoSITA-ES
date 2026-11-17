@@ -1,12 +1,15 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "react-router";
 import { listarMisTutorias } from "../../api/tutorias.js";
 import { listarMisReservas, listarReservasRecibidas } from "../../api/reservas.js";
 import Alerta from "../../components/Alerta.jsx";
 import EstadoVacio from "../../components/EstadoVacio.jsx";
+import FormularioHorario from "../../components/FormularioHorario.jsx";
 import { EsqueletoLista } from "../../components/Esqueletos.jsx";
+import { ESTADO } from "../../utils/constantes.js";
 import { formatearFechaCorta, horaActual, hoy } from "../../utils/fechas.js";
 import { aMinutos, armarSemana, lunesDe, sumarDias } from "../../utils/horarioSemanal.js";
+import { archivoIcs, descargarIcs, eventosDelHorario } from "../../utils/calendario.js";
 
 // Alto de una hora en la grilla (px)
 const ALTO_HORA = 56;
@@ -19,6 +22,12 @@ const estiloColor = (n) => ({
 
 const textoReservas = (b) => `${b.reservas}/${b.cupo} ${b.reservas === 1 ? "reserva" : "reservas"}`;
 
+// Franja que siempre se muestra (para poder elegir huecos aunque no haya nada a esas horas)
+const FRANJA_MINIMA = { inicio: 7, fin: 21 };
+
+// 870 → "14:30"
+const aHora = (minutos) => `${String(Math.floor(minutos / 60)).padStart(2, "0")}:${String(minutos % 60).padStart(2, "0")}`;
+
 // Ya pasó: un día anterior, o hoy después de la hora de fin
 const yaPaso = (fecha, horaFin, ahora) => fecha < hoy() || (fecha === hoy() && horaFin <= ahora);
 
@@ -27,18 +36,26 @@ const yaPaso = (fecha, horaFin, ahora) => fecha < hoy() || (fecha === hoy() && h
  * - las tutorías que dicta (horarios activos), cada una de un color, con las reservas de esa fecha;
  * - las tutorías que reservó como estudiante (borde punteado).
  * Se navega por semanas. En celular se muestra como lista por día.
+ * Clic en un hueco de la grilla (o "+ Agregar horario"): diálogo para crear un horario con el día
+ * y la hora ya puestos; las validaciones (cruces, salón, capacidad) son las del backend.
  */
 export default function MiHorario() {
   const [datos, setDatos] = useState(null);
   const [error, setError] = useState(null);
   const [lunes, setLunes] = useState(() => lunesDe(hoy()));
   const [ahora, setAhora] = useState(horaActual);
+  const [hueco, setHueco] = useState(null); // { dia, hora_inicio, hora_fin } del diálogo abierto
 
+  const cargar = useCallback(
+    () =>
+      Promise.all([listarMisTutorias(), listarReservasRecibidas(), listarMisReservas()])
+        .then(([tutorias, recibidas, mias]) => setDatos({ tutorias, recibidas, mias }))
+        .catch(setError),
+    []
+  );
   useEffect(() => {
-    Promise.all([listarMisTutorias(), listarReservasRecibidas(), listarMisReservas()])
-      .then(([tutorias, recibidas, mias]) => setDatos({ tutorias, recibidas, mias }))
-      .catch(setError);
-  }, []);
+    cargar();
+  }, [cargar]);
 
   // La línea de "ahora" avanza cada minuto
   useEffect(() => {
@@ -47,6 +64,8 @@ export default function MiHorario() {
   }, []);
 
   const estaSemana = lunesDe(hoy());
+  const tutoriasActivas = datos?.tutorias.filter((t) => t.id_estado === ESTADO.ACTIVO) ?? [];
+  const puedeAgregar = tutoriasActivas.length > 0;
 
   return (
     <div className="space-y-6">
@@ -55,14 +74,21 @@ export default function MiHorario() {
           <h1 className="titulo-pagina">Mi horario</h1>
           <p className="mt-1 text-texto-suave">Las tutorías que dicta y las que reservó, semana a semana.</p>
         </div>
-        <nav aria-label="Cambiar de semana" className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          {puedeAgregar && (
+            <button type="button" className="btn-primario" onClick={() => setHueco({ dia: "", hora_inicio: "", hora_fin: "" })}>
+              + Agregar horario
+            </button>
+          )}
+          <nav aria-label="Cambiar de semana" className="flex items-center gap-2">
           <button type="button" className="btn-secundario px-3" onClick={() => setLunes(sumarDias(lunes, -7))}
             aria-label="Semana anterior">←</button>
           <button type="button" className="btn-secundario" disabled={lunes === estaSemana}
             onClick={() => setLunes(estaSemana)}>Esta semana</button>
           <button type="button" className="btn-secundario px-3" onClick={() => setLunes(sumarDias(lunes, 7))}
             aria-label="Semana siguiente">→</button>
-        </nav>
+          </nav>
+        </div>
       </div>
 
       <Alerta error={error} />
@@ -70,13 +96,16 @@ export default function MiHorario() {
       {!datos ? (
         !error && <EsqueletoLista texto="Cargando su horario..." />
       ) : (
-        <Semana {...armarSemana({ ...datos, lunes })} lunes={lunes} ahora={ahora} />
+        <>
+          <Semana {...armarSemana({ ...datos, lunes })} lunes={lunes} ahora={ahora} />
+          <ExportarHorario tutorias={datos.tutorias} />
+        </>
       )}
     </div>
   );
 }
 
-function Semana({ dias, rango, resumen, leyenda, lunes, ahora }) {
+function Semana({ dias, rango, resumen, leyenda, lunes, ahora, onElegirHueco }) {
   // "Lun, 16 de nov" → "16 de nov"
   const sinDia = (fecha) => formatearFechaCorta(fecha).split(", ")[1];
   return (
@@ -113,7 +142,14 @@ function Semana({ dias, rango, resumen, leyenda, lunes, ahora }) {
         </ul>
       )}
 
-      <Grilla dias={dias} rango={rango} ahora={ahora} />
+      {onElegirHueco && (
+        <p className="hidden text-sm text-texto-suave sm:block">Haga clic en un espacio libre de la grilla para agregar un horario ese día y a esa hora.</p>
+      )}
+      <Grilla dias={dias} ahora={ahora} onElegirHueco={onElegirHueco} rango={
+        onElegirHueco
+          ? { inicio: Math.min(rango.inicio, FRANJA_MINIMA.inicio), fin: Math.max(rango.fin, FRANJA_MINIMA.fin) }
+          : rango
+      } />
       <ListaPorDia dias={dias} ahora={ahora} />
     </>
   );
@@ -129,7 +165,7 @@ function Dato({ titulo, valor }) {
 }
 
 // Grilla de escritorio: una columna por día, una fila por hora; los bloques se ubican por su hora
-function Grilla({ dias, rango, ahora }) {
+function Grilla({ dias, rango, ahora, onElegirHueco }) {
   const horas = Array.from({ length: rango.fin - rango.inicio }, (_, i) => rango.inicio + i);
   const alto = horas.length * ALTO_HORA;
   const posicion = (inicio, fin) => ({
@@ -137,6 +173,15 @@ function Grilla({ dias, rango, ahora }) {
     height: Math.max(((aMinutos(fin) - aMinutos(inicio)) / 60) * ALTO_HORA, 24),
   });
   const minutoAhora = aMinutos(ahora);
+
+  // Clic en el fondo de una columna (no en un bloque): hora redondeada a la media hora anterior,
+  // con una hora de duración (sin pasar de la medianoche)
+  const elegir = (dia) => (evento) => {
+    if (!onElegirHueco || evento.target !== evento.currentTarget) return;
+    const y = evento.clientY - evento.currentTarget.getBoundingClientRect().top;
+    const inicio = rango.inicio * 60 + Math.floor((y / ALTO_HORA) * 2) * 30;
+    onElegirHueco({ dia, hora_inicio: aHora(inicio), hora_fin: aHora(Math.min(inicio + 60, 23 * 60 + 59)) });
+  };
   const ahoraVisible = minutoAhora >= rango.inicio * 60 && minutoAhora <= rango.fin * 60;
 
   return (
@@ -167,7 +212,9 @@ function Grilla({ dias, rango, ahora }) {
         {dias.map((d) => {
           const esHoy = d.fecha === hoy();
           return (
-            <div key={d.fecha} className={`relative border-l border-borde ${esHoy ? "bg-acento/5" : ""}`} style={{
+            <div key={d.fecha} onClick={elegir(d.dia)}
+              title={onElegirHueco ? `Agregar un horario el ${d.dia.toLowerCase()}` : undefined}
+              className={`relative border-l border-borde ${esHoy ? "bg-acento/5" : ""} ${onElegirHueco ? "cursor-copy hover:bg-texto/[0.03]" : ""}`} style={{
               height: alto,
               // Una línea por hora
               backgroundImage: `repeating-linear-gradient(to bottom, transparent 0, transparent ${ALTO_HORA - 1}px, var(--borde) ${ALTO_HORA - 1}px, var(--borde) ${ALTO_HORA}px)`,
@@ -259,6 +306,23 @@ function ListaPorDia({ dias, ahora }) {
           )}
         </div>
       ))}
+    </section>
+  );
+}
+
+// Exporta el horario semanal a un .ics (ver eventosDelHorario en utils/calendario.js)
+function ExportarHorario({ tutorias }) {
+  const eventos = eventosDelHorario(tutorias, lunesDe(hoy()));
+  if (eventos.length === 0) return null;
+  return (
+    <section className="tarjeta flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <p className="text-sm text-texto-suave">
+        Lleve su horario a Google Calendar, Outlook o Apple: cada bloque se repite cada semana y le avisa 30 minutos antes.
+      </p>
+      <button type="button" className="btn-secundario shrink-0"
+        onClick={() => descargarIcs("mi-horario-sita-es.ics", archivoIcs(eventos))}>
+        Exportar horario (.ics)
+      </button>
     </section>
   );
 }
