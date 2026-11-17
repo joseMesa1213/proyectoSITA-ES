@@ -4,6 +4,7 @@ import { obtenerTutoria } from "../api/tutorias.js";
 import { listarValoraciones } from "../api/valoraciones.js";
 import { useAuth } from "../context/AuthContext.jsx";
 import Alerta from "../components/Alerta.jsx";
+import BotonCompartir from "../components/BotonCompartir.jsx";
 import Cargando from "../components/Cargando.jsx";
 import Estrellas from "../components/Estrellas.jsx";
 import { InsigniaModalidad, InsigniaNivel } from "../components/Insignias.jsx";
@@ -47,10 +48,13 @@ export default function DetalleTutoria() {
       <div className="grid gap-6 lg:grid-cols-[2fr_1fr]">
         {/* Información principal */}
         <section className="tarjeta space-y-4 p-6">
-          <div>
-            <p className="text-xs font-semibold tracking-wide text-texto-suave uppercase">{materia.nombre} · {materia.codigo}</p>
-            <h1 className="mt-1 titulo-pagina">{titulo}</h1>
-            <p className="mt-1 text-texto-suave">Tutor: {tutor.nombre} {tutor.apellido}</p>
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <p className="text-xs font-semibold tracking-wide text-texto-suave uppercase">{materia.nombre} · {materia.codigo}</p>
+              <h1 className="mt-1 titulo-pagina">{titulo}</h1>
+              <p className="mt-1 text-texto-suave">Tutor: {tutor.nombre} {tutor.apellido}</p>
+            </div>
+            {tutoria.id_estado === ESTADO.ACTIVO && <BotonCompartir tutoria={tutoria} />}
           </div>
           <div className="flex flex-wrap gap-2">
             <InsigniaNivel nivel={nivel} />
