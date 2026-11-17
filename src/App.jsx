@@ -3,7 +3,6 @@ import Layout from "./components/Layout.jsx";
 import RutaProtegida from "./components/RutaProtegida.jsx";
 import SoloInvitados from "./components/SoloInvitados.jsx";
 import Login from "./pages/Login.jsx";
-import Registro from "./pages/Registro.jsx";
 import CompletarRegistroGoogle from "./pages/CompletarRegistroGoogle.jsx";
 import Catalogo from "./pages/Catalogo.jsx";
 import DetalleTutoria from "./pages/DetalleTutoria.jsx";
@@ -35,7 +34,8 @@ export default function App() {
         {/* Solo sin sesión */}
         <Route element={<SoloInvitados />}>
           <Route path="login" element={<Login />} />
-          <Route path="registro" element={<Registro />} />
+          {/* El registro es con Google: la página de formulario ya no existe (enlaces viejos van al login) */}
+          <Route path="registro" element={<Navigate to="/login" replace />} />
           <Route path="registro/google" element={<CompletarRegistroGoogle />} />
         </Route>
 

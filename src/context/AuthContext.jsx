@@ -3,7 +3,7 @@ import * as authApi from "../api/auth.js";
 import { borrarToken, configurarSesionExpirada, guardarToken, obtenerToken } from "../api/cliente.js";
 
 // Contexto de autenticación: cualquier componente puede saber quién está conectado
-// con useAuth() y llamar a login, registro o logout.
+// con useAuth() y entrar (con Google; con contraseña solo en desarrollo), registrarse con Google o salir.
 
 const CLAVE_USUARIO = "sita_usuario";
 const AuthContext = createContext(null);
@@ -82,12 +82,6 @@ export function AuthProvider({ children }) {
     [guardarSesion]
   );
 
-  // Devuelve { usuario, solicitud_tutor_pendiente } para avisar si quedó una solicitud de tutor en revisión
-  const registro = useCallback(async (datos) => {
-    const respuesta = await authApi.registrar(datos);
-    return { usuario: guardarSesion(respuesta), solicitud_tutor_pendiente: respuesta.solicitud_tutor_pendiente };
-  }, [guardarSesion]);
-
   // Con Google: si la persona ya tiene cuenta se guarda la sesión y devuelve { usuario }.
   // Si es nueva, todavía no hay sesión: devuelve { registro_pendiente, token_registro, perfil }.
   const loginConGoogle = useCallback(
@@ -99,14 +93,15 @@ export function AuthProvider({ children }) {
     [guardarSesion]
   );
 
+  // Devuelve { usuario, solicitud_tutor_pendiente } para avisar si quedó una solicitud de tutor en revisión
   const registroConGoogle = useCallback(async (datos) => {
     const respuesta = await authApi.registrarConGoogle(datos);
     return { usuario: guardarSesion(respuesta), solicitud_tutor_pendiente: respuesta.solicitud_tutor_pendiente };
   }, [guardarSesion]);
 
   const valor = useMemo(
-    () => ({ usuario, verificando, avisoSesion, login, registro, loginConGoogle, registroConGoogle, refrescarPerfil, logout }),
-    [usuario, verificando, avisoSesion, login, registro, loginConGoogle, registroConGoogle, refrescarPerfil, logout]
+    () => ({ usuario, verificando, avisoSesion, login, loginConGoogle, registroConGoogle, refrescarPerfil, logout }),
+    [usuario, verificando, avisoSesion, login, loginConGoogle, registroConGoogle, refrescarPerfil, logout]
   );
 
   return <AuthContext.Provider value={valor}>{children}</AuthContext.Provider>;

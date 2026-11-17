@@ -73,14 +73,10 @@ export default function BarraNavegacion() {
       </button>
     </>
   ) : (
-    <>
-      <NavLink to="/login" className={claseEnlace} onClick={cerrarMenu}>
-        Iniciar sesión
-      </NavLink>
-      <Link to="/registro" onClick={cerrarMenu} className="btn bg-acento text-sobre-acento hover:bg-acento/90">
-        Registrarse
-      </Link>
-    </>
+    // Un solo botón: se entra con Google y, si es la primera vez, ahí mismo se completa el registro
+    <Link to="/login" onClick={cerrarMenu} className="btn bg-acento text-sobre-acento hover:bg-acento/90">
+      Iniciar sesión
+    </Link>
   );
 
   return (
@@ -95,7 +91,7 @@ export default function BarraNavegacion() {
         <nav className="hidden flex-1 items-center gap-1 lg:flex">{navegacion}</nav>
 
         <div className="flex items-center gap-2">
-          {/* Modo claro/oscuro: siempre visible, también en celular y sin sesión (login y registro) */}
+          {/* Modo claro/oscuro: siempre visible, también en celular y sin sesión (también en el login) */}
           <BotonTema />
           <div className="hidden items-center gap-2 lg:flex">{cuenta}</div>
 

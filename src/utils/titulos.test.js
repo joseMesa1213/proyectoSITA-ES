@@ -6,7 +6,6 @@ describe("título de la pestaña según la ruta", () => {
     ["/tutorias", "Tutorías disponibles"],
     ["/tutorias/7", "Detalle de la tutoría"],
     ["/tutorias/7/reservar", "Reservar"],
-    ["/registro", "Crear cuenta"],
     ["/registro/google", "Completa tu registro"],
     ["/mis-reservas", "Mi agenda"],
     ["/tutor/tutorias", "Mis tutorías"],

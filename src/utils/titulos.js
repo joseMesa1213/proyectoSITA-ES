@@ -13,7 +13,6 @@ const TITULOS = [
   ["/tutorias/:id", "Detalle de la tutoría"],
   ["/login", "Iniciar sesión"],
   ["/registro/google", "Completa tu registro"],
-  ["/registro", "Crear cuenta"],
   ["/perfil", "Mi perfil"],
   ["/mis-reservas", "Mi agenda"],
   ["/tutor/materias", "Mis materias"],

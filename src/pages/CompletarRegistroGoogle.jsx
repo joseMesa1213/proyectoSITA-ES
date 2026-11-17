@@ -22,7 +22,7 @@ export default function CompletarRegistroGoogle() {
         <div className="tarjeta space-y-4 p-8">
           <h1 className="titulo-pagina">Completa tu registro</h1>
           <Alerta>Para completar el registro, primero continúe con su cuenta de Google.</Alerta>
-          <Link to="/registro" className="btn-primario w-full">Ir a crear cuenta</Link>
+          <Link to="/login" className="btn-primario w-full">Ir a iniciar sesión</Link>
         </div>
       </div>
     );

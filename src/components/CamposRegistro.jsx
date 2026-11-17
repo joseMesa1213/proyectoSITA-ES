@@ -1,4 +1,4 @@
-// Piezas del formulario de registro que comparten Registro y CompletarRegistroGoogle.
+// Piezas del formulario de "Completa tu registro" (CompletarRegistroGoogle): el registro es solo con Google.
 // El rol NO se elige: todos entran como estudiantes. Quien quiere ser tutor marca la casilla y queda
 // una solicitud pendiente que revisa un administrador (mientras tanto, usa todo lo de estudiante).
 
