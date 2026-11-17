@@ -30,8 +30,8 @@ function cargarScriptGoogle() {
 
 /**
  * onError(error | null): la página muestra el error con su <Alerta> (null = limpiar).
- * texto: el texto que Google pone en su botón ("continue_with" = "Continuar con Google").
- *        Se usa el mismo en Login y Registro: "signup_with" Google lo traduce como "Acceder con Google".
+ * texto: el texto que Google pone en su botón ("continue_with" = "Continuar con Google"). Sirve para entrar y,
+ *        la primera vez, para registrarse ("signup_with" Google lo traduce como "Acceder con Google").
  */
 export default function ContinuarConGoogle({ onError, texto = "continue_with" }) {
   const { loginConGoogle } = useAuth();
@@ -100,18 +100,6 @@ export default function ContinuarConGoogle({ onError, texto = "continue_with" })
       {procesando && (
         <p className="mt-2 text-center text-sm text-texto-suave" role="status">Verificando su cuenta de Google...</p>
       )}
-    </div>
-  );
-}
-
-// Línea "o" entre el formulario y el botón de Google (que va debajo). Solo aparece si el botón está activo.
-export function SeparadorGoogle({ texto = "o" }) {
-  if (!CLIENT_ID) return null;
-  return (
-    <div className="flex items-center gap-3 text-xs text-texto-suave" aria-hidden="true">
-      <span className="h-px flex-1 bg-texto/15" />
-      {texto}
-      <span className="h-px flex-1 bg-texto/15" />
     </div>
   );
 }
