@@ -32,13 +32,16 @@
   --peligro: #b42318;
   --sombra-tarjeta: 0 1px 2px rgb(16 36 29 / 0.06);
   --sombra-flotante: 0 10px 28px rgb(16 36 29 / 0.16);
-  /* Colores para distinguir tutorías en la grilla "Mi horario" (bordes y fondos tenues; el texto sigue siendo --texto) */
-  --serie-1: #2a7f8f;
-  --serie-2: #d9822b;
-  --serie-3: #7a5ea8;
-  --serie-4: #3b6fb6;
-  --serie-5: #2e7d57;
-  --serie-6: #b5456b;
+  /* Colores de series: tutorías en "Mi horario" y gráficos de Estadísticas (--serie-1 en los de una sola serie).
+     Paleta categórica validada (orden fijo, nunca ciclado): separación con daltonismo y con visión normal en
+     ambos modos. En claro, 3, 4 y 5 quedan bajo 3:1 contra el fondo: por eso cada bloque lleva su texto visible.
+     El texto nunca usa estos colores: va en --texto / --texto-suave. */
+  --serie-1: #2a78d6;
+  --serie-2: #eb6834;
+  --serie-3: #1baf7a;
+  --serie-4: #eda100;
+  --serie-5: #e87ba4;
+  --serie-6: #008300;
 }
 
 /* Modo oscuro: la misma paleta en versión oscura (verde muy oscuro, no negro puro).
@@ -65,12 +68,12 @@
   --peligro: #f07a6a;
   --sombra-tarjeta: 0 1px 2px rgb(0 0 0 / 0.3);
   --sombra-flotante: 0 12px 32px rgb(0 0 0 / 0.5);
-  --serie-1: #5fb8c6;
-  --serie-2: #e3964a;
-  --serie-3: #a98fd6;
-  --serie-4: #74a2e0;
-  --serie-5: #62b98c;
-  --serie-6: #e07a9d;
+  --serie-1: #3987e5;
+  --serie-2: #d95926;
+  --serie-3: #199e70;
+  --serie-4: #c98500;
+  --serie-5: #d55181;
+  --serie-6: #0ca30c;
 }
 
 /* `inline`: las clases usan la variable directamente (bg-fondo → var(--fondo)), así se pueden
