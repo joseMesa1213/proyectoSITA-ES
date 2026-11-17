@@ -134,6 +134,14 @@ const CASOS = {
     ["estudiante", "olvide mi contrasena", { intencion: "contrasena" }],
     ["tutor", "como cambio mi contraseña", { intencion: "contrasena" }],
     ["admin", "cambiar la clave", { intencion: "contrasena" }],
+    ["invitado", "no puedo entrar", { intencion: "contrasena" }],
+  ],
+
+  "5b. entrar o registrarse (solo con Google @udea.edu.co)": [
+    ["invitado", "¿cómo entro?", { intencion: "registro" }],
+    ["invitado", "no tengo cuenta", { intencion: "registro" }],
+    ["invitado", "cómo me registro", { intencion: "registro" }],
+    ["invitado", "entrar con google", { intencion: "registro" }],
   ],
 
   "6. sin sesión: pedir que inicie sesión": [

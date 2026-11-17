@@ -62,18 +62,17 @@ export const INTENCIONES = [
   {
     id: "registro",
     icono: "📝",
-    etiqueta: "¿Cómo me registro?",
+    etiqueta: "¿Cómo entro o me registro?",
     roles: [INVITADO],
-    frases: ["como me registro", "crear cuenta", "registrarme", "no tengo cuenta", "como inicio sesion"],
+    frases: ["como me registro", "crear cuenta", "registrarme", "no tengo cuenta", "como inicio sesion",
+      "como entro", "como ingreso", "entrar con google", "iniciar sesion con google"],
+    // Solo se entra con Google @udea.edu.co: la primera vez, ahí mismo se completa el registro
     respuesta: {
       texto:
-        "Regístrese con su correo institucional (o con «Continuar con Google»). Todos entran como estudiantes " +
-        "y pueden reservar de inmediato. Si quiere ofrecer tutorías, marque «Quiero ser tutor». " +
-        "Si ya tiene cuenta, inicie sesión.",
-      enlaces: [
-        { a: "/registro", texto: "Registrarme" },
-        { a: "/login", texto: "Iniciar sesión" },
-      ],
+        "Se entra con su cuenta de Google @udea.edu.co: en «Iniciar sesión» elija «Continuar con Google». " +
+        "La primera vez completa sus datos (documento, programa y semestre) y queda como estudiante: puede " +
+        "reservar de inmediato. Si quiere ofrecer tutorías, marque «Quiero ser tutor».",
+      enlaces: [{ a: "/login", texto: "Iniciar sesión" }],
     },
   },
   {
@@ -87,13 +86,13 @@ export const INTENCIONES = [
       texto:
         (usuario
           ? "Pídalo desde «Mi perfil» → «Solicitar ser tutor» (puede contar qué materias domina). "
-          : "Al registrarse marque «Quiero ser tutor» (o pídalo después desde «Mi perfil»). ") +
+          : "Al completar su registro con Google marque «Quiero ser tutor» (o pídalo después desde «Mi perfil»). ") +
         "Un administrador revisa la solicitud; mientras tanto puede reservar como siempre. Cuando la aprueben:\n" +
         "1. En «Mis materias» asóciese a las materias que domina.\n" +
         "2. En «Mis tutorías» publique una tutoría con nivel, modalidad y cupo.\n" +
         "3. Agregue sus horarios semanales con el salón o enlace.\n" +
         "Seguirá siendo estudiante: una sola cuenta para reservar y para ofrecer tutorías.",
-      enlaces: usuario ? [{ a: "/perfil", texto: "Ir a Mi perfil" }] : [{ a: "/registro", texto: "Registrarme" }],
+      enlaces: usuario ? [{ a: "/perfil", texto: "Ir a Mi perfil" }] : [{ a: "/login", texto: "Iniciar sesión" }],
     }),
   },
   {
@@ -133,13 +132,14 @@ export const INTENCIONES = [
     },
   },
   {
-    // Para todos los roles: el backend no tiene cambio ni recuperación de contraseña
+    // Para todos los roles: SITA-ES no tiene contraseña propia, se entra con la cuenta de Google @udea.edu.co
     id: "contrasena",
-    frases: ["olvide mi contrasena", "como cambio mi contrasena", "cambiar contrasena", "recuperar contrasena", "restablecer contrasena", "cambiar la clave", "olvide la clave"],
+    frases: ["olvide mi contrasena", "como cambio mi contrasena", "cambiar contrasena", "recuperar contrasena", "restablecer contrasena", "cambiar la clave", "olvide la clave",
+      "no puedo entrar", "no puedo ingresar"],
     responder: (usuario) => ({
       texto:
-        "Por ahora SITA-ES no permite cambiar ni recuperar la contraseña desde la plataforma. " +
-        "Escríbale a la coordinación desde su correo institucional para que se la restablezcan.",
+        "SITA-ES no usa contraseña propia: se entra con la cuenta de Google @udea.edu.co («Continuar con Google»). " +
+        "Si no puede entrar a su correo institucional, comuníquese con el soporte de la Universidad.",
       enlaces: usuario ? [] : [{ a: "/login", texto: "Iniciar sesión" }],
     }),
   },
@@ -402,7 +402,7 @@ export const INTENCIONES = [
           "Para hacer tutor a alguien, apruebe su solicitud en «Solicitudes»: el cambio aplica de inmediato, " +
           "sin que tenga que volver a iniciar sesión (los estudiantes la piden desde su perfil o al registrarse).\n" +
           "Los administradores no se crean desde la aplicación: el dueño de la base de datos usa el comando " +
-          "npm run crear-admin en el backend.",
+          "npm run crear-admin en el backend, con el correo @udea.edu.co de la persona (entra con Google).",
         enlaces: [{ a: "/admin/solicitudes", texto: "Ir a Solicitudes" }],
       };
     },
@@ -431,11 +431,10 @@ INTENCIONES.push({
   roles: [INVITADO],
   frases: INTENCIONES.filter((i) => REQUIEREN_SESION.includes(i.id)).flatMap((i) => i.frases),
   respuesta: {
-    texto: "Para ver o gestionar sus reservas necesita iniciar sesión. Si aún no tiene cuenta, regístrese gratis.",
-    enlaces: [
-      { a: "/login", texto: "Iniciar sesión" },
-      { a: "/registro", texto: "Registrarme" },
-    ],
+    texto:
+      "Para ver o gestionar sus reservas necesita iniciar sesión con su cuenta de Google @udea.edu.co. " +
+      "Si es la primera vez, ahí mismo completa su registro.",
+    enlaces: [{ a: "/login", texto: "Iniciar sesión" }],
   },
 });
 
