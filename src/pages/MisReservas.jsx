@@ -9,9 +9,7 @@ import Cargando from "../components/Cargando.jsx";
 import Estrellas from "../components/Estrellas.jsx";
 import EstadoVacio from "../components/EstadoVacio.jsx";
 import { InsigniaEstado } from "../components/Insignias.jsx";
-import BotonCalendario from "../components/BotonCalendario.jsx";
-import { lugarDeRecurso } from "../utils/calendario.js";
-import { sesionTermino } from "../utils/reservas.js";
+import { sesionTermino, textoAutocompletado } from "../utils/reservas.js";
 import { ESTADO } from "../utils/constantes.js";
 import { formatearFecha } from "../utils/fechas.js";
 
@@ -141,6 +139,13 @@ function TarjetaReserva({ reserva, onActualizada }) {
           )}
         </p>
       </div>
+
+      {reserva.id_estado === ESTADO.ACTIVO && sesionTermino(reserva.fecha_sesion, horario.hora_fin) && (
+        <p className="text-sm text-texto-suave">
+          La sesión ya terminó. Podrá valorarla cuando su tutor la marque como completada, o automáticamente
+          el {textoAutocompletado(reserva.fecha_sesion, horario.hora_fin).toLowerCase()}.
+        </p>
+      )}
 
       {/* Acciones según el estado */}
       {reserva.id_estado === ESTADO.ACTIVO && (
