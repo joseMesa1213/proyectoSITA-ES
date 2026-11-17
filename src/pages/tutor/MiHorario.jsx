@@ -7,6 +7,7 @@ import EstadoVacio from "../../components/EstadoVacio.jsx";
 import { EsqueletoLista } from "../../components/Esqueletos.jsx";
 import { formatearFechaCorta, horaActual, hoy } from "../../utils/fechas.js";
 import { aMinutos, armarSemana, lunesDe, sumarDias } from "../../utils/horarioSemanal.js";
+import { archivoIcs, descargarIcs, eventosDelHorario } from "../../utils/calendario.js";
 
 // Alto de una hora en la grilla (px)
 const ALTO_HORA = 56;
@@ -70,7 +71,10 @@ export default function MiHorario() {
       {!datos ? (
         !error && <EsqueletoLista texto="Cargando su horario..." />
       ) : (
-        <Semana {...armarSemana({ ...datos, lunes })} lunes={lunes} ahora={ahora} />
+        <>
+          <Semana {...armarSemana({ ...datos, lunes })} lunes={lunes} ahora={ahora} />
+          <ExportarHorario tutorias={datos.tutorias} />
+        </>
       )}
     </div>
   );
@@ -259,6 +263,23 @@ function ListaPorDia({ dias, ahora }) {
           )}
         </div>
       ))}
+    </section>
+  );
+}
+
+// Exporta el horario semanal a un .ics (ver eventosDelHorario en utils/calendario.js)
+function ExportarHorario({ tutorias }) {
+  const eventos = eventosDelHorario(tutorias, lunesDe(hoy()));
+  if (eventos.length === 0) return null;
+  return (
+    <section className="tarjeta flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <p className="text-sm text-texto-suave">
+        Lleve su horario a Google Calendar, Outlook o Apple: cada bloque se repite cada semana y le avisa 30 minutos antes.
+      </p>
+      <button type="button" className="btn-secundario shrink-0"
+        onClick={() => descargarIcs("mi-horario-sita-es.ics", archivoIcs(eventos))}>
+        Exportar horario (.ics)
+      </button>
     </section>
   );
 }
