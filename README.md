@@ -6,6 +6,7 @@ Frontend de SITA-ES (Sistema de Tutorías Académicas): mínimo producto viable 
 | Aplicación | https://proyectosita-es.onrender.com |
 | API (backend) | https://proyectosita-es-backend.onrender.com/api/salud |
 | Repositorio del backend | https://github.com/joseMesa1213/proyectoSITA-ES_backend |
+| Manual de usuario | [docs/manual-usuario.md](docs/manual-usuario.md) |
 
 Estado final, cuentas de prueba y pendientes: [documento de cierre](https://github.com/joseMesa1213/proyectoSITA-ES_backend/blob/main/docs/cierre.md).
 
