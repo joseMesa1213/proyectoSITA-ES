@@ -44,6 +44,10 @@ Si no puede reservar, la plataforma explica el motivo: no hay cupo, ya tiene otr
 
 ---
 
+### ¿No encuentra la tutoría que necesita?
+
+En el catálogo pulse **¿No la encuentra? Pida una tutoría** (o **Pedir tutoría** en el menú). Elija la materia, escriba el tema y, si quiere, qué necesita y cuándo puede. Los tutores de esa materia reciben un aviso; cuando uno la atiende, a usted le llega una notificación con el enlace a la tutoría para reservarla. Puede tener hasta **3 solicitudes abiertas**, retirarlas cuando quiera, y vencen solas a los **30 días** sin respuesta.
+
 ## 4. Ser tutor
 
 1. Si no lo pidió al registrarse, entre a **Mi perfil** y pulse **Solicitar ser tutor**.
@@ -69,7 +73,8 @@ Al pulsar un aviso se marca como leído y lo lleva a la pantalla correspondiente
 3. En la tutoría, **Editar y horarios → Agregar** un horario: día, hora de inicio y de fin, y el salón (presencial o híbrida). Las tutorías **virtuales** no eligen enlace: al publicarlas se crea su propia sala de **Jitsi Meet**, que aparece en esa misma pantalla y sirve para todos sus horarios. Entre unos minutos antes: quien abre la sala debe iniciar sesión (por ejemplo, con Google).
    La plataforma no deja crear el horario si se cruza con otro suyo, si el salón ya está ocupado o si su capacidad es menor que el cupo.
 4. **Mi horario:** grilla de la semana (lunes a domingo) con sus tutorías resaltadas, cada una de un color, con las reservas de cada sesión, y las que usted reservó como estudiante (borde punteado). Muestra las horas de tutoría por semana y los días libres; con las flechas pasa de semana y al pulsar un bloque va a esa tutoría. En el celular se ve como lista por día.
-5. **Agenda de tutorías:** vea quién reservó cada sesión en **Próximas**. Cuando la sesión termine, en **Por completar** pulse **Completar sesión**; así el estudiante puede calificarla. Si no lo hace, la sesión **se completa sola 24 horas después** de terminar; si alguien no asistió, cancele su reserva antes de ese plazo. También puede cancelar una reserva.
+5. **Solicitudes de estudiantes** (botón en **Mis tutorías**; también le llega un aviso por cada una): tutorías que piden en sus materias. Atiéndalas con **Publicar una tutoría nueva** (materia, tema y descripción quedan puestos) u **ofreciendo una de sus tutorías** de esa materia. El estudiante recibe un aviso con el enlace.
+6. **Agenda de tutorías:** vea quién reservó cada sesión en **Próximas**. Cuando la sesión termine, en **Por completar** pulse **Completar sesión**; así el estudiante puede calificarla. Si no lo hace, la sesión **se completa sola 24 horas después** de terminar; si alguien no asistió, cancele su reserva antes de ese plazo. También puede cancelar una reserva.
 
 Si desactiva un horario o una tutoría, se cancelan las reservas de las sesiones que todavía no han empezado.
 

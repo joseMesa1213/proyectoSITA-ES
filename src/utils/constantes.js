@@ -36,3 +36,18 @@ export const RECURSO_POR_MODALIDAD = Object.freeze({
 // Las tutorías Virtuales tienen su propia sala de Jitsi Meet, creada por el backend.
 // Cupo máximo que admite esa sala (CAPACIDAD_SALA_JITSI en el backend).
 export const CUPO_MAXIMO_VIRTUAL = 100;
+
+// Solicitudes de tutoría ("pedir una tutoría"): el backend reutiliza estados del catálogo
+export const ESTADO_SOLICITUD_TUTORIA = Object.freeze({
+  ABIERTA: ESTADO.PENDIENTE,
+  ATENDIDA: ESTADO.COMPLETADO,
+  RETIRADA: ESTADO.CANCELADO,
+  VENCIDA: ESTADO.INACTIVO,
+});
+export const NOMBRE_ESTADO_SOLICITUD_TUTORIA = Object.freeze({
+  [ESTADO.PENDIENTE]: "Abierta",
+  [ESTADO.COMPLETADO]: "Atendida",
+  [ESTADO.CANCELADO]: "Retirada",
+  [ESTADO.INACTIVO]: "Vencida",
+});
+export const MAXIMO_SOLICITUDES_ABIERTAS = 3; // igual que MAXIMO_ABIERTAS en el backend

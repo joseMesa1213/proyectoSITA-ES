@@ -3,6 +3,7 @@ import { Link } from "react-router";
 import { listarMisTutorias } from "../../api/tutorias.js";
 import { listarMisMaterias } from "../../api/materias.js";
 import { listarReservasRecibidas } from "../../api/reservas.js";
+import { listarSolicitudesParaMi } from "../../api/solicitudesTutoria.js";
 import Alerta from "../../components/Alerta.jsx";
 import { useAvisos } from "../../components/Avisos.jsx";
 import { EsqueletoTarjetas } from "../../components/Esqueletos.jsx";
@@ -16,8 +17,11 @@ export default function MisTutorias() {
   const avisos = useAvisos();
   const [datos, setDatos] = useState(null);
   const [error, setError] = useState(null);
+  const [solicitudesAbiertas, setSolicitudesAbiertas] = useState(0);
 
   useEffect(() => {
+    // Solicitudes de estudiantes en sus materias: solo para el contador del botón (si falla, no estorba)
+    listarSolicitudesParaMi().then((lista) => setSolicitudesAbiertas(lista.length)).catch(() => {});
     // Las reservas se piden para contar cuántas reservas próximas tiene cada tutoría
     Promise.all([listarMisTutorias(), listarMisMaterias(), listarReservasRecibidas()])
       .then(([tutorias, materias, reservas]) => setDatos({ tutorias, materias, reservas }))
@@ -46,7 +50,7 @@ export default function MisTutorias() {
 
   return (
     <div className="space-y-6">
-      <Encabezado puedePublicar={materias.length > 0} />
+      <Encabezado puedePublicar={materias.length > 0} solicitudes={solicitudesAbiertas} />
 
       <Alerta error={error} />
 
@@ -132,14 +136,25 @@ function PrimerosPasos({ tieneMaterias, tieneTutorias, tieneHorarios }) {
   );
 }
 
-function Encabezado({ puedePublicar = false }) {
+function Encabezado({ puedePublicar = false, solicitudes = 0 }) {
   return (
     <div className="flex flex-wrap items-end justify-between gap-4">
       <div>
         <h1 className="titulo-pagina">Mis tutorías</h1>
         <p className="mt-1 text-texto-suave">Publique tutorías y administre sus horarios.</p>
       </div>
-      {puedePublicar && <Link to="/tutor/tutorias/nueva" className="btn-primario">+ Nueva tutoría</Link>}
+      <div className="flex flex-wrap gap-2">
+        {/* Las solicitudes de estudiantes se llegan desde aquí y desde la campanita (no caben en el menú) */}
+        <Link to="/tutor/solicitudes" className="btn-secundario">
+          Solicitudes de estudiantes
+          {solicitudes > 0 && (
+            <span className="ml-2 rounded-full bg-acento px-2 py-0.5 text-xs font-bold text-sobre-acento">
+              {solicitudes}<span className="sr-only"> abiertas</span>
+            </span>
+          )}
+        </Link>
+        {puedePublicar && <Link to="/tutor/tutorias/nueva" className="btn-primario">+ Nueva tutoría</Link>}
+      </div>
     </div>
   );
 }
