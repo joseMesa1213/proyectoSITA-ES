@@ -2,6 +2,7 @@ import { useRef, useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router";
 import { useAuth } from "../context/AuthContext.jsx";
 import BotonTema from "./BotonTema.jsx";
+import Campanita from "./Campanita.jsx";
 import { useCierreExterno } from "../utils/useCierreExterno.js";
 import { NOMBRE_ROL, ROL } from "../utils/constantes.js";
 
@@ -94,6 +95,8 @@ export default function BarraNavegacion() {
         <div className="flex items-center gap-2">
           {/* Modo claro/oscuro: siempre visible, también en celular y sin sesión (también en el login) */}
           <BotonTema />
+          {/* Avisos: solo con sesión; visible también en celular (fuera del menú) */}
+          {usuario && <Campanita />}
           <div className="hidden items-center gap-2 lg:flex">{cuenta}</div>
 
           {/* Móvil: botón de menú */}
