@@ -2,12 +2,14 @@ import { useEffect, useRef } from "react";
 import { Outlet, useLocation } from "react-router";
 import Asistente from "./Asistente.jsx";
 import BarraNavegacion from "./BarraNavegacion.jsx";
+import LimiteDeError from "./LimiteDeError.jsx";
 import { tituloCompleto, tituloDeRuta } from "../utils/titulos.js";
 
 // Estructura común a todas las páginas: barra arriba, contenido al centro, pie abajo
 // y el asistente flotante en la esquina
 export default function Layout() {
   const contenido = useRef(null);
+  const { pathname } = useLocation();
   useCambioDePantalla(contenido);
 
   return (
@@ -23,7 +25,10 @@ export default function Layout() {
           tabIndex={-1}: recibe el foco por código al cambiar de pantalla, pero no al tabular */}
       <main id="contenido" ref={contenido} tabIndex={-1}
         className="mx-auto w-full max-w-6xl flex-1 px-4 pt-8 pb-24 outline-none">
-        <Outlet />
+        {/* Si la página falla, el aviso sale aquí y la barra sigue sirviendo; key: al cambiar de ruta se reinicia */}
+        <LimiteDeError key={pathname}>
+          <Outlet />
+        </LimiteDeError>
       </main>
       <footer className="border-t border-borde py-4 text-center text-xs text-texto-suave">
         SITA-ES · Proyecto Integrador I · Universidad de Antioquia

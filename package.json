@@ -6,7 +6,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "lint": "eslint .",
+    "build": "eslint . && vite build",
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest"
@@ -18,10 +19,13 @@
     "react-router": "^7.18.4"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@tailwindcss/vite": "^4.3.3",
     "@testing-library/dom": "^10.4.2",
     "@testing-library/react": "^16.3.3",
     "@vitejs/plugin-react": "^6.1.2",
+    "eslint": "^10.15.0",
+    "globals": "^17.14.0",
     "jsdom": "^31.0.1",
     "tailwindcss": "^4.3.3",
     "vite": "^8.3.4",

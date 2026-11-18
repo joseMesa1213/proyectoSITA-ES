@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router";
-import { useAvisoDeNavegacion, useAvisos } from "../components/Avisos.jsx";
+import { useAvisoDeNavegacion } from "../components/Avisos.jsx";
 import { useAuth } from "../context/AuthContext.jsx";
 import { obtenerMiSolicitud, solicitarSerTutor } from "../api/solicitudes.js";
 import Alerta from "../components/Alerta.jsx";
