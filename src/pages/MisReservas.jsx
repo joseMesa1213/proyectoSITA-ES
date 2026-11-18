@@ -9,6 +9,8 @@ import Cargando from "../components/Cargando.jsx";
 import Estrellas from "../components/Estrellas.jsx";
 import EstadoVacio from "../components/EstadoVacio.jsx";
 import { InsigniaEstado } from "../components/Insignias.jsx";
+import BotonCalendario from "../components/BotonCalendario.jsx";
+import { lugarDeRecurso } from "../utils/calendario.js";
 import { sesionTermino, textoAutocompletado } from "../utils/reservas.js";
 import { ESTADO } from "../utils/constantes.js";
 import { formatearFecha } from "../utils/fechas.js";
