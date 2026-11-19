@@ -59,12 +59,41 @@ describe("menú del administrador (superusuario)", () => {
     expect(screen.getByRole("button", { name: "Tutor" }).className).not.toContain("bg-barra-texto/10");
   });
 
-  test("el tutor sigue con sus enlaces sueltos, sin desplegables", () => {
+  test("el administrador también tiene «Pedir tutoría» suelto", () => {
+    usuario = { id: 1, nombre: "Ana", id_rol: ROL.ADMINISTRADOR };
+    montarBarra();
+    expect(within(screen.getAllByRole("navigation")[0]).getByRole("link", { name: "Pedir tutoría" })).toBeTruthy();
+  });
+});
+
+describe("menú del tutor", () => {
+  test("lo de estudiante va suelto (con «Pedir tutoría») y su panel en el desplegable «Tutor»", () => {
     usuario = { id: 2, nombre: "Luis", id_rol: ROL.TUTOR };
     montarBarra();
     const escritorio = screen.getAllByRole("navigation")[0];
-    expect(within(escritorio).getByRole("link", { name: "Mis tutorías" })).toBeTruthy();
-    expect(within(escritorio).queryByRole("button")).toBeNull();
+    for (const nombre of ["Tutorías", "Mi agenda", "Pedir tutoría"]) {
+      expect(within(escritorio).getByRole("link", { name: nombre })).toBeTruthy();
+    }
+    expect(within(escritorio).queryByRole("link", { name: "Mis tutorías" })).toBeNull();
+    expect(within(escritorio).queryByRole("button", { name: "Administración" })).toBeNull();
+    fireEvent.click(within(escritorio).getByRole("button", { name: "Tutor" }));
+    for (const nombre of ["Mis tutorías", "Mi horario", "Agenda de tutorías", "Mis materias"]) {
+      expect(within(escritorio).getByRole("link", { name: nombre })).toBeTruthy();
+    }
+  });
+
+  test("en el celular, «Tutor» es una sección con título", () => {
+    usuario = { id: 2, nombre: "Luis", id_rol: ROL.TUTOR };
+    montarBarra();
+    fireEvent.click(screen.getByRole("button", { name: "Abrir menú" }));
+    expect(within(screen.getByRole("group", { name: "Tutor" })).getByRole("link", { name: "Agenda de tutorías" })).toBeTruthy();
+    expect(screen.queryByRole("group", { name: "Administración" })).toBeNull();
+  });
+
+  test("el desplegable se marca activo en las pantallas del tutor", () => {
+    usuario = { id: 2, nombre: "Luis", id_rol: ROL.TUTOR };
+    montarBarra("/tutor/horario");
+    expect(screen.getByRole("button", { name: "Tutor" }).className).toContain("bg-barra-texto/10");
   });
 });
 

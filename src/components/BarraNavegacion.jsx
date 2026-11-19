@@ -6,7 +6,7 @@ import Campanita from "./Campanita.jsx";
 import { useCierreExterno } from "../utils/useCierreExterno.js";
 import { NOMBRE_ROL, ROL } from "../utils/constantes.js";
 
-// Enlaces del panel del tutor: el tutor los ve sueltos y el administrador, agrupados en «Tutor»
+// Enlaces del panel del tutor: el tutor y el administrador los ven agrupados en el desplegable «Tutor»
 const ENLACES_TUTOR = [
   { a: "/tutor/tutorias", texto: "Mis tutorías" },
   { a: "/tutor/horario", texto: "Mi horario" },
@@ -25,17 +25,19 @@ const ENLACES = {
     { a: "/solicitudes", texto: "Pedir tutoría" },
     { a: "/perfil", texto: "Mi perfil" },
   ],
-  // El tutor también reserva tutorías de otros, por eso tiene "Mi agenda" además de su panel
+  // El tutor también reserva y pide tutorías como estudiante (mismos enlaces sueltos) y su panel va en «Tutor»
   [ROL.TUTOR]: [
     { a: "/tutorias", texto: "Tutorías" },
-    ...ENLACES_TUTOR,
     { a: "/mis-reservas", texto: "Mi agenda" },
+    { a: "/solicitudes", texto: "Pedir tutoría" },
+    { grupo: "Tutor", base: "/tutor", enlaces: ENLACES_TUTOR },
   ],
   // El administrador es superusuario: reserva como estudiante, ofrece tutorías como tutor y además
   // gestiona los catálogos. Sus menús van agrupados para que quepan.
   [ROL.ADMINISTRADOR]: [
     { a: "/tutorias", texto: "Tutorías" },
     { a: "/mis-reservas", texto: "Mi agenda" },
+    { a: "/solicitudes", texto: "Pedir tutoría" },
     { grupo: "Tutor", base: "/tutor", enlaces: ENLACES_TUTOR },
     {
       grupo: "Administración",
@@ -50,9 +52,10 @@ const ENLACES = {
   ],
 };
 
-// whitespace-nowrap: un enlace nunca se parte en dos líneas; si no caben, se usa el menú (ver xl abajo)
-// Desde qué ancho cabe el menú de escritorio. El del tutor (6 enlaces) necesita ~1100 px: con lg
-// (1024) los enlaces se apretaban; por debajo de xl (1280) usa el menú de hamburguesa.
+// whitespace-nowrap: un enlace nunca se parte en dos líneas; si no caben, se usa el menú de hamburguesa.
+// Desde qué ancho cabe el menú de escritorio (medido): estudiante y tutor (4 elementos, el panel del tutor va en
+// un desplegable) caben desde lg (1024). El administrador (5, con dos desplegables) a 1024 aprieta el logo,
+// así que usa xl (1280).
 // Clases completas (no armadas por partes) para que Tailwind las encuentre.
 const DISTRIBUCION = {
   lg: { nav: "hidden flex-1 items-center gap-1 lg:flex", cuenta: "hidden items-center gap-2 lg:flex", soloMovil: "lg:hidden" },
@@ -110,7 +113,7 @@ export default function BarraNavegacion() {
   const botonMenu = useRef(null);
 
   const enlaces = ENLACES[usuario?.id_rol ?? "invitado"] ?? ENLACES.invitado;
-  const d = DISTRIBUCION[usuario?.id_rol === ROL.TUTOR ? "xl" : "lg"];
+  const d = DISTRIBUCION[usuario?.id_rol === ROL.ADMINISTRADOR ? "xl" : "lg"];
   const cerrarMenu = () => setMenuAbierto(false);
   // Menú del celular: se cierra con Escape (el foco vuelve al botón) o con un clic fuera de la barra
   useCierreExterno(menuAbierto, cerrarMenu, [barra], botonMenu);

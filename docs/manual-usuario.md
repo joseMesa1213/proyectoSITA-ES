@@ -52,7 +52,7 @@ En el catálogo pulse **¿No la encuentra? Pida una tutoría** (o **Pedir tutor�
 
 1. Si no lo pidió al registrarse, entre a **Mi perfil** y pulse **Solicitar ser tutor**.
 2. Un administrador revisa la solicitud. Su estado (pendiente, aprobada o rechazada con la observación) se ve en *Mi perfil*. Si fue rechazada, puede volver a solicitar.
-3. Al aprobarse, la barra superior muestra las opciones de tutor. Sigue pudiendo reservar tutorías de otros.
+3. Al aprobarse, la barra superior muestra el menú **Tutor** (Mis tutorías, Mi horario, Agenda de tutorías y Mis materias). Sigue pudiendo reservar y pedir tutorías de otros desde **Mi agenda** y **Pedir tutoría**.
 
 ---
 

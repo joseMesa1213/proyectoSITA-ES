@@ -88,6 +88,9 @@ Configuración:
   (`utils/constantes.js`) lo incluyen, igual que `autorizar` en el backend. En la barra, sus menús van agrupados en los
   desplegables **Tutor** y **Administración** (en el celular, secciones con título). El asistente le ofrece las
   intenciones del tutor, menos «ser tutor» y «estado de mi solicitud».
+- **Menú del tutor:** lo de estudiante va suelto (Tutorías, Mi agenda, Pedir tutoría) y su panel en el desplegable
+  **Tutor** (`components/BarraNavegacion.jsx`, mismo componente que el admin). Así cabe desde 1024 px; el admin, con dos
+  desplegables, usa el menú de escritorio desde 1280 px (por debajo, el de hamburguesa).
 - `SoloInvitados` (Login y Completa tu registro) solo redirige a quien entra con la sesión ya iniciada; si la persona inicia sesión
   o se registra ahí mismo, la página decide a dónde ir (por ejemplo, a *Mi perfil*).
 
