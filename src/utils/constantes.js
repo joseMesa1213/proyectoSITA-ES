@@ -14,8 +14,13 @@ export const NOMBRE_ROL = Object.freeze({
   [ROL.ADMINISTRADOR]: "Administrador",
 });
 
-// Roles que pueden reservar (el administrador no reserva)
-export const ROLES_QUE_RESERVAN = [ROL.ESTUDIANTE, ROL.TUTOR];
+// El administrador es superusuario: además de gestionar, puede hacer todo lo de un estudiante y un tutor
+// (igual que en el backend, donde `autorizar` siempre lo deja pasar).
+// Roles que pueden reservar
+export const ROLES_QUE_RESERVAN = [ROL.ESTUDIANTE, ROL.TUTOR, ROL.ADMINISTRADOR];
+// Roles que pueden ofrecer tutorías (panel del tutor)
+export const ROLES_QUE_ENSENAN = [ROL.TUTOR, ROL.ADMINISTRADOR];
+export const puedeEnsenar = (usuario) => ROLES_QUE_ENSENAN.includes(usuario?.id_rol);
 
 export const ESTADO = Object.freeze({
   ACTIVO: 1,

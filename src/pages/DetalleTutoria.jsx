@@ -8,7 +8,7 @@ import BotonCompartir from "../components/BotonCompartir.jsx";
 import Cargando from "../components/Cargando.jsx";
 import Estrellas from "../components/Estrellas.jsx";
 import { InsigniaModalidad, InsigniaNivel } from "../components/Insignias.jsx";
-import { ESTADO, ROLES_QUE_RESERVAN } from "../utils/constantes.js";
+import { ESTADO } from "../utils/constantes.js";
 import { formatearMarcaDeTiempo } from "../utils/fechas.js";
 import { useTituloPagina } from "../utils/titulos.js";
 
@@ -120,9 +120,6 @@ function AccionReservar({ tutoria }) {
         </Link>
       </>
     );
-  }
-  if (!ROLES_QUE_RESERVAN.includes(usuario.id_rol)) {
-    return <Aviso>Los administradores no realizan reservas.</Aviso>;
   }
   return (
     <>

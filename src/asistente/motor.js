@@ -1,6 +1,6 @@
 import { listarMaterias } from "../api/materias.js";
 import { listarTutorias } from "../api/tutorias.js";
-import { ROL, ROLES_QUE_RESERVAN } from "../utils/constantes.js";
+import { ROLES_QUE_RESERVAN, puedeEnsenar } from "../utils/constantes.js";
 import { diaDeLaSemana, horaActual } from "../utils/fechas.js";
 import { intencionesDe } from "./intenciones.js";
 import { clasificar } from "./clasificador.js";
@@ -125,9 +125,9 @@ async function tutoriasDeMaterias(materias, filtros, usuario) {
   const deQue = materias ? ` de ${materias.map((m) => m.nombre).join(", ")}` : "";
 
   if (encontradas.length === 0) {
-    const sugerirPublicar = usuario?.id_rol === ROL.TUTOR && materias && !hayFiltros(filtros);
+    const sugerirPublicar = puedeEnsenar(usuario) && materias && !hayFiltros(filtros);
     // Cierra el ciclo: si no hay, se puede pedir (y los tutores de esa materia reciben un aviso).
-    // Visitantes también (los lleva a iniciar sesión); el administrador no pide tutorías.
+    // Visitantes también (los lleva a iniciar sesión); el administrador, como superusuario, también puede pedirlas.
     const puedePedir = !usuario || ROLES_QUE_RESERVAN.includes(usuario.id_rol);
     const pedir = materias?.length === 1
       ? { a: `/solicitudes?id_materia=${materias[0].id}`, texto: `Pedir una tutoría de ${materias[0].nombre}` }

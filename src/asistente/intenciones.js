@@ -2,7 +2,7 @@ import { listarMisReservas, listarReservasRecibidas } from "../api/reservas.js";
 import { listarSolicitudes, obtenerMiSolicitud } from "../api/solicitudes.js";
 import { listarMisSolicitudesTutoria, listarSolicitudesParaMi } from "../api/solicitudesTutoria.js";
 import { obtenerEstadisticas } from "../api/estadisticas.js";
-import { ESTADO, ESTADO_SOLICITUD_TUTORIA, MAXIMO_SOLICITUDES_ABIERTAS, ROL } from "../utils/constantes.js";
+import { ESTADO, ESTADO_SOLICITUD_TUTORIA, MAXIMO_SOLICITUDES_ABIERTAS, ROL, ROLES_QUE_RESERVAN, puedeEnsenar } from "../utils/constantes.js";
 import { diaDeLaSemana, formatearFechaCorta, hoy } from "../utils/fechas.js";
 import { contarReservas, reservasActivasFuturas } from "../utils/reservas.js";
 
@@ -21,7 +21,7 @@ import { contarReservas, reservasActivasFuturas } from "../utils/reservas.js";
 // El asistente solo orienta: las acciones (reservar, cancelar, calificar) se hacen en sus pantallas.
 
 export const INVITADO = "invitado";
-const QUIENES_RESERVAN = [ROL.ESTUDIANTE, ROL.TUTOR];
+const QUIENES_RESERVAN = ROLES_QUE_RESERVAN;
 
 // Orden por fecha y hora de inicio (las reservas llegan de la más reciente a la más antigua)
 const porFechaYHora = (a, b) =>
@@ -307,12 +307,12 @@ export const INTENCIONES = [
       texto:
         "Cada tutoría virtual tiene su propia sala de Jitsi Meet (la misma para todos sus horarios).\n" +
         "• Estudiante: el enlace aparece en «Mi agenda», en su reserva.\n" +
-        (usuario?.id_rol === ROL.TUTOR ? "• Tutor: lo ve en «Mis tutorías» → «Editar y horarios».\n" : "") +
+        (puedeEnsenar(usuario) ? "• Tutor: lo ve en «Mis tutorías» → «Editar y horarios».\n" : "") +
         "Quien abre la sala primero debe iniciar sesión en Jitsi (por ejemplo, con Google); los demás entran solo con el enlace. " +
         "Por eso conviene que el tutor entre unos minutos antes.",
       enlaces: [
         { a: "/mis-reservas", texto: "Ir a Mi agenda" },
-        ...(usuario?.id_rol === ROL.TUTOR ? [{ a: "/tutor/tutorias", texto: "Mis tutorías" }] : []),
+        ...(puedeEnsenar(usuario) ? [{ a: "/tutor/tutorias", texto: "Mis tutorías" }] : []),
       ],
     }),
   },
@@ -325,13 +325,13 @@ export const INTENCIONES = [
       texto:
         "En «Mi agenda», cada reserva tiene «Agregar al calendario»: Google Calendar o un archivo .ics (Outlook, Apple), " +
         "con un recordatorio 30 minutos antes." +
-        (usuario?.id_rol === ROL.TUTOR
+        (puedeEnsenar(usuario)
           ? " Como tutor, también puede agregar cada sesión desde «Agenda de tutorías», o llevar todo su horario semanal " +
             "con «Exportar horario (.ics)» en «Mi horario»."
           : ""),
       enlaces: [
         { a: "/mis-reservas", texto: "Ir a Mi agenda" },
-        ...(usuario?.id_rol === ROL.TUTOR ? [{ a: "/tutor/horario", texto: "Mi horario" }] : []),
+        ...(puedeEnsenar(usuario) ? [{ a: "/tutor/horario", texto: "Mi horario" }] : []),
       ],
     }),
   },
@@ -344,7 +344,7 @@ export const INTENCIONES = [
       texto:
         "La campana de arriba muestra cuántos avisos tiene sin leer. " +
         (usuario?.id_rol === ROL.ADMINISTRADOR
-          ? "Le avisa de cada solicitud nueva para ser tutor."
+          ? "Le avisa de cada solicitud nueva para ser tutor y, como en cualquier cuenta, de lo que pase con sus reservas y sus tutorías."
           : "Le avisa cuando reservan o cancelan en sus tutorías (tutor), cuando cancelan su reserva, cuando una sesión " +
             "se completa y ya puede valorarla, y cuando responden sus solicitudes.") +
         " Al pulsar un aviso se marca como leído y lo lleva a la pantalla correspondiente. Los leídos se borran a los 30 días.",
@@ -353,6 +353,7 @@ export const INTENCIONES = [
   {
     id: "estado-solicitud",
     roles: [ROL.ESTUDIANTE, ROL.TUTOR],
+    sinAdministrador: true,
     frases: ["estado de mi solicitud", "mi solicitud de tutor", "ya me aprobaron", "cuando me aprueban como tutor",
       "por que me rechazaron", "solicitud rechazada"],
     async responder(usuario) {
@@ -619,8 +620,14 @@ INTENCIONES.push({
   },
 });
 
-// Intenciones que puede usar el usuario actual (null = visitante)
+// Intenciones que puede usar el usuario actual (null = visitante).
+// El administrador es superusuario: también usa las del tutor (y por tanto las del estudiante que
+// reserva). Se excluyen las que solo tienen sentido para quien aún no es tutor (ser tutor, estado de
+// la solicitud), que se marcan con «sinAdministrador».
 export const intencionesDe = (usuario) => {
   const rol = usuario?.id_rol ?? INVITADO;
+  if (rol === ROL.ADMINISTRADOR) {
+    return INTENCIONES.filter((i) => !i.roles || i.roles.includes(rol) || (i.roles.includes(ROL.TUTOR) && !i.sinAdministrador));
+  }
   return INTENCIONES.filter((i) => !i.roles || i.roles.includes(rol));
 };

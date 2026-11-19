@@ -43,19 +43,19 @@ export default function App() {
           <Route path="registro/google" element={<CompletarRegistroGoogle />} />
         </Route>
 
-        {/* Quienes reservan: Estudiante y Tutor (el administrador no) */}
         {/* Cualquier usuario con sesión */}
         <Route element={<RutaProtegida />}>
           <Route path="perfil" element={<Perfil />} />
         </Route>
 
+        {/* Quienes reservan: Estudiante, Tutor y Administrador */}
         <Route element={<RutaProtegida roles={ROLES_QUE_RESERVAN} />}>
           <Route path="tutorias/:id/reservar" element={<Reservar />} />
           <Route path="mis-reservas" element={<MisReservas />} />
           <Route path="solicitudes" element={<PedirTutoria />} />
         </Route>
 
-        {/* Panel del tutor */}
+        {/* Panel del tutor (el administrador también entra: RutaProtegida siempre lo deja pasar) */}
         <Route path="tutor" element={<RutaProtegida roles={[ROL.TUTOR]} />}>
           <Route index element={<Navigate to="tutorias" replace />} />
           <Route path="materias" element={<MisMaterias />} />

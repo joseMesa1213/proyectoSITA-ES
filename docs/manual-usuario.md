@@ -82,6 +82,8 @@ Si desactiva un horario o una tutoría, se cancelan las reservas de las sesiones
 
 ## 6. Administrar (administrador)
 
+El administrador también puede hacer todo lo de un estudiante y un tutor con su misma cuenta (reservar, pedir tutorías, asociarse a materias y publicar tutorías). En la barra, esas opciones están en los menús **Tutor** y **Administración**.
+
 - **Materias:** crear y editar las materias del catálogo.
 - **Recursos:** crear salones físicos y enlaces virtuales con su capacidad, o desactivarlos (no se puede si tienen horarios activos).
 - **Solicitudes:** en *Pendientes*, **Aprobar** o **Rechazar** (con una observación) a quien quiere ser tutor. *Historial* muestra las revisadas.
