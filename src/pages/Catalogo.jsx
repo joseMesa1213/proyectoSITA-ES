@@ -69,7 +69,7 @@ export default function Catalogo() {
   const dias = [...opciones.dias.slice(1), ...opciones.dias.slice(0, 1)];
 
   const hayFiltros = Boolean(id_materia || nivel || modalidad || dia);
-  // "Pedir una tutoría": visitantes (los lleva a iniciar sesión), estudiantes y tutores; el administrador no
+  // "Pedir una tutoría": visitantes (los lleva a iniciar sesión) y quienes reservan (también el administrador)
   const puedePedir = !usuario || ROLES_QUE_RESERVAN.includes(usuario.id_rol);
   const enlacePedir = `/solicitudes${id_materia ? `?id_materia=${id_materia}` : ""}`;
 

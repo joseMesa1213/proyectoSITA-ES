@@ -29,9 +29,9 @@ describe("búsqueda sin resultados: ofrece pedir la tutoría", () => {
     expect(r.enlaces[0]).toEqual({ a: "/solicitudes?id_materia=9", texto: "Pedir una tutoría de Química General" });
   });
 
-  test("visitante también (lo llevará a iniciar sesión); el administrador no", async () => {
+  test("visitante también (lo llevará a iniciar sesión) y el administrador (superusuario)", async () => {
     expect(destinos(await responder("química general", null))).toContain("/solicitudes?id_materia=9");
-    expect(destinos(await responder("química general", ADMIN))).not.toContain("/solicitudes?id_materia=9");
+    expect(destinos(await responder("química general", ADMIN))).toContain("/solicitudes?id_materia=9");
   });
 });
 

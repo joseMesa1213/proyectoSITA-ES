@@ -84,6 +84,10 @@ Configuración:
 - **Sin volver a iniciar sesión:** el backend lee el rol de la BD en cada petición y `AuthContext.refrescarPerfil()`
   vuelve a pedir el perfil al abrir *Mi perfil* y al volver a la pestaña. Así, cuando aprueban la solicitud, el menú de
   tutor aparece solo.
+- **Administrador = superusuario:** `RutaProtegida` siempre lo deja pasar y `ROLES_QUE_RESERVAN` / `puedeEnsenar()`
+  (`utils/constantes.js`) lo incluyen, igual que `autorizar` en el backend. En la barra, sus menús van agrupados en los
+  desplegables **Tutor** y **Administración** (en el celular, secciones con título). El asistente le ofrece las
+  intenciones del tutor, menos «ser tutor» y «estado de mi solicitud».
 - `SoloInvitados` (Login y Completa tu registro) solo redirige a quien entra con la sesión ya iniciada; si la persona inicia sesión
   o se registra ahí mismo, la página decide a dónde ir (por ejemplo, a *Mi perfil*).
 

@@ -10,6 +10,12 @@ import { ESTADO, NOMBRE_ROL, ROL } from "../utils/constantes.js";
 import { formatearMarcaDeTiempo } from "../utils/fechas.js";
 
 // "Mi perfil": datos de la cuenta y, para estudiantes, la solicitud para ser tutor (pedirla y ver su estado).
+const PUEDE = {
+  [ROL.ESTUDIANTE]: "Buscar y reservar tutorías (estudiante)",
+  [ROL.TUTOR]: "Reservar tutorías y ofrecer tutorías (estudiante y tutor)",
+  [ROL.ADMINISTRADOR]: "Todo lo de un estudiante y un tutor, y además administrar la plataforma",
+};
+
 export default function Perfil() {
   const { usuario, refrescarPerfil } = useAuth();
   // Aviso que llega desde el registro ("su solicitud quedó en revisión")
@@ -44,8 +50,7 @@ export default function Perfil() {
           {fila("Celular", usuario.celular)}
           {fila("Programa", usuario.estudiante?.nombre_programa)}
           {fila("Semestre", usuario.estudiante?.semestre)}
-          {fila("Puede", usuario.id_rol === ROL.TUTOR ? "Reservar tutorías y ofrecer tutorías (estudiante y tutor)"
-            : usuario.id_rol === ROL.ESTUDIANTE ? "Buscar y reservar tutorías (estudiante)" : NOMBRE_ROL[usuario.id_rol])}
+          {fila("Puede", PUEDE[usuario.id_rol] ?? NOMBRE_ROL[usuario.id_rol])}
         </dl>
       </section>
 
