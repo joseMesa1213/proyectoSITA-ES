@@ -78,6 +78,8 @@ const CASOS = {
     ["estudiante", "no me deja reservar", { intencion: "no-pude-reservar" }],
     ["tutor", "quien viene hoy", { intencion: "agenda-hoy" }],
     ["tutor", "como publico una tutoria", { intencion: "publicar-tutoria" }],
+    ["tutor", "un estudiante no asistió", { intencion: "completar-sesion" }],
+    ["tutor", "ver las valoraciones de mi sesión", { intencion: "completar-sesion" }],
     ["tutor", "cambiar cupo", { intencion: "inactivar-tutoria" }],
     ["admin", "crear materia", { intencion: "admin-materias" }],
     ["invitado", "hola", { intencion: "saludo" }],

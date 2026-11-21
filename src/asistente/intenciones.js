@@ -486,12 +486,13 @@ export const INTENCIONES = [
   {
     id: "completar-sesion",
     roles: [ROL.TUTOR],
-    frases: ["completar sesion", "marcar completada", "como completo una reserva", "no me deja completar"],
+    frases: ["completar sesion", "marcar completada", "como completo una reserva", "no me deja completar", "no asistio", "marcar inasistencia", "valoraciones de mi sesion"],
     respuesta: {
       texto:
-        "En «Agenda de tutorías», pestaña «Por completar», marque la sesión como completada (solo cuando ya terminó); así " +
-        "sus estudiantes pueden calificarla. Si no lo hace, se completa sola 24 horas después: si alguien no asistió, " +
-        "cancele su reserva antes de ese plazo.",
+        "En «Agenda de tutorías», pestaña «Por completar», use «Completar sesión» (solo cuando ya terminó) y desmarque a " +
+        "quien no asistió: quienes asistieron pueden calificarla y a los demás se les avisa la inasistencia. Si no lo " +
+        "hace, se completa sola 24 horas después con todos como asistentes. En el «Historial» verá la asistencia y las " +
+        "valoraciones de cada sesión.",
       enlaces: [{ a: "/tutor/reservas", texto: "Ir a Agenda de tutorías" }],
     },
   },

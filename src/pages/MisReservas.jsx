@@ -11,7 +11,7 @@ import EstadoVacio from "../components/EstadoVacio.jsx";
 import { InsigniaEstado } from "../components/Insignias.jsx";
 import BotonCalendario from "../components/BotonCalendario.jsx";
 import { lugarDeRecurso } from "../utils/calendario.js";
-import { sesionTermino, textoAutocompletado } from "../utils/reservas.js";
+import { nombreEstadoReserva, sesionTermino, textoAutocompletado } from "../utils/reservas.js";
 import { ESTADO } from "../utils/constantes.js";
 import { formatearFecha } from "../utils/fechas.js";
 
@@ -124,7 +124,7 @@ function TarjetaReserva({ reserva, onActualizada }) {
           </Link>
           <p className="text-sm text-texto-suave">con {tutoria.tutor.nombre} {tutoria.tutor.apellido}</p>
         </div>
-        <InsigniaEstado idEstado={reserva.id_estado} nombre={reserva.estado} />
+        <InsigniaEstado idEstado={reserva.id_estado} nombre={nombreEstadoReserva(reserva)} />
       </div>
 
       <div className="grid gap-2 rounded-control bg-superficie-hundida px-4 py-3 text-sm sm:grid-cols-3">
