@@ -9,10 +9,12 @@ import EstadoVacio from "../../components/EstadoVacio.jsx";
 import { EsqueletoLista } from "../../components/Esqueletos.jsx";
 import { InsigniaEstado } from "../../components/Insignias.jsx";
 import BotonCalendario from "../../components/BotonCalendario.jsx";
+import Estrellas from "../../components/Estrellas.jsx";
+import PaseDeLista from "../../components/PaseDeLista.jsx";
 import { lugarDeRecurso } from "../../utils/calendario.js";
 import { ESTADO } from "../../utils/constantes.js";
 import { formatearFecha } from "../../utils/fechas.js";
-import { sesionTermino, textoAutocompletado } from "../../utils/reservas.js";
+import { nombreEstadoReserva, resumenSesion, sesionTermino, textoAutocompletado } from "../../utils/reservas.js";
 
 // Pestañas: cada una decide qué reservas muestra y en qué orden van las sesiones
 const PESTANAS = [
@@ -116,8 +118,8 @@ export default function AgendaTutorias() {
       <Alerta error={error} />
       {pestana === "por-completar" && (
         <p className="rounded-control border border-borde bg-superficie px-4 py-3 text-sm text-texto-suave">
-          Las sesiones que no marque se completan solas 24 horas después de terminar, para que los estudiantes
-          puedan valorarlas. Si alguien no asistió, cancele su reserva antes de ese plazo.
+          Use «Completar sesión» y desmarque a quien no asistió. Las sesiones que no marque se completan solas
+          24 horas después de terminar (con todos como asistentes), para que los estudiantes puedan valorarlas.
         </p>
       )}
 
@@ -150,9 +152,34 @@ export default function AgendaTutorias() {
 }
 
 function TarjetaSesion({ sesion, cupo, ocupados, onActualizada }) {
+  const avisos = useAvisos();
   const { fecha, horario, tutoria, reservas } = sesion;
   const termino = sesionTermino(fecha, horario.hora_fin);
   const activas = reservas.filter((r) => r.id_estado === ESTADO.ACTIVO);
+  const [paseAbierto, setPaseAbierto] = useState(false);
+  const [procesando, setProcesando] = useState(false);
+
+  // Pase de lista: completa a quienes asistieron y cancela (inasistencia) al resto, cada reserva por su cuenta.
+  // Si alguna falla (p. ej. el estudiante canceló justo antes), las demás quedan hechas y se avisa cuántas fallaron.
+  const completarSesion = async ({ asistieron, faltaron }) => {
+    setPaseAbierto(false);
+    setProcesando(true);
+    const resultados = await Promise.allSettled([
+      ...asistieron.map((id) => completarReserva(id)),
+      ...faltaron.map((id) => cancelarReserva(id)),
+    ]);
+    resultados.forEach((r) => r.status === "fulfilled" && onActualizada(r.value));
+    const fallidos = resultados.filter((r) => r.status === "rejected");
+    if (fallidos.length === 0) {
+      avisos.exito(
+        `Sesión completada: ${asistieron.length} ${asistieron.length === 1 ? "asistente" : "asistentes"}` +
+          (faltaron.length ? `, ${faltaron.length} no ${faltaron.length === 1 ? "asistió" : "asistieron"}.` : ".")
+      );
+    } else {
+      avisos.error(`No se pudieron actualizar ${fallidos.length} de ${resultados.length} reservas: ${fallidos[0].reason.message}`);
+    }
+    setProcesando(false);
+  };
 
   return (
     <li className="tarjeta space-y-3">
@@ -166,6 +193,12 @@ function TarjetaSesion({ sesion, cupo, ocupados, onActualizada }) {
           )}
         </div>
         <div className="flex flex-wrap items-center gap-2">
+          {termino && activas.length > 0 && (
+            <button type="button" className="btn-primario" disabled={procesando} aria-busy={procesando}
+              onClick={() => setPaseAbierto(true)}>
+              {procesando ? "Completando..." : "Completar sesión"}
+            </button>
+          )}
           {cupo !== undefined && (
             <span className={`insignia ${ocupados >= cupo ? "bg-acento text-sobre-acento" : "bg-texto/5 text-texto"}`}>
               {ocupados}/{cupo} cupos ocupados
@@ -186,12 +219,38 @@ function TarjetaSesion({ sesion, cupo, ocupados, onActualizada }) {
         </div>
       </div>
 
+      {termino && <ResumenSesion reservas={reservas} />}
+
       <ul className="divide-y divide-borde border-t border-borde">
         {reservas.map((r) => (
           <FilaReserva key={r.id} reserva={r} termino={termino} onActualizada={onActualizada} />
         ))}
       </ul>
+
+      {paseAbierto && <PaseDeLista titulo={tutoria.titulo}
+        subtitulo={`${formatearFecha(fecha)} · ${horario.hora_inicio} – ${horario.hora_fin}`}
+        estudiantes={activas.map((r) => ({ id: r.id, nombre: `${r.estudiante.nombre} ${r.estudiante.apellido}` }))}
+        onConfirmar={completarSesion} onCerrar={() => setPaseAbierto(false)} />}
     </li>
+  );
+}
+
+// "Asistieron 5 de 6 · Valoraron 3 · Promedio ★ 4,3" (solo si alguien ya fue marcado)
+function ResumenSesion({ reservas }) {
+  const { esperados, asistieron, valoraron, promedio } = resumenSesion(reservas);
+  if (esperados === 0) return null;
+  return (
+    <p className="flex flex-wrap items-center gap-x-4 gap-y-1 rounded-control bg-superficie-hundida px-4 py-2 text-sm">
+      <span><span className="text-texto-suave">Asistieron </span><span className="font-medium">{asistieron} de {esperados}</span></span>
+      <span><span className="text-texto-suave">Valoraron </span><span className="font-medium">{valoraron}</span></span>
+      {promedio !== null && (
+        <span className="inline-flex items-center gap-1.5">
+          <span className="text-texto-suave">Promedio</span>
+          <Estrellas valor={promedio} tamano="text-base" />
+          <span className="font-medium">{promedio.toLocaleString("es-CO")}</span>
+        </span>
+      )}
+    </p>
   );
 }
 
@@ -227,9 +286,10 @@ function FilaReserva({ reserva, termino, onActualizada }) {
             <a href={`mailto:${estudiante.correo}`} className="underline decoration-borde-fuerte underline-offset-2">{estudiante.correo}</a>
           </p>
           <p className="text-sm text-texto-suave">{recurso.nombre}</p>
+          {reserva.id_estado === ESTADO.COMPLETADO && <ValoracionRecibida valoracion={reserva.valoracion} />}
         </div>
         <div className="flex flex-wrap items-center gap-2 sm:justify-end">
-          {!activa && <InsigniaEstado idEstado={reserva.id_estado} nombre={reserva.estado} />}
+          {!activa && <InsigniaEstado idEstado={reserva.id_estado} nombre={nombreEstadoReserva(reserva)} />}
           {activa && termino && (
             <button type="button" className="btn-primario flex-1 px-3 py-1.5 sm:flex-none sm:py-1" disabled={procesando}
               onClick={() => ejecutar(completarReserva, {
@@ -240,7 +300,20 @@ function FilaReserva({ reserva, termino, onActualizada }) {
               Completar
             </button>
           )}
-          {activa && (
+          {/* Después de la sesión, cancelar es registrar una inasistencia (el backend lo marca así) */}
+          {activa && termino && (
+            <button type="button" className="btn-peligro flex-1 px-3 py-1.5 sm:flex-none sm:py-1" disabled={procesando}
+              onClick={() => ejecutar(cancelarReserva, {
+                titulo: "Registrar inasistencia",
+                mensaje: `¿Marcar que ${nombre} no asistió? No podrá valorar la sesión y se le avisará.`,
+                textoConfirmar: "Sí, no asistió",
+                textoCancelar: "Volver",
+                peligro: true,
+              }, `Inasistencia de ${nombre} registrada.`)}>
+              No asistió
+            </button>
+          )}
+          {activa && !termino && (
             <button type="button" className="btn-peligro flex-1 px-3 py-1.5 sm:flex-none sm:py-1" disabled={procesando}
               onClick={() => ejecutar(cancelarReserva, {
                 titulo: "Cancelar reserva",
@@ -256,5 +329,16 @@ function FilaReserva({ reserva, termino, onActualizada }) {
         </div>
       </div>
     </li>
+  );
+}
+
+// Lo que el estudiante opinó de la sesión: estrellas y comentario, o "Sin valorar"
+function ValoracionRecibida({ valoracion }) {
+  if (!valoracion) return <p className="mt-1 text-sm text-texto-suave">Sin valorar todavía</p>;
+  return (
+    <div className="mt-1 space-y-0.5 text-sm">
+      <Estrellas valor={valoracion.calificacion} tamano="text-base" />
+      {valoracion.comentario && <p className="break-words text-texto-suave italic">«{valoracion.comentario}»</p>}
+    </div>
   );
 }
